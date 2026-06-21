@@ -1,0 +1,86 @@
+<?php
+
+use App\Http\Controllers\AccountingController;
+use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\CustomerPaymentController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\InventoryItemController;
+use App\Http\Controllers\InventoryMovementController;
+use App\Http\Controllers\LocaleController;
+use App\Http\Controllers\MarbleShipmentController;
+use App\Http\Controllers\PayrollPaymentController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\SankariStoneSaleController;
+use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Route;
+
+Route::redirect('/', '/dashboard');
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::post('/locale', [LocaleController::class, 'update'])->name('locale.update');
+
+    Route::resource('customers', CustomerController::class);
+
+    Route::resource('shipments', MarbleShipmentController::class)
+        ->parameters(['shipments' => 'shipment']);
+
+    Route::resource('payments', CustomerPaymentController::class)
+        ->parameters(['payments' => 'payment']);
+
+    Route::resource('sankari', SankariStoneSaleController::class)
+        ->parameters(['sankari' => 'sankari']);
+
+    Route::resource('expenses', ExpenseController::class);
+
+    Route::resource('employees', EmployeeController::class);
+
+    Route::resource('payroll', PayrollPaymentController::class)
+        ->parameters(['payroll' => 'payroll']);
+
+    Route::resource('inventory', InventoryItemController::class)
+        ->parameters(['inventory' => 'inventoryItem']);
+
+    Route::prefix('inventory/{inventoryItem}/movements')->name('inventory.movements.')->group(function () {
+        Route::get('/', [InventoryMovementController::class, 'index'])->name('index');
+        Route::get('/create', [InventoryMovementController::class, 'create'])->name('create');
+        Route::post('/', [InventoryMovementController::class, 'store'])->name('store');
+    });
+
+    Route::resource('journal-entries', AccountingController::class)
+        ->parameters(['journal-entries' => 'journalEntry']);
+
+    Route::get('accounting/trial-balance', [AccountingController::class, 'trialBalance'])
+        ->name('accounting.trial-balance');
+
+    Route::prefix('reports')->name('reports.')->group(function () {
+        Route::get('/', [ReportController::class, 'index'])->name('index');
+        Route::get('/sales', [ReportController::class, 'sales'])->name('sales');
+        Route::get('/payments', [ReportController::class, 'payments'])->name('payments');
+        Route::get('/expenses', [ReportController::class, 'expenses'])->name('expenses');
+        Route::get('/payroll', [ReportController::class, 'payroll'])->name('payroll');
+        Route::get('/inventory', [ReportController::class, 'inventory'])->name('inventory');
+        Route::get('/customer-balances', [ReportController::class, 'customerBalances'])->name('customer-balances');
+        Route::get('/profit-loss', [ReportController::class, 'profitLoss'])->name('profit-loss');
+        Route::get('/export/{type}/excel', [ReportController::class, 'exportExcel'])->name('export.excel');
+        Route::get('/export/{type}/pdf', [ReportController::class, 'exportPdf'])->name('export.pdf');
+    });
+
+    Route::resource('users', UserController::class);
+
+    Route::resource('roles', RoleController::class);
+
+    Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
+
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+require __DIR__.'/auth.php';

@@ -1,0 +1,81 @@
+/**
+ * Global RTL support for Pashto (and other RTL locales).
+ * Works with document dir="rtl" set on <html> — mirrors physical Tailwind
+ * utilities so existing pages align correctly without per-page changes.
+ */
+
+[dir='rtl'] .text-left {
+    text-align: right;
+}
+
+[dir='rtl'] .text-right {
+    text-align: left;
+}
+
+[dir='rtl'] .float-left {
+    float: right;
+}
+
+[dir='rtl'] .float-right {
+    float: left;
+}
+
+[dir='rtl'] .ml-auto {
+    margin-left: unset;
+    margin-right: auto;
+}
+
+[dir='rtl'] .mr-auto {
+    margin-right: unset;
+    margin-left: auto;
+}
+
+/* Tailwind space-x-* uses physical margins — reverse in RTL */
+[dir='rtl'] [class*='space-x-'] > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-x-reverse: 1;
+}
+
+/* Form controls */
+[dir='rtl'] input:not([type='checkbox']):not([type='radio']):not(.input-ltr),
+[dir='rtl'] select:not(.input-ltr),
+[dir='rtl'] textarea:not(.input-ltr) {
+    text-align: right;
+}
+
+[dir='rtl'] select {
+    background-position: left 0.5rem center;
+    padding-inline-start: 2.5rem;
+    padding-inline-end: 0.75rem;
+}
+
+[dir='rtl'] label.block,
+[dir='rtl'] dt {
+    text-align: right;
+}
+
+[dir='rtl'] dd {
+    text-align: right;
+}
+
+/* Dates, numbers, and emails read LTR but align to the start edge in RTL */
+[dir='rtl'] .input-ltr,
+[dir='rtl'] input[type='email'],
+[dir='rtl'] input[type='number'],
+[dir='rtl'] .ltr-content {
+    direction: ltr;
+    text-align: right;
+    unicode-bidi: embed;
+}
+
+[dir='ltr'] .input-ltr,
+[dir='ltr'] input[type='email'],
+[dir='ltr'] input[type='number'],
+[dir='ltr'] .ltr-content {
+    direction: ltr;
+    text-align: left;
+}
+
+/* Laravel pagination labels */
+[dir='rtl'] nav[role='navigation'] {
+    direction: rtl;
+}

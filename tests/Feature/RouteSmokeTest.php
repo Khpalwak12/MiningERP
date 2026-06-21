@@ -1,0 +1,55 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class RouteSmokeTest extends TestCase
+{
+    use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->seed();
+    }
+
+    public function test_authenticated_module_routes_return_successful_inertia_responses(): void
+    {
+        $user = User::where('email', 'admin@marbleerp.local')->firstOrFail();
+
+        $routes = [
+            'dashboard',
+            'customers.index',
+            'shipments.index',
+            'payments.index',
+            'sankari.index',
+            'expenses.index',
+            'employees.index',
+            'payroll.index',
+            'inventory.index',
+            'journal-entries.index',
+            'accounting.trial-balance',
+            'reports.index',
+            'reports.sales',
+            'reports.payments',
+            'reports.expenses',
+            'reports.payroll',
+            'reports.inventory',
+            'reports.customer-balances',
+            'reports.profit-loss',
+            'users.index',
+            'roles.index',
+            'activity-logs.index',
+        ];
+
+        foreach ($routes as $name) {
+            $response = $this->actingAs($user)->get(route($name));
+
+            $response->assertSuccessful("Route {$name} failed with status {$response->status()}");
+            $response->assertInertia(fn ($page) => $page);
+        }
+    }
+}
