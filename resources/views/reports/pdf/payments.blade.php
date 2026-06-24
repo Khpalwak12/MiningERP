@@ -14,9 +14,9 @@
     <tbody>
         @foreach($rows as $row)
         <tr>
-            <td>{{ \App\Support\JalaliDate::fromGregorian($row->payment_date) }}</td>
+            <td class="numeric">{{ \App\Support\JalaliDate::fromGregorian($row->payment_date) }}</td>
             <td>{{ $row->customer?->name }}</td>
-            <td>{{ number_format($row->amount, 2) }}</td>
+            <td class="numeric">{{ number_format($row->amount, 2) }}</td>
             <td>{{ $row->receipt_number ?? '—' }}</td>
             <td>{{ $row->received_by }}</td>
         </tr>

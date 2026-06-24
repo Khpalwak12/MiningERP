@@ -14,11 +14,11 @@
     <tbody>
         @foreach($rows as $row)
         <tr>
-            <td>{{ \App\Support\JalaliDate::fromGregorian($row->expense_date) }}</td>
+            <td class="numeric">{{ \App\Support\JalaliDate::fromGregorian($row->expense_date) }}</td>
             <td>{{ $row->category?->localized_name }}</td>
             <td>{{ $row->subcategory ?? '—' }}</td>
             <td>{{ $row->bill_number ?? '—' }}</td>
-            <td>{{ number_format($row->amount, 2) }}</td>
+            <td class="numeric">{{ number_format($row->amount, 2) }}</td>
         </tr>
         @endforeach
     </tbody>

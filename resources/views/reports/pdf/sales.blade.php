@@ -15,11 +15,11 @@
     <tbody>
         @foreach($rows as $row)
         <tr>
-            <td>{{ \App\Support\JalaliDate::fromGregorian($row->shipment_date) }}</td>
+            <td class="numeric">{{ \App\Support\JalaliDate::fromGregorian($row->shipment_date) }}</td>
             <td>{{ $row->customer?->name }}</td>
-            <td>{{ $row->quantity_ton !== null ? number_format($row->quantity_ton, 3) : '—' }}</td>
-            <td>{{ $row->price_per_ton !== null ? number_format($row->price_per_ton, 2) : '—' }}</td>
-            <td>{{ $row->total_amount !== null ? number_format($row->total_amount, 2) : '—' }}</td>
+            <td class="numeric">{{ $row->quantity_ton !== null ? number_format($row->quantity_ton, 3) : '—' }}</td>
+            <td class="numeric">{{ $row->price_per_ton !== null ? number_format($row->price_per_ton, 2) : '—' }}</td>
+            <td class="numeric">{{ $row->total_amount !== null ? number_format($row->total_amount, 2) : '—' }}</td>
             <td>{{ __('erp.shipments.statuses.'.$row->status) }}</td>
         </tr>
         @endforeach

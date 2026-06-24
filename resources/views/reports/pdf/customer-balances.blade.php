@@ -14,9 +14,9 @@
         @foreach($rows as $row)
         <tr>
             <td>{{ $row->name }}</td>
-            <td>{{ number_format($row->total_sales ?? 0, 2) }}</td>
-            <td>{{ number_format($row->total_payments ?? 0, 2) }}</td>
-            <td>{{ number_format($row->outstanding_balance ?? 0, 2) }}</td>
+            <td class="numeric">{{ number_format($row->total_sales ?? 0, 2) }}</td>
+            <td class="numeric">{{ number_format($row->total_payments ?? 0, 2) }}</td>
+            <td class="numeric">{{ number_format($row->outstanding_balance ?? 0, 2) }}</td>
         </tr>
         @endforeach
     </tbody>

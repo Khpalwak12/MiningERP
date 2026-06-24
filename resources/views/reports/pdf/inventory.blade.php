@@ -15,8 +15,8 @@
         <tr>
             <td>{{ $row->name }}</td>
             <td>{{ $row->sku }}</td>
-            <td>{{ number_format($row->current_stock, 3) }}</td>
-            <td>{{ number_format($row->min_stock, 3) }}</td>
+            <td class="numeric">{{ number_format($row->current_stock, 3) }}</td>
+            <td class="numeric">{{ number_format($row->min_stock, 3) }}</td>
         </tr>
         @endforeach
     </tbody>

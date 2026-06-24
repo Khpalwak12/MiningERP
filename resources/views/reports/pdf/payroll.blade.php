@@ -19,12 +19,12 @@
         @foreach($summaries as $row)
         <tr>
             <td>{{ $row['name'] }}</td>
-            <td>{{ number_format($row['monthly_salary'], 2) }}</td>
-            <td>{{ $row['months_worked'] }}</td>
-            <td>{{ number_format($row['total_earned_salary'], 2) }}</td>
-            <td>{{ number_format($row['total_paid_salary'], 2) }}</td>
-            <td>{{ number_format($row['remaining_balance'], 2) }}</td>
-            <td>{{ number_format($row['overpaid_amount'], 2) }}</td>
+            <td class="numeric">{{ number_format($row['monthly_salary'], 2) }}</td>
+            <td class="numeric">{{ $row['months_worked'] }}</td>
+            <td class="numeric">{{ number_format($row['total_earned_salary'], 2) }}</td>
+            <td class="numeric">{{ number_format($row['total_paid_salary'], 2) }}</td>
+            <td class="numeric">{{ number_format($row['remaining_balance'], 2) }}</td>
+            <td class="numeric">{{ number_format($row['overpaid_amount'], 2) }}</td>
             <td>{{ __('erp.payroll_statuses.'.$row['payroll_status']) }}</td>
         </tr>
         @endforeach
@@ -44,9 +44,9 @@
     <tbody>
         @foreach($rows as $row)
         <tr>
-            <td>{{ \App\Support\JalaliDate::fromGregorian($row->payment_date) }}</td>
+            <td class="numeric">{{ \App\Support\JalaliDate::fromGregorian($row->payment_date) }}</td>
             <td>{{ $row->employee?->name }}</td>
-            <td>{{ number_format($row->amount, 2) }}</td>
+            <td class="numeric">{{ number_format($row->amount, 2) }}</td>
             <td>{{ $row->payment_type }}</td>
         </tr>
         @endforeach

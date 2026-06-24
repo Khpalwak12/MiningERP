@@ -15,13 +15,13 @@ use App\Models\MarbleShipment;
 use App\Models\PayrollPayment;
 use App\Models\SankariStoneSale;
 use App\Support\JalaliDate;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ReportService
 {
+    public function __construct(private MpdfPdfService $pdf) {}
     public function salesReport(array $filters = []): Collection
     {
         $query = MarbleShipment::query()->with(['customer']);
@@ -193,13 +193,15 @@ class ReportService
 
     public function exportPdf(string $reportType, array $filters, string $view, array $data): \Illuminate\Http\Response
     {
-        $pdf = Pdf::loadView($view, array_merge($data, [
+        $filename = "{$reportType}_".now()->format('Ymd_His').'.pdf';
+
+        return $this->pdf->downloadFromView($filename, $view, array_merge($data, [
             'reportType' => $reportType,
             'filters' => $filters,
             'generatedAt' => JalaliDate::fromGregorian(now()),
+            'locale' => app()->getLocale(),
+            'isRtl' => app()->getLocale() === 'ps',
         ]));
-
-        return $pdf->download("{$reportType}_".now()->format('Ymd_His').'.pdf');
     }
 
     private function applyFinancialYearFilter($query, array $filters): void
