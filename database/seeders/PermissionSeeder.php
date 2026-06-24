@@ -16,7 +16,7 @@ class PermissionSeeder extends Seeder
         $modules = [
             'dashboard', 'users', 'roles', 'customers', 'shipments', 'payments',
             'sankari', 'expenses', 'employees', 'payroll', 'inventory',
-            'accounting', 'reports', 'activity-logs', 'financial-year',
+            'accounting', 'reports', 'financial-year',
         ];
 
         $actions = ['view', 'create', 'edit', 'delete', 'export'];
