@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToFinancialYear;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class MarbleShipment extends AuditableModel
 {
+    use BelongsToFinancialYear;
     use SoftDeletes;
 
     public const STATUS_PENDING_WEIGHT = 'pending_weight';
@@ -19,7 +21,7 @@ class MarbleShipment extends AuditableModel
     public const STATUS_COMPLETED = 'completed';
 
     protected $fillable = [
-        'customer_id', 'shipment_date',
+        'financial_year_id', 'customer_id', 'shipment_date',
         'driver_name', 'quantity_ton', 'price_per_ton', 'total_amount', 'notes', 'created_by',
     ];
 

@@ -32,14 +32,18 @@ class DatabaseSeeder extends Seeder
         $modules = [
             'dashboard', 'users', 'roles', 'customers', 'shipments', 'payments',
             'sankari', 'expenses', 'employees', 'payroll', 'inventory',
-            'accounting', 'reports', 'activity-logs',
+            'accounting', 'reports', 'activity-logs', 'financial-year',
         ];
 
         $actions = ['view', 'create', 'edit', 'delete', 'export'];
 
         foreach ($modules as $module) {
-            foreach ($actions as $action) {
-                Permission::firstOrCreate(['name' => "{$module}.{$action}"]);
+            $moduleActions = $module === 'financial-year'
+                ? ['view', 'create', 'edit', 'close', 'activate']
+                : $actions;
+
+            foreach ($moduleActions as $action) {
+                Permission::findOrCreate("{$module}.{$action}");
             }
         }
     }
@@ -47,18 +51,19 @@ class DatabaseSeeder extends Seeder
     private function seedRoles(): void
     {
         $roles = [
-            'Super Admin' => Permission::all()->pluck('name')->toArray(),
+            'Super Admin' => null,
             'Accountant' => [
                 'dashboard.view', 'customers.view', 'customers.create', 'customers.edit',
                 'shipments.view', 'payments.view', 'payments.create', 'payments.edit',
                 'sankari.view', 'sankari.create', 'expenses.view', 'expenses.create', 'expenses.edit',
                 'employees.view', 'payroll.view', 'payroll.create', 'payroll.edit',
                 'accounting.view', 'accounting.create', 'reports.view', 'reports.export',
+                'financial-year.view', 'financial-year.create', 'financial-year.edit', 'financial-year.close', 'financial-year.activate',
             ],
             'Manager' => [
                 'dashboard.view', 'customers.view', 'shipments.view', 'shipments.create', 'shipments.edit',
                 'payments.view', 'sankari.view', 'expenses.view', 'employees.view', 'payroll.view',
-                'inventory.view', 'reports.view', 'reports.export',
+                'inventory.view', 'reports.view', 'reports.export', 'financial-year.view',
             ],
             'Data Entry Operator' => [
                 'dashboard.view', 'customers.view', 'customers.create', 'shipments.view', 'shipments.create',
@@ -68,9 +73,11 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($roles as $roleName => $permissions) {
-            $role = Role::firstOrCreate(['name' => $roleName]);
-            $role->syncPermissions($permissions);
+            $role = Role::findOrCreate($roleName);
+            $role->syncPermissions($permissions ?? Permission::all()->pluck('name')->toArray());
         }
+
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
     }
 
     private function seedUsers(): void

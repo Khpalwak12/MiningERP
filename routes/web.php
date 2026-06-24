@@ -6,6 +6,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomerPaymentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\FinancialYearController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\InventoryItemController;
 use App\Http\Controllers\InventoryMovementController;
@@ -25,6 +26,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::post('/locale', [LocaleController::class, 'update'])->name('locale.update');
+
+    Route::resource('financial-years', FinancialYearController::class)
+        ->parameters(['financial-years' => 'financialYear']);
+    Route::post('financial-years/{financialYear}/close', [FinancialYearController::class, 'close'])
+        ->name('financial-years.close');
+    Route::post('financial-years/{financialYear}/activate', [FinancialYearController::class, 'activate'])
+        ->name('financial-years.activate');
 
     Route::resource('customers', CustomerController::class);
 

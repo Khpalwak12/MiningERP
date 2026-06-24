@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Http\Resources\FinancialYearResource;
+use App\Services\FinancialYearService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
@@ -44,6 +46,9 @@ class HandleInertiaRequests extends Middleware
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),
             ],
+            'activeFinancialYear' => fn () => FinancialYearResource::optional(
+                app(FinancialYearService::class)->active()
+            ),
         ];
     }
 }

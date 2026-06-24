@@ -5,11 +5,13 @@ namespace App\Repositories;
 use App\Contracts\Repositories\PayrollPaymentRepositoryInterface;
 use App\Models\PayrollPayment;
 use App\Repositories\Concerns\AppliesDateAndSearchFilters;
+use App\Repositories\Concerns\AppliesFinancialYearFilter;
 use Illuminate\Database\Eloquent\Builder;
 
 class PayrollPaymentRepository extends BaseRepository implements PayrollPaymentRepositoryInterface
 {
     use AppliesDateAndSearchFilters;
+    use AppliesFinancialYearFilter;
 
     public function __construct(PayrollPayment $model)
     {
@@ -18,7 +20,7 @@ class PayrollPaymentRepository extends BaseRepository implements PayrollPaymentR
 
     public function paginate(int $perPage = 15, array $filters = []): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
-        return $this->applyFilters($this->model->newQuery()->with(['employee', 'creator']), $filters)
+        return $this->applyFilters($this->model->newQuery()->with(['employee', 'creator', 'financialYear']), $filters)
             ->latest('payment_date')
             ->paginate($perPage)
             ->withQueryString();
@@ -26,6 +28,7 @@ class PayrollPaymentRepository extends BaseRepository implements PayrollPaymentR
 
     protected function applyFilters($query, array $filters): Builder
     {
+        $this->applyFinancialYearFilter($query, $filters);
         $query = $this->applySearch($query, $filters, ['notes', 'period_month']);
 
         if (! empty($filters['employee_id'])) {

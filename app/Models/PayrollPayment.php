@@ -2,15 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToFinancialYear;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PayrollPayment extends AuditableModel
 {
+    use BelongsToFinancialYear;
     use SoftDeletes;
 
     protected $fillable = [
-        'employee_id', 'payment_date', 'amount', 'payment_type', 'period_month', 'notes', 'created_by',
+        'financial_year_id', 'employee_id', 'payment_date', 'amount', 'payment_type', 'period_month', 'notes', 'created_by',
     ];
 
     protected function casts(): array

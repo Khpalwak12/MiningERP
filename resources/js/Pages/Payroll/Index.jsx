@@ -38,8 +38,8 @@ export default function Index({ payments, filters, employees }) {
                                 <td className="px-4 py-3 font-medium">{formatCurrency(p.amount)}</td>
                                 <td className="px-4 py-3 text-right">
                                     <ActionButtons
-                                        editHref={can('payroll.edit') ? route('payroll.edit', p.id) : null}
-                                        onDelete={can('payroll.delete') ? () => router.delete(route('payroll.destroy', p.id)) : null}
+                                        editHref={can('payroll.edit') && !p.is_locked ? route('payroll.edit', p.id) : null}
+                                        onDelete={can('payroll.delete') && !p.is_locked ? () => router.delete(route('payroll.destroy', p.id)) : null}
                                     />
                                 </td>
                             </tr>

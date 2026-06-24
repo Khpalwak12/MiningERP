@@ -41,8 +41,8 @@ export default function Index({ entries, filters }) {
                                 <td className="px-4 py-3 text-right">
                                     <ActionButtons
                                         viewHref={route('journal-entries.show', e.id)}
-                                        editHref={can('accounting.edit') ? route('journal-entries.edit', e.id) : null}
-                                        onDelete={can('accounting.delete') ? () => router.delete(route('journal-entries.destroy', e.id)) : null}
+                                        editHref={can('accounting.edit') && !e.is_locked ? route('journal-entries.edit', e.id) : null}
+                                        onDelete={can('accounting.delete') && !e.is_locked ? () => router.delete(route('journal-entries.destroy', e.id)) : null}
                                     />
                                 </td>
                             </tr>

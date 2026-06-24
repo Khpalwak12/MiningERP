@@ -19,6 +19,7 @@ class PayrollPaymentResource extends JsonResource
             'payment_type' => $this->payment_type,
             'period_month' => $this->period_month,
             'notes' => $this->notes,
+            'is_locked' => $this->isInClosedFinancialYear(),
             'employee' => new EmployeeResource($this->whenLoaded('employee')),
             'creator' => new UserResource($this->whenLoaded('creator')),
             'created_at' => $this->created_at?->toISOString(),

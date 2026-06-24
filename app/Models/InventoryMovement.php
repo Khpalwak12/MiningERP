@@ -2,13 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToFinancialYear;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class InventoryMovement extends AuditableModel
 {
+    use BelongsToFinancialYear;
 
     protected $fillable = [
-        'inventory_item_id', 'movement_type', 'quantity', 'movement_date', 'reference', 'notes', 'created_by',
+        'financial_year_id', 'inventory_item_id', 'movement_type', 'quantity', 'movement_date', 'reference', 'notes', 'created_by',
     ];
 
     protected function casts(): array

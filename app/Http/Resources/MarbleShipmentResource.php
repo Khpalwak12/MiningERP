@@ -21,6 +21,7 @@ class MarbleShipmentResource extends JsonResource
             'total_amount' => $this->total_amount !== null ? (float) $this->total_amount : null,
             'status' => $this->status,
             'notes' => $this->notes,
+            'is_locked' => $this->isInClosedFinancialYear(),
             'customer' => new CustomerResource($this->whenLoaded('customer')),
             'creator' => new UserResource($this->whenLoaded('creator')),
             'created_at' => $this->created_at?->toISOString(),

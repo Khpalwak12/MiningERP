@@ -15,7 +15,7 @@ export default function Show({ sale }) {
             <FlashMessage />
             <div className="mb-6 flex items-center justify-between">
                 <h1 className="text-2xl font-bold">{t('sankari.show')} #{s.id}</h1>
-                <ActionButtons editHref={route('sankari.edit', s.id)} />
+                <ActionButtons editHref={!s.is_locked ? route('sankari.edit', s.id) : null} />
             </div>
             <div className="rounded-lg bg-white p-6 shadow text-sm">
                 <dl className="grid gap-3 sm:grid-cols-2">

@@ -2,15 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToFinancialYear;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class JournalEntry extends AuditableModel
 {
+    use BelongsToFinancialYear;
     use SoftDeletes;
 
-    protected $fillable = ['entry_date', 'reference', 'description', 'created_by'];
+    protected $fillable = ['financial_year_id', 'entry_date', 'reference', 'description', 'created_by'];
 
     protected function casts(): array
     {

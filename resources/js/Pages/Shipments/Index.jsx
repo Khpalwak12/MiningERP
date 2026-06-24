@@ -84,8 +84,8 @@ export default function Index({ shipments, filters, customers }) {
                                 <td className="px-4 py-3 text-right">
                                     <ActionButtons
                                         viewHref={route('shipments.show', s.id)}
-                                        editHref={can('shipments.edit') ? route('shipments.edit', s.id) : null}
-                                        onDelete={can('shipments.delete') ? () => router.delete(route('shipments.destroy', s.id)) : null}
+                                        editHref={can('shipments.edit') && !s.is_locked ? route('shipments.edit', s.id) : null}
+                                        onDelete={can('shipments.delete') && !s.is_locked ? () => router.delete(route('shipments.destroy', s.id)) : null}
                                     />
                                 </td>
                             </tr>

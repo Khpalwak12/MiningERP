@@ -19,6 +19,7 @@ class InventoryMovementResource extends JsonResource
             'movement_date_shamsi' => JalaliDate::fromGregorian($this->movement_date),
             'reference' => $this->reference,
             'notes' => $this->notes,
+            'is_locked' => $this->isInClosedFinancialYear(),
             'inventory_item' => new InventoryItemResource($this->whenLoaded('inventoryItem')),
             'creator' => new UserResource($this->whenLoaded('creator')),
             'created_at' => $this->created_at?->toISOString(),

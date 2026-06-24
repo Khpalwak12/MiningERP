@@ -2,15 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToFinancialYear;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Expense extends AuditableModel
 {
+    use BelongsToFinancialYear;
     use SoftDeletes;
 
     protected $fillable = [
-        'expense_category_id', 'subcategory', 'bill_number', 'expense_date',
+        'financial_year_id', 'expense_category_id', 'subcategory', 'bill_number', 'expense_date',
         'amount', 'description', 'attachment', 'created_by',
     ];
 

@@ -16,7 +16,7 @@ export default function Show({ entry }) {
             <FlashMessage />
             <div className="mb-6 flex items-center justify-between">
                 <h1 className="text-2xl font-bold">{t('accounting.show')} #{e.id}</h1>
-                <ActionButtons editHref={route('journal-entries.edit', e.id)} />
+                <ActionButtons editHref={!e.is_locked ? route('journal-entries.edit', e.id) : null} />
             </div>
             <div className="mb-6 rounded-lg bg-white p-4 shadow text-sm">
                 <dl className="grid gap-2 sm:grid-cols-2">

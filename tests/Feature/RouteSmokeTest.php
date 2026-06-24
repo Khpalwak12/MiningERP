@@ -40,6 +40,7 @@ class RouteSmokeTest extends TestCase
             'reports.inventory',
             'reports.customer-balances',
             'reports.profit-loss',
+            'financial-years.index',
             'users.index',
             'roles.index',
             'activity-logs.index',

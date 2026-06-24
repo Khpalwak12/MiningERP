@@ -8,6 +8,7 @@ use App\Models\CustomerPayment;
 use App\Models\Employee;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
+use App\Models\FinancialYear;
 use App\Models\InventoryItem;
 use App\Models\MarbleShipment;
 use App\Models\PayrollPayment;
@@ -23,6 +24,7 @@ class ReportService
     public function salesReport(array $filters = []): Collection
     {
         $query = MarbleShipment::query()->with(['customer']);
+        $this->applyFinancialYearFilter($query, $filters);
         $this->applyDateFilters($query, $filters, 'shipment_date');
 
         if (! empty($filters['customer_id'])) {
@@ -43,6 +45,7 @@ class ReportService
     public function paymentsReport(array $filters = []): Collection
     {
         $query = CustomerPayment::query()->with('customer');
+        $this->applyFinancialYearFilter($query, $filters);
         $this->applyDateFilters($query, $filters, 'payment_date');
 
         if (! empty($filters['customer_id'])) {
@@ -55,6 +58,7 @@ class ReportService
     public function sankariReport(array $filters = []): Collection
     {
         $query = SankariStoneSale::query();
+        $this->applyFinancialYearFilter($query, $filters);
         $this->applyDateFilters($query, $filters, 'sale_date');
 
         return $query->orderBy('sale_date')->get();
@@ -63,6 +67,7 @@ class ReportService
     public function expensesReport(array $filters = []): Collection
     {
         $query = Expense::query()->with(['category']);
+        $this->applyFinancialYearFilter($query, $filters);
         $this->applyDateFilters($query, $filters, 'expense_date');
 
         if (! empty($filters['expense_category_id'])) {
@@ -75,6 +80,7 @@ class ReportService
     public function payrollReport(array $filters = []): Collection
     {
         $query = PayrollPayment::query()->with('employee');
+        $this->applyFinancialYearFilter($query, $filters);
         $this->applyDateFilters($query, $filters, 'payment_date');
 
         if (! empty($filters['employee_id'])) {
@@ -95,11 +101,21 @@ class ReportService
         return $query->orderBy('name')->get();
     }
 
-    public function customerBalancesReport(): Collection
+    public function customerBalancesReport(array $filters = []): Collection
     {
+        $yearId = $filters['financial_year_id'] ?? FinancialYear::query()->active()->value('id');
+
+        $shipmentConstraint = fn ($q) => $q->completed();
+        $paymentConstraint = fn ($q) => $q;
+
+        if ($yearId) {
+            $shipmentConstraint = fn ($q) => $q->completed()->where('financial_year_id', $yearId);
+            $paymentConstraint = fn ($q) => $q->where('financial_year_id', $yearId);
+        }
+
         return Customer::query()
-            ->withSum(['shipments as total_sales' => fn ($q) => $q->completed()], 'total_amount')
-            ->withSum('payments as total_payments', 'amount')
+            ->withSum(['shipments as total_sales' => $shipmentConstraint], 'total_amount')
+            ->withSum(['payments as total_payments' => $paymentConstraint], 'amount')
             ->orderBy('name')
             ->get()
             ->map(function (Customer $customer) {
@@ -141,6 +157,7 @@ class ReportService
             ->selectRaw('expense_category_id, SUM(amount) as total')
             ->groupBy('expense_category_id');
 
+        $this->applyFinancialYearFilter($query, $filters);
         $this->applyDateFilters($query, $filters, 'expense_date');
 
         return $query->with('category')->get();
@@ -164,6 +181,13 @@ class ReportService
         return $pdf->download("{$reportType}_".now()->format('Ymd_His').'.pdf');
     }
 
+    private function applyFinancialYearFilter($query, array $filters): void
+    {
+        if (! empty($filters['financial_year_id'])) {
+            $query->where('financial_year_id', $filters['financial_year_id']);
+        }
+    }
+
     private function applyDateFilters($query, array $filters, string $column): void
     {
         if (! empty($filters['date_from'])) {
@@ -177,8 +201,14 @@ class ReportService
 
     private function sumInRange($query, array $filters, string $dateColumn, string $sumColumn): float
     {
+        $this->applyFinancialYearFilter($query, $filters);
         $this->applyDateFilters($query, $filters, $dateColumn);
 
         return (float) $query->sum($sumColumn);
+    }
+
+    public function financialYearsForFilter(): Collection
+    {
+        return FinancialYear::query()->orderByDesc('start_date')->get();
     }
 }

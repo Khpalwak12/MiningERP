@@ -5,11 +5,15 @@ namespace App\Services;
 use App\Contracts\Repositories\InventoryItemRepositoryInterface;
 use App\Models\InventoryItem;
 use App\Models\InventoryMovement;
+use App\Services\Concerns\ManagesFinancialYear;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use App\Repositories\Concerns\AppliesFinancialYearFilter;
 use Illuminate\Support\Facades\DB;
 
 class InventoryService
 {
+    use AppliesFinancialYearFilter;
+    use ManagesFinancialYear;
     public function __construct(private InventoryItemRepositoryInterface $repository) {}
 
     public function paginateItems(array $filters = [], int $perPage = 15): LengthAwarePaginator
@@ -41,6 +45,7 @@ class InventoryService
     {
         return DB::transaction(function () use ($data) {
             $data['created_by'] = $data['created_by'] ?? auth()->id();
+            $data = $this->assignActiveFinancialYear($data);
 
             return InventoryMovement::query()->create($data);
         });
@@ -49,8 +54,10 @@ class InventoryService
     public function paginateMovements(int $itemId, array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
         $query = InventoryMovement::query()
-            ->with(['inventoryItem', 'creator'])
+            ->with(['inventoryItem', 'creator', 'financialYear'])
             ->where('inventory_item_id', $itemId);
+
+        $this->applyFinancialYearFilter($query, $filters);
 
         if (! empty($filters['movement_type'])) {
             $query->where('movement_type', $filters['movement_type']);

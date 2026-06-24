@@ -19,6 +19,7 @@ class CustomerPaymentResource extends JsonResource
             'receipt_number' => $this->receipt_number,
             'received_by' => $this->received_by,
             'notes' => $this->notes,
+            'is_locked' => $this->isInClosedFinancialYear(),
             'customer' => new CustomerResource($this->whenLoaded('customer')),
             'creator' => new UserResource($this->whenLoaded('creator')),
             'created_at' => $this->created_at?->toISOString(),

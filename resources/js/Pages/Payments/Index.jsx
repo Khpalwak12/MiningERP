@@ -63,8 +63,8 @@ export default function Index({ payments, filters }) {
                                 <td className="px-4 py-3 text-right">
                                     <ActionButtons
                                         viewHref={route('payments.show', p.id)}
-                                        editHref={can('payments.edit') ? route('payments.edit', p.id) : null}
-                                        onDelete={can('payments.delete') ? () => router.delete(route('payments.destroy', p.id)) : null}
+                                        editHref={can('payments.edit') && !p.is_locked ? route('payments.edit', p.id) : null}
+                                        onDelete={can('payments.delete') && !p.is_locked ? () => router.delete(route('payments.destroy', p.id)) : null}
                                     />
                                 </td>
                             </tr>

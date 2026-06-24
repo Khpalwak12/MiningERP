@@ -5,15 +5,23 @@ namespace App\Services;
 use App\Models\Account;
 use App\Models\JournalEntry;
 use App\Models\JournalEntryLine;
+use App\Services\Concerns\ManagesFinancialYear;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class AccountingService
 {
+    use ManagesFinancialYear;
     public function paginateEntries(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
-        $query = JournalEntry::query()->with(['lines.account', 'creator']);
+        $query = JournalEntry::query()->with(['lines.account', 'creator', 'financialYear']);
+
+        if (! empty($filters['financial_year_id'])) {
+            $query->where('financial_year_id', $filters['financial_year_id']);
+        } elseif ($activeId = \App\Models\FinancialYear::query()->active()->value('id')) {
+            $query->where('financial_year_id', $activeId);
+        }
 
         if (! empty($filters['date_from'])) {
             $query->whereDate('entry_date', '>=', \App\Support\JalaliDate::toGregorian($filters['date_from']));
@@ -51,6 +59,7 @@ class AccountingService
             unset($data['lines']);
 
             $data['created_by'] = $data['created_by'] ?? auth()->id();
+            $data = $this->assignActiveFinancialYear($data);
 
             $this->validateBalancedEntry($lines);
 
@@ -66,6 +75,8 @@ class AccountingService
 
     public function updateEntry(JournalEntry $entry, array $data): JournalEntry
     {
+        $this->ensureFinancialYearWritable($entry);
+
         return DB::transaction(function () use ($entry, $data) {
             $lines = $data['lines'] ?? null;
             unset($data['lines']);
@@ -87,6 +98,8 @@ class AccountingService
 
     public function deleteEntry(JournalEntry $entry): bool
     {
+        $this->ensureFinancialYearWritable($entry);
+
         return DB::transaction(function () use ($entry) {
             $entry->lines()->delete();
 

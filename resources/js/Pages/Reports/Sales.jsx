@@ -1,3 +1,4 @@
+import FinancialYearSelect from '@/Components/Erp/FinancialYearSelect';
 import ActionButtons from '@/Components/Erp/ActionButtons';
 import ErpLayout from '@/Layouts/ErpLayout';
 import FlashMessage from '@/Components/Erp/FlashMessage';
@@ -10,20 +11,26 @@ import { useState } from 'react';
 import PrimaryButton from '@/Components/PrimaryButton';
 import usePermission from '@/hooks/usePermission';
 
-function ReportPage({ title, rows, filters, columns, exportType, statusFilter = true }) {
+function ReportPage({ title, rows, filters, columns, exportType, statusFilter = true, financialYears }) {
     const { t } = useTranslation();
     const { can } = usePermission();
     const [dateFrom, setDateFrom] = useState(filters?.date_from || '');
     const [dateTo, setDateTo] = useState(filters?.date_to || '');
     const [status, setStatus] = useState(filters?.status || '');
+    const [financialYearId, setFinancialYearId] = useState(filters?.financial_year_id || '');
     const list = Array.isArray(rows) ? rows : (rows?.data ?? []);
 
     const handleFilter = (e) => {
         e.preventDefault();
-        router.get(window.location.pathname, { date_from: dateFrom, date_to: dateTo, status }, { preserveState: true });
+        router.get(window.location.pathname, {
+            date_from: dateFrom,
+            date_to: dateTo,
+            status,
+            financial_year_id: financialYearId,
+        }, { preserveState: true });
     };
 
-    const exportQuery = `date_from=${dateFrom}&date_to=${dateTo}&status=${status}`;
+    const exportQuery = `date_from=${dateFrom}&date_to=${dateTo}&status=${status}&financial_year_id=${financialYearId}`;
 
     return (
         <ErpLayout>
@@ -37,6 +44,7 @@ function ReportPage({ title, rows, filters, columns, exportType, statusFilter = 
             <form onSubmit={handleFilter} className="mb-4 flex flex-wrap items-end gap-4 rounded-lg bg-white p-4 shadow">
                 <ShamsiDateInput label={t('fields.date_from')} value={dateFrom} onChange={setDateFrom} />
                 <ShamsiDateInput label={t('fields.date_to')} value={dateTo} onChange={setDateTo} />
+                <FinancialYearSelect value={financialYearId} onChange={setFinancialYearId} financialYears={financialYears} />
                 {statusFilter && (
                     <div>
                         <label className="block text-sm font-medium text-gray-700">{t('fields.status')}</label>
@@ -80,13 +88,14 @@ function ReportPage({ title, rows, filters, columns, exportType, statusFilter = 
     );
 }
 
-export default function Sales({ rows, filters }) {
+export default function Sales({ rows, filters, financialYears }) {
     const { t } = useTranslation();
     return (
         <ReportPage
             title={t('reports.sales')}
             rows={rows}
             filters={filters}
+            financialYears={financialYears}
             exportType="sales"
             columns={[
                 { key: 'date', label: t('fields.date'), render: (r) => r.shipment_date_shamsi || r.shipment_date },

@@ -84,8 +84,8 @@ export default function Index({ expenses, filters, categories }) {
                                 <td className="px-4 py-3 text-right">
                                     <ActionButtons
                                         viewHref={route('expenses.show', e.id)}
-                                        editHref={can('expenses.edit') ? route('expenses.edit', e.id) : null}
-                                        onDelete={can('expenses.delete') ? () => router.delete(route('expenses.destroy', e.id)) : null}
+                                        editHref={can('expenses.edit') && !e.is_locked ? route('expenses.edit', e.id) : null}
+                                        onDelete={can('expenses.delete') && !e.is_locked ? () => router.delete(route('expenses.destroy', e.id)) : null}
                                     />
                                 </td>
                             </tr>

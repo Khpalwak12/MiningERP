@@ -5,11 +5,13 @@ namespace App\Repositories;
 use App\Contracts\Repositories\CustomerPaymentRepositoryInterface;
 use App\Models\CustomerPayment;
 use App\Repositories\Concerns\AppliesDateAndSearchFilters;
+use App\Repositories\Concerns\AppliesFinancialYearFilter;
 use Illuminate\Database\Eloquent\Builder;
 
 class CustomerPaymentRepository extends BaseRepository implements CustomerPaymentRepositoryInterface
 {
     use AppliesDateAndSearchFilters;
+    use AppliesFinancialYearFilter;
 
     public function __construct(CustomerPayment $model)
     {
@@ -18,7 +20,7 @@ class CustomerPaymentRepository extends BaseRepository implements CustomerPaymen
 
     public function paginate(int $perPage = 15, array $filters = []): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
-        return $this->applyFilters($this->model->newQuery()->with(['customer', 'creator']), $filters)
+        return $this->applyFilters($this->model->newQuery()->with(['customer', 'creator', 'financialYear']), $filters)
             ->latest('payment_date')
             ->paginate($perPage)
             ->withQueryString();
@@ -26,6 +28,8 @@ class CustomerPaymentRepository extends BaseRepository implements CustomerPaymen
 
     protected function applyFilters($query, array $filters): Builder
     {
+        $this->applyFinancialYearFilter($query, $filters);
+
         if (! empty($filters['search'])) {
             $search = $filters['search'];
 

@@ -6,11 +6,13 @@ use App\Contracts\Repositories\ExpenseRepositoryInterface;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Repositories\Concerns\AppliesDateAndSearchFilters;
+use App\Repositories\Concerns\AppliesFinancialYearFilter;
 use Illuminate\Database\Eloquent\Builder;
 
 class ExpenseRepository extends BaseRepository implements ExpenseRepositoryInterface
 {
     use AppliesDateAndSearchFilters;
+    use AppliesFinancialYearFilter;
 
     public function __construct(Expense $model)
     {
@@ -19,7 +21,7 @@ class ExpenseRepository extends BaseRepository implements ExpenseRepositoryInter
 
     public function paginate(int $perPage = 15, array $filters = []): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
-        return $this->applyFilters($this->model->newQuery()->with(['category', 'creator']), $filters)
+        return $this->applyFilters($this->model->newQuery()->with(['category', 'creator', 'financialYear']), $filters)
             ->latest('expense_date')
             ->paginate($perPage)
             ->withQueryString();
@@ -27,6 +29,8 @@ class ExpenseRepository extends BaseRepository implements ExpenseRepositoryInter
 
     protected function applyFilters($query, array $filters): Builder
     {
+        $this->applyFinancialYearFilter($query, $filters);
+
         if (! empty($filters['search'])) {
             $search = trim($filters['search']);
 

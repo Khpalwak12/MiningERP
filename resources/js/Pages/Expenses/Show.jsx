@@ -16,7 +16,7 @@ export default function Show({ expense }) {
             <FlashMessage />
             <div className="mb-6 flex items-center justify-between">
                 <h1 className="text-2xl font-bold">{t('expenses.show')} #{e.id}</h1>
-                <ActionButtons editHref={route('expenses.edit', e.id)} />
+                <ActionButtons editHref={!e.is_locked ? route('expenses.edit', e.id) : null} />
             </div>
             <div className="rounded-lg bg-white p-6 shadow text-sm">
                 <dl className="grid gap-3 sm:grid-cols-2">

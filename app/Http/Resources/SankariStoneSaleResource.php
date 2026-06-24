@@ -20,6 +20,7 @@ class SankariStoneSaleResource extends JsonResource
             'payment_type' => $this->payment_type,
             'cash_received' => (float) $this->cash_received,
             'notes' => $this->notes,
+            'is_locked' => $this->isInClosedFinancialYear(),
             'creator' => new UserResource($this->whenLoaded('creator')),
             'created_at' => $this->created_at?->toISOString(),
         ];

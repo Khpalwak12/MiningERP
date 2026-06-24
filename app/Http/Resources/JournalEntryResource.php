@@ -16,6 +16,7 @@ class JournalEntryResource extends JsonResource
             'entry_date_shamsi' => JalaliDate::fromGregorian($this->entry_date),
             'reference' => $this->reference,
             'description' => $this->description,
+            'is_locked' => $this->isInClosedFinancialYear(),
             'lines' => JournalEntryLineResource::collection($this->whenLoaded('lines')),
             'creator' => new UserResource($this->whenLoaded('creator')),
             'created_at' => $this->created_at?->toISOString(),

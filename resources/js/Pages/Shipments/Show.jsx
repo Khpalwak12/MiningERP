@@ -17,7 +17,7 @@ export default function Show({ shipment }) {
             <FlashMessage />
             <div className="mb-6 flex items-center justify-between">
                 <h1 className="text-2xl font-bold">{t('shipments.show')} #{s.id}</h1>
-                <ActionButtons editHref={route('shipments.edit', s.id)} />
+                <ActionButtons editHref={!s.is_locked ? route('shipments.edit', s.id) : null} />
             </div>
             <div className="rounded-lg bg-white p-6 shadow text-sm">
                 <div className="mb-4">

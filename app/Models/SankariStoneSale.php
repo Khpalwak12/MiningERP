@@ -2,15 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToFinancialYear;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class SankariStoneSale extends AuditableModel
 {
+    use BelongsToFinancialYear;
     use SoftDeletes;
 
     protected $fillable = [
-        'sale_date', 'truck_count', 'price_per_truck', 'total_amount',
+        'financial_year_id', 'sale_date', 'truck_count', 'price_per_truck', 'total_amount',
         'payment_type', 'cash_received', 'notes', 'created_by',
     ];
 

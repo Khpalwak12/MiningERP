@@ -5,10 +5,12 @@ namespace App\Repositories;
 use App\Contracts\Repositories\MarbleShipmentRepositoryInterface;
 use App\Models\MarbleShipment;
 use App\Support\JalaliDate;
+use App\Repositories\Concerns\AppliesFinancialYearFilter;
 use Carbon\Carbon;
 
 class MarbleShipmentRepository extends BaseRepository implements MarbleShipmentRepositoryInterface
 {
+    use AppliesFinancialYearFilter;
     public function __construct(MarbleShipment $model)
     {
         parent::__construct($model);
@@ -16,6 +18,8 @@ class MarbleShipmentRepository extends BaseRepository implements MarbleShipmentR
 
     protected function applyFilters($query, array $filters)
     {
+        $this->applyFinancialYearFilter($query, $filters);
+
         if (! empty($filters['customer_id'])) {
             $query->where('customer_id', $filters['customer_id']);
         }
@@ -42,25 +46,32 @@ class MarbleShipmentRepository extends BaseRepository implements MarbleShipmentR
             });
         }
 
-        return $query->with(['customer']);
+        return $query->with(['customer', 'financialYear']);
     }
 
-    public function todayStats(): array
+    public function todayStats(?int $financialYearId = null): array
     {
-        $today = Carbon::today();
+        $todayShamsi = JalaliDate::fromGregorian(Carbon::today());
+        $todayGregorian = JalaliDate::toGregorian($todayShamsi);
+
+        $query = $this->model->newQuery()
+            ->whereDate('shipment_date', $todayGregorian)
+            ->when($financialYearId, fn ($q) => $q->where('financial_year_id', $financialYearId));
 
         return [
-            'trucks' => $this->model->newQuery()->whereDate('shipment_date', $today)->count(),
-            'tons' => (float) $this->model->newQuery()->whereDate('shipment_date', $today)->whereNotNull('quantity_ton')->sum('quantity_ton'),
-            'sales' => (float) $this->model->newQuery()->whereDate('shipment_date', $today)->completed()->sum('total_amount'),
+            'trucks' => (clone $query)->count(),
+            'tons' => (float) (clone $query)->whereNotNull('quantity_ton')->sum('quantity_ton'),
+            'sales' => (float) (clone $query)->completed()->sum('total_amount'),
         ];
     }
 
-    public function monthlyStats(string $shamsiMonth): array
+    public function monthlyStats(string $shamsiMonth, ?int $financialYearId = null): array
     {
         [$start, $end] = JalaliDate::monthRange($shamsiMonth);
 
-        $query = $this->model->newQuery()->whereBetween('shipment_date', [$start, $end]);
+        $query = $this->model->newQuery()
+            ->whereBetween('shipment_date', [$start, $end])
+            ->when($financialYearId, fn ($q) => $q->where('financial_year_id', $financialYearId));
 
         return [
             'trucks' => (clone $query)->count(),

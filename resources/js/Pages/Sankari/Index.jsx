@@ -44,8 +44,8 @@ export default function Index({ sales, filters }) {
                                 <td className="px-4 py-3 text-right">
                                     <ActionButtons
                                         viewHref={route('sankari.show', s.id)}
-                                        editHref={can('sankari.edit') ? route('sankari.edit', s.id) : null}
-                                        onDelete={can('sankari.delete') ? () => router.delete(route('sankari.destroy', s.id)) : null}
+                                        editHref={can('sankari.edit') && !s.is_locked ? route('sankari.edit', s.id) : null}
+                                        onDelete={can('sankari.delete') && !s.is_locked ? () => router.delete(route('sankari.destroy', s.id)) : null}
                                     />
                                 </td>
                             </tr>

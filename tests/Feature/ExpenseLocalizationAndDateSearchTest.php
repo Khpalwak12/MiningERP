@@ -56,11 +56,13 @@ class ExpenseLocalizationAndDateSearchTest extends TestCase
     public function test_expense_list_can_be_filtered_by_shamsi_date_range(): void
     {
         $category = ExpenseCategory::query()->where('slug', 'kitchen')->firstOrFail();
+        $activeYearId = \App\Models\FinancialYear::query()->active()->value('id');
 
         $inRangeDate = JalaliDate::toGregorian('1403/01/15');
         $outOfRangeDate = JalaliDate::toGregorian('1403/02/15');
 
         Expense::query()->create([
+            'financial_year_id' => $activeYearId,
             'expense_category_id' => $category->id,
             'expense_date' => $inRangeDate,
             'amount' => 100,
@@ -69,6 +71,7 @@ class ExpenseLocalizationAndDateSearchTest extends TestCase
         ]);
 
         Expense::query()->create([
+            'financial_year_id' => $activeYearId,
             'expense_category_id' => $category->id,
             'expense_date' => $outOfRangeDate,
             'amount' => 200,
@@ -91,9 +94,11 @@ class ExpenseLocalizationAndDateSearchTest extends TestCase
     public function test_expense_search_supports_single_shamsi_date(): void
     {
         $category = ExpenseCategory::query()->where('slug', 'kitchen')->firstOrFail();
+        $activeYearId = \App\Models\FinancialYear::query()->active()->value('id');
         $targetDate = JalaliDate::toGregorian('1403/03/01');
 
         Expense::query()->create([
+            'financial_year_id' => $activeYearId,
             'expense_category_id' => $category->id,
             'expense_date' => $targetDate,
             'amount' => 50,
@@ -102,6 +107,7 @@ class ExpenseLocalizationAndDateSearchTest extends TestCase
         ]);
 
         Expense::query()->create([
+            'financial_year_id' => $activeYearId,
             'expense_category_id' => $category->id,
             'expense_date' => JalaliDate::toGregorian('1403/03/02'),
             'amount' => 75,
@@ -123,8 +129,10 @@ class ExpenseLocalizationAndDateSearchTest extends TestCase
     public function test_expense_search_supports_shamsi_date_range(): void
     {
         $category = ExpenseCategory::query()->where('slug', 'kitchen')->firstOrFail();
+        $activeYearId = \App\Models\FinancialYear::query()->active()->value('id');
 
         Expense::query()->create([
+            'financial_year_id' => $activeYearId,
             'expense_category_id' => $category->id,
             'expense_date' => JalaliDate::toGregorian('1405/03/01'),
             'amount' => 10,
@@ -133,6 +141,7 @@ class ExpenseLocalizationAndDateSearchTest extends TestCase
         ]);
 
         Expense::query()->create([
+            'financial_year_id' => $activeYearId,
             'expense_category_id' => $category->id,
             'expense_date' => JalaliDate::toGregorian('1405/03/31'),
             'amount' => 20,
@@ -141,6 +150,7 @@ class ExpenseLocalizationAndDateSearchTest extends TestCase
         ]);
 
         Expense::query()->create([
+            'financial_year_id' => $activeYearId,
             'expense_category_id' => $category->id,
             'expense_date' => JalaliDate::toGregorian('1405/04/01'),
             'amount' => 30,
