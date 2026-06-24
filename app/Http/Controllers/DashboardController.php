@@ -6,7 +6,7 @@ use App\Http\Controllers\Concerns\RegistersModulePermissions;
 use App\Http\Resources\CustomerPaymentResource;
 use App\Http\Resources\MarbleShipmentResource;
 use App\Models\CustomerPayment;
-use App\Models\FinancialYear;
+use App\Support\ActiveFinancialYear;
 use App\Models\MarbleShipment;
 use App\Services\DashboardService;
 use Illuminate\Http\Request;
@@ -25,7 +25,7 @@ class DashboardController extends Controller
     public function index(Request $request): Response
     {
         $stats = $this->service->stats();
-        $yearId = FinancialYear::query()->active()->value('id');
+        $yearId = ActiveFinancialYear::activeYearId();
 
         return Inertia::render('Dashboard/Index', [
             'stats' => $stats,

@@ -2,7 +2,7 @@
 
 namespace App\Repositories\Concerns;
 
-use App\Models\FinancialYear;
+use App\Support\ActiveFinancialYear;
 use Illuminate\Database\Eloquent\Builder;
 
 trait AppliesFinancialYearFilter
@@ -13,8 +13,8 @@ trait AppliesFinancialYearFilter
             return $query->where('financial_year_id', $filters['financial_year_id']);
         }
 
-        if ($defaultToActive) {
-            $activeId = FinancialYear::query()->active()->value('id');
+        if ($defaultToActive && ! ActiveFinancialYear::isAllYearsMode()) {
+            $activeId = ActiveFinancialYear::activeYearId();
 
             if ($activeId) {
                 $query->where('financial_year_id', $activeId);

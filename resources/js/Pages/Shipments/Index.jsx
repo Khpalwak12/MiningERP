@@ -5,6 +5,7 @@ import PageHeader from '@/Components/Erp/PageHeader';
 import Pagination from '@/Components/Erp/Pagination';
 import useTranslation from '@/hooks/useTranslation';
 import usePermission from '@/hooks/usePermission';
+import useFinancialYearMode from '@/hooks/useFinancialYearMode';
 import { formatCurrency } from '@/utils/format';
 import { resourceItems } from '@/utils/resource';
 import { formatShipmentAmount, shipmentStatusBadgeClass } from '@/utils/shipmentStatus';
@@ -15,6 +16,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 export default function Index({ shipments, filters, customers }) {
     const { t } = useTranslation();
     const { can } = usePermission();
+    const { canCreateTransactions, isTransactionReadOnly } = useFinancialYearMode();
     const [status, setStatus] = useState(filters?.status || '');
     const [customerId, setCustomerId] = useState(filters?.customer_id || '');
     const list = resourceItems(shipments);
@@ -28,7 +30,7 @@ export default function Index({ shipments, filters, customers }) {
         <ErpLayout>
             <Head title={t('shipments.title')} />
             <FlashMessage />
-            <PageHeader title={t('shipments.title')} createRoute={can('shipments.create') ? route('shipments.create') : null} createLabel={t('shipments.create')} />
+            <PageHeader title={t('shipments.title')} createRoute={canCreateTransactions && can('shipments.create') ? route('shipments.create') : null} createLabel={t('shipments.create')} />
 
             <form onSubmit={applyFilters} className="mb-4 flex flex-wrap items-end gap-4 rounded-lg bg-white p-4 shadow">
                 <div>
@@ -84,8 +86,8 @@ export default function Index({ shipments, filters, customers }) {
                                 <td className="px-4 py-3 text-right">
                                     <ActionButtons
                                         viewHref={route('shipments.show', s.id)}
-                                        editHref={can('shipments.edit') && !s.is_locked ? route('shipments.edit', s.id) : null}
-                                        onDelete={can('shipments.delete') && !s.is_locked ? () => router.delete(route('shipments.destroy', s.id)) : null}
+                                        editHref={!isTransactionReadOnly && can('shipments.edit') && !s.is_locked ? route('shipments.edit', s.id) : null}
+                                        onDelete={!isTransactionReadOnly && can('shipments.delete') && !s.is_locked ? () => router.delete(route('shipments.destroy', s.id)) : null}
                                     />
                                 </td>
                             </tr>

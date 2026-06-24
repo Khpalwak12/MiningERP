@@ -19,7 +19,7 @@ class StoreFinancialYearRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:10', 'unique:financial_years,name'],
+            'name' => ['required', 'string', 'max:10', 'unique:financial_years,name', Rule::notIn([FinancialYear::ALL_YEARS_NAME])],
             ...$this->shamsiDateRules(['start_date', 'end_date']),
             'end_date' => ['required', 'date', 'after_or_equal:start_date'],
             'status' => ['required', Rule::in([FinancialYear::STATUS_ACTIVE, FinancialYear::STATUS_CLOSED])],

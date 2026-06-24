@@ -4,12 +4,14 @@ import PageHeader from '@/Components/Erp/PageHeader';
 import Pagination from '@/Components/Erp/Pagination';
 import useTranslation from '@/hooks/useTranslation';
 import usePermission from '@/hooks/usePermission';
+import useFinancialYearMode from '@/hooks/useFinancialYearMode';
 import { Head, Link } from '@inertiajs/react';
 import PrimaryButton from '@/Components/PrimaryButton';
 
 export default function Index({ item, movements, filters }) {
     const { t } = useTranslation();
     const { can } = usePermission();
+    const { canCreateTransactions } = useFinancialYearMode();
     const i = item.data;
 
     return (
@@ -18,7 +20,7 @@ export default function Index({ item, movements, filters }) {
             <FlashMessage />
             <PageHeader title={`${t('inventory.movements')} - ${i.name}`}>
                 <Link href={route('inventory.show', i.id)} className="text-sm text-gray-600 hover:underline">{t('actions.back')}</Link>
-                {can('inventory.create') && (
+                {canCreateTransactions && can('inventory.create') && (
                     <Link href={route('inventory.movements.create', i.id)}><PrimaryButton>{t('inventory.add_movement')}</PrimaryButton></Link>
                 )}
             </PageHeader>

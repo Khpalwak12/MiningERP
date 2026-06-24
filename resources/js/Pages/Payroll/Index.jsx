@@ -5,18 +5,20 @@ import PageHeader from '@/Components/Erp/PageHeader';
 import Pagination from '@/Components/Erp/Pagination';
 import useTranslation from '@/hooks/useTranslation';
 import usePermission from '@/hooks/usePermission';
+import useFinancialYearMode from '@/hooks/useFinancialYearMode';
 import { formatCurrency } from '@/utils/format';
 import { Head, router } from '@inertiajs/react';
 
 export default function Index({ payments, filters, employees }) {
     const { t } = useTranslation();
     const { can } = usePermission();
+    const { canCreateTransactions, isTransactionReadOnly } = useFinancialYearMode();
 
     return (
         <ErpLayout>
             <Head title={t('payroll.title')} />
             <FlashMessage />
-            <PageHeader title={t('payroll.title')} createRoute={can('payroll.create') ? route('payroll.create') : null} createLabel={t('payroll.create')} />
+            <PageHeader title={t('payroll.title')} createRoute={canCreateTransactions && can('payroll.create') ? route('payroll.create') : null} createLabel={t('payroll.create')} />
 
             <div className="overflow-hidden rounded-lg bg-white shadow">
                 <table className="min-w-full text-sm">
@@ -38,8 +40,8 @@ export default function Index({ payments, filters, employees }) {
                                 <td className="px-4 py-3 font-medium">{formatCurrency(p.amount)}</td>
                                 <td className="px-4 py-3 text-right">
                                     <ActionButtons
-                                        editHref={can('payroll.edit') && !p.is_locked ? route('payroll.edit', p.id) : null}
-                                        onDelete={can('payroll.delete') && !p.is_locked ? () => router.delete(route('payroll.destroy', p.id)) : null}
+                                        editHref={!isTransactionReadOnly && can('payroll.edit') && !p.is_locked ? route('payroll.edit', p.id) : null}
+                                        onDelete={!isTransactionReadOnly && can('payroll.delete') && !p.is_locked ? () => router.delete(route('payroll.destroy', p.id)) : null}
                                     />
                                 </td>
                             </tr>

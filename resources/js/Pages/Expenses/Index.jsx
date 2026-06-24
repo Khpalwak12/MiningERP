@@ -6,6 +6,7 @@ import Pagination from '@/Components/Erp/Pagination';
 import ShamsiDateInput from '@/Components/Erp/ShamsiDateInput';
 import useTranslation from '@/hooks/useTranslation';
 import usePermission from '@/hooks/usePermission';
+import useFinancialYearMode from '@/hooks/useFinancialYearMode';
 import { formatCurrency } from '@/utils/format';
 import { resourceItems } from '@/utils/resource';
 import { Head, router } from '@inertiajs/react';
@@ -16,6 +17,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 export default function Index({ expenses, filters, categories }) {
     const { t } = useTranslation();
     const { can } = usePermission();
+    const { canCreateTransactions, isTransactionReadOnly } = useFinancialYearMode();
     const [search, setSearch] = useState(filters?.search || '');
     const [categoryId, setCategoryId] = useState(filters?.expense_category_id || '');
     const [dateFrom, setDateFrom] = useState(filters?.date_from || '');
@@ -37,7 +39,7 @@ export default function Index({ expenses, filters, categories }) {
         <ErpLayout>
             <Head title={t('expenses.title')} />
             <FlashMessage />
-            <PageHeader title={t('expenses.title')} createRoute={can('expenses.create') ? route('expenses.create') : null} createLabel={t('expenses.create')} />
+            <PageHeader title={t('expenses.title')} createRoute={canCreateTransactions && can('expenses.create') ? route('expenses.create') : null} createLabel={t('expenses.create')} />
 
             <form onSubmit={handleSearch} className="mb-4 flex flex-wrap items-end gap-4 rounded-lg bg-white p-4 shadow">
                 <TextInput
@@ -84,8 +86,8 @@ export default function Index({ expenses, filters, categories }) {
                                 <td className="px-4 py-3 text-right">
                                     <ActionButtons
                                         viewHref={route('expenses.show', e.id)}
-                                        editHref={can('expenses.edit') && !e.is_locked ? route('expenses.edit', e.id) : null}
-                                        onDelete={can('expenses.delete') && !e.is_locked ? () => router.delete(route('expenses.destroy', e.id)) : null}
+                                        editHref={!isTransactionReadOnly && can('expenses.edit') && !e.is_locked ? route('expenses.edit', e.id) : null}
+                                        onDelete={!isTransactionReadOnly && can('expenses.delete') && !e.is_locked ? () => router.delete(route('expenses.destroy', e.id)) : null}
                                     />
                                 </td>
                             </tr>

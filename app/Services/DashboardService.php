@@ -6,7 +6,7 @@ use App\Models\Customer;
 use App\Models\CustomerPayment;
 use App\Models\Employee;
 use App\Models\Expense;
-use App\Models\FinancialYear;
+use App\Support\ActiveFinancialYear;
 use App\Models\MarbleShipment;
 use App\Models\PayrollPayment;
 use App\Models\SankariStoneSale;
@@ -20,8 +20,9 @@ class DashboardService
 
     public function stats(): array
     {
-        $activeYear = FinancialYear::query()->active()->first();
-        $yearId = $activeYear?->id;
+        $activeYear = ActiveFinancialYear::activeYear();
+        $yearId = ActiveFinancialYear::activeYearId();
+        $isAllYearsMode = ActiveFinancialYear::isAllYearsMode();
 
         $today = Carbon::today();
         $shamsiMonth = JalaliDate::fromGregorian($today, 'Y/m');
@@ -48,7 +49,9 @@ class DashboardService
             ->sum(fn ($c) => ($c->total_sales ?? 0) - ($c->total_payments ?? 0));
 
         return [
-            'active_financial_year' => $activeYear?->name,
+            'is_all_years_mode' => $isAllYearsMode,
+            'active_financial_year' => $isAllYearsMode ? null : $activeYear?->name,
+            'display_mode' => $isAllYearsMode ? 'all' : ($activeYear ? 'year' : 'none'),
             'marble_sales' => $marbleSales,
             'today_production' => $this->shipmentRepository->todayStats($yearId),
             'monthly_production' => $this->shipmentRepository->monthlyStats($shamsiMonth, $yearId),

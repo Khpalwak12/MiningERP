@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class FinancialYear extends Model
 {
+    public const ALL_YEARS_NAME = 'ALL';
+
     public const STATUS_ACTIVE = 'active';
 
     public const STATUS_CLOSED = 'closed';
@@ -20,7 +22,25 @@ class FinancialYear extends Model
         return [
             'start_date' => 'date',
             'end_date' => 'date',
+            'is_all_years' => 'boolean',
         ];
+    }
+
+    public function isAllYears(): bool
+    {
+        return (bool) $this->is_all_years;
+    }
+
+    public function displayName(): string
+    {
+        return $this->isAllYears()
+            ? __('erp.financial_years.all_years_name')
+            : $this->name;
+    }
+
+    public function scopeRealYears($query)
+    {
+        return $query->where('is_all_years', false);
     }
 
     public function marbleShipments(): HasMany

@@ -10,7 +10,13 @@ trait ManagesFinancialYear
 {
     protected function assignActiveFinancialYear(array $data): array
     {
-        $active = FinancialYear::query()->active()->first();
+        if (\App\Support\ActiveFinancialYear::isAllYearsMode()) {
+            throw ValidationException::withMessages([
+                'financial_year' => __('erp.financial_years.all_years_read_only'),
+            ]);
+        }
+
+        $active = \App\Support\ActiveFinancialYear::activeYear();
 
         if (! $active) {
             throw ValidationException::withMessages([
@@ -25,6 +31,12 @@ trait ManagesFinancialYear
 
     protected function ensureFinancialYearWritable(Model $model): void
     {
+        if (\App\Support\ActiveFinancialYear::isAllYearsMode()) {
+            throw ValidationException::withMessages([
+                'financial_year' => __('erp.financial_years.all_years_read_only'),
+            ]);
+        }
+
         if (! method_exists($model, 'isInClosedFinancialYear')) {
             return;
         }

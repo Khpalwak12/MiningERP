@@ -16,6 +16,7 @@ class FinancialYearRepository extends BaseRepository implements FinancialYearRep
     public function paginate(int $perPage = 15, array $filters = []): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
         return $this->applyFilters($this->model->newQuery(), $filters)
+            ->orderBy('is_all_years')
             ->orderByDesc('start_date')
             ->paginate($perPage)
             ->withQueryString();

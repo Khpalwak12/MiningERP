@@ -5,6 +5,7 @@ import PageHeader from '@/Components/Erp/PageHeader';
 import Pagination from '@/Components/Erp/Pagination';
 import useTranslation from '@/hooks/useTranslation';
 import usePermission from '@/hooks/usePermission';
+import useFinancialYearMode from '@/hooks/useFinancialYearMode';
 import { formatCurrency } from '@/utils/format';
 import { Head, router } from '@inertiajs/react';
 import { useState } from 'react';
@@ -14,6 +15,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 export default function Index({ payments, filters }) {
     const { t } = useTranslation();
     const { can } = usePermission();
+    const { canCreateTransactions, isTransactionReadOnly } = useFinancialYearMode();
     const [search, setSearch] = useState(filters?.search || '');
 
     const handleSearch = (e) => {
@@ -25,7 +27,7 @@ export default function Index({ payments, filters }) {
         <ErpLayout>
             <Head title={t('payments.title')} />
             <FlashMessage />
-            <PageHeader title={t('payments.title')} createRoute={can('payments.create') ? route('payments.create') : null} createLabel={t('payments.create')} />
+            <PageHeader title={t('payments.title')} createRoute={canCreateTransactions && can('payments.create') ? route('payments.create') : null} createLabel={t('payments.create')} />
 
             <form onSubmit={handleSearch} className="mb-4 flex gap-2">
                 <TextInput
@@ -63,8 +65,8 @@ export default function Index({ payments, filters }) {
                                 <td className="px-4 py-3 text-right">
                                     <ActionButtons
                                         viewHref={route('payments.show', p.id)}
-                                        editHref={can('payments.edit') && !p.is_locked ? route('payments.edit', p.id) : null}
-                                        onDelete={can('payments.delete') && !p.is_locked ? () => router.delete(route('payments.destroy', p.id)) : null}
+                                        editHref={!isTransactionReadOnly && can('payments.edit') && !p.is_locked ? route('payments.edit', p.id) : null}
+                                        onDelete={!isTransactionReadOnly && can('payments.delete') && !p.is_locked ? () => router.delete(route('payments.destroy', p.id)) : null}
                                     />
                                 </td>
                             </tr>

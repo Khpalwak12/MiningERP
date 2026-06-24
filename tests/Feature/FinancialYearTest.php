@@ -7,6 +7,7 @@ use App\Models\ExpenseCategory;
 use App\Models\FinancialYear;
 use App\Models\MarbleShipment;
 use App\Models\User;
+use App\Support\ActiveFinancialYear;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -49,7 +50,7 @@ class FinancialYearTest extends TestCase
     public function test_new_expense_is_assigned_to_active_financial_year(): void
     {
         $category = ExpenseCategory::query()->firstOrFail();
-        $activeYear = FinancialYear::query()->active()->firstOrFail();
+        $activeYear = FinancialYear::query()->active()->where('is_all_years', false)->firstOrFail();
 
         $response = $this->actingAs($this->admin)->post(route('expenses.store'), [
             'expense_date' => '1405/06/15',
@@ -91,7 +92,7 @@ class FinancialYearTest extends TestCase
 
     public function test_close_financial_year_action(): void
     {
-        $activeYear = FinancialYear::query()->active()->firstOrFail();
+        $activeYear = FinancialYear::query()->active()->where('is_all_years', false)->firstOrFail();
 
         $response = $this->actingAs($this->admin)->post(route('financial-years.close', $activeYear));
 
@@ -154,6 +155,70 @@ class FinancialYearTest extends TestCase
         $newExpense = Expense::query()->latest('id')->firstOrFail();
         $this->assertSame($year1404->id, $newExpense->financial_year_id);
         $this->assertSame($year1405->id, $historicalExpense->fresh()->financial_year_id);
+    }
+
+    public function test_activate_all_years_mode(): void
+    {
+        $allYears = FinancialYear::query()->where('is_all_years', true)->firstOrFail();
+
+        $response = $this->actingAs($this->admin)->post(route('financial-years.activate', $allYears));
+
+        $response->assertRedirect(route('financial-years.index'));
+        $this->assertTrue(ActiveFinancialYear::isAllYearsMode());
+        $this->assertSame(1, FinancialYear::query()->active()->count());
+        $this->assertDatabaseHas('financial_years', ['name' => '1405', 'status' => 'closed']);
+    }
+
+    public function test_all_years_mode_blocks_new_expense(): void
+    {
+        $allYears = FinancialYear::query()->where('is_all_years', true)->firstOrFail();
+        $category = ExpenseCategory::query()->firstOrFail();
+
+        $this->actingAs($this->admin)->post(route('financial-years.activate', $allYears));
+
+        $response = $this->actingAs($this->admin)->post(route('expenses.store'), [
+            'expense_date' => '1405/06/15',
+            'expense_category_id' => $category->id,
+            'amount' => 500,
+            'description' => 'Blocked in all years mode',
+        ]);
+
+        $response->assertSessionHasErrors('financial_year');
+    }
+
+    public function test_dashboard_aggregates_all_years_when_all_mode_active(): void
+    {
+        $year1404 = FinancialYear::query()->where('name', '1404')->firstOrFail();
+        $year1405 = FinancialYear::query()->where('name', '1405')->firstOrFail();
+        $category = ExpenseCategory::query()->firstOrFail();
+
+        Expense::query()->create([
+            'financial_year_id' => $year1404->id,
+            'expense_category_id' => $category->id,
+            'expense_date' => now(),
+            'amount' => 100,
+            'description' => '1404 expense',
+            'created_by' => $this->admin->id,
+        ]);
+
+        Expense::query()->create([
+            'financial_year_id' => $year1405->id,
+            'expense_category_id' => $category->id,
+            'expense_date' => now(),
+            'amount' => 200,
+            'description' => '1405 expense',
+            'created_by' => $this->admin->id,
+        ]);
+
+        $allYears = FinancialYear::query()->where('is_all_years', true)->firstOrFail();
+        $this->actingAs($this->admin)->post(route('financial-years.activate', $allYears));
+
+        $response = $this->actingAs($this->admin)->get(route('dashboard'));
+        $stats = $response->original->getData()['page']['props']['stats'];
+
+        $this->assertTrue($stats['is_all_years_mode']);
+        $this->assertSame('all', $stats['display_mode']);
+        $this->assertSame(300.0, (float) $stats['total_expenses']);
     }
 
     public function test_dashboard_shows_newly_activated_financial_year(): void

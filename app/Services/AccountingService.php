@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Account;
 use App\Models\JournalEntry;
 use App\Models\JournalEntryLine;
+use App\Support\ActiveFinancialYear;
 use App\Services\Concerns\ManagesFinancialYear;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -19,7 +20,7 @@ class AccountingService
 
         if (! empty($filters['financial_year_id'])) {
             $query->where('financial_year_id', $filters['financial_year_id']);
-        } elseif ($activeId = \App\Models\FinancialYear::query()->active()->value('id')) {
+        } elseif ($activeId = ActiveFinancialYear::activeYearId()) {
             $query->where('financial_year_id', $activeId);
         }
 

@@ -9,6 +9,7 @@ use App\Models\Employee;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\FinancialYear;
+use App\Support\ActiveFinancialYear;
 use App\Models\InventoryItem;
 use App\Models\MarbleShipment;
 use App\Models\PayrollPayment;
@@ -103,7 +104,7 @@ class ReportService
 
     public function customerBalancesReport(array $filters = []): Collection
     {
-        $yearId = $filters['financial_year_id'] ?? FinancialYear::query()->active()->value('id');
+        $yearId = $filters['financial_year_id'] ?? ActiveFinancialYear::activeYearId();
 
         $shipmentConstraint = fn ($q) => $q->completed();
         $paymentConstraint = fn ($q) => $q;
@@ -185,6 +186,16 @@ class ReportService
     {
         if (! empty($filters['financial_year_id'])) {
             $query->where('financial_year_id', $filters['financial_year_id']);
+
+            return;
+        }
+
+        if (! ActiveFinancialYear::isAllYearsMode()) {
+            $activeId = ActiveFinancialYear::activeYearId();
+
+            if ($activeId) {
+                $query->where('financial_year_id', $activeId);
+            }
         }
     }
 
@@ -209,6 +220,6 @@ class ReportService
 
     public function financialYearsForFilter(): Collection
     {
-        return FinancialYear::query()->orderByDesc('start_date')->get();
+        return FinancialYear::query()->realYears()->orderByDesc('start_date')->get();
     }
 }

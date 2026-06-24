@@ -3,6 +3,7 @@ import { useState } from 'react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import Dropdown from '@/Components/Dropdown';
 import LocaleSwitcher from '@/Components/Erp/LocaleSwitcher';
+import FinancialYearModeBanner from '@/Components/Erp/FinancialYearModeBanner';
 import useTranslation from '@/hooks/useTranslation';
 import useSyncDocumentDirection from '@/hooks/useSyncDocumentDirection';
 import usePermission from '@/hooks/usePermission';
@@ -110,7 +111,10 @@ export default function ErpLayout({ children }) {
                         </div>
                     </header>
 
-                    <main className="flex-1 p-4 sm:p-6">{children}</main>
+                    <main className="flex-1 p-4 sm:p-6">
+                        <FinancialYearModeBanner />
+                        {children}
+                    </main>
                 </div>
             </div>
 

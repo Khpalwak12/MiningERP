@@ -30,7 +30,8 @@ class FinancialYearController extends Controller
         return Inertia::render('FinancialYears/Index', [
             'financialYears' => FinancialYearResource::collection($years),
             'filters' => $request->only(['search', 'status']),
-            'activeYear' => FinancialYearResource::optional($this->service->active()),
+            'activeYear' => FinancialYearResource::optional($this->service->activeYear()),
+            'isAllYearsMode' => $this->service->isAllYearsMode(),
         ]);
     }
 
@@ -55,6 +56,10 @@ class FinancialYearController extends Controller
 
     public function edit(FinancialYear $financialYear): Response
     {
+        if ($financialYear->isAllYears()) {
+            abort(403);
+        }
+
         return Inertia::render('FinancialYears/Edit', [
             'financialYear' => new FinancialYearResource($financialYear),
         ]);

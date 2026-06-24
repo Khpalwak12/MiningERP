@@ -5,18 +5,20 @@ import PageHeader from '@/Components/Erp/PageHeader';
 import Pagination from '@/Components/Erp/Pagination';
 import useTranslation from '@/hooks/useTranslation';
 import usePermission from '@/hooks/usePermission';
+import useFinancialYearMode from '@/hooks/useFinancialYearMode';
 import { formatCurrency } from '@/utils/format';
 import { Head, router } from '@inertiajs/react';
 
 export default function Index({ sales, filters }) {
     const { t } = useTranslation();
     const { can } = usePermission();
+    const { canCreateTransactions, isTransactionReadOnly } = useFinancialYearMode();
 
     return (
         <ErpLayout>
             <Head title={t('sankari.title')} />
             <FlashMessage />
-            <PageHeader title={t('sankari.title')} createRoute={can('sankari.create') ? route('sankari.create') : null} createLabel={t('sankari.create')} />
+            <PageHeader title={t('sankari.title')} createRoute={canCreateTransactions && can('sankari.create') ? route('sankari.create') : null} createLabel={t('sankari.create')} />
 
             <div className="overflow-hidden rounded-lg bg-white shadow">
                 <table className="min-w-full text-sm">
@@ -44,8 +46,8 @@ export default function Index({ sales, filters }) {
                                 <td className="px-4 py-3 text-right">
                                     <ActionButtons
                                         viewHref={route('sankari.show', s.id)}
-                                        editHref={can('sankari.edit') && !s.is_locked ? route('sankari.edit', s.id) : null}
-                                        onDelete={can('sankari.delete') && !s.is_locked ? () => router.delete(route('sankari.destroy', s.id)) : null}
+                                        editHref={!isTransactionReadOnly && can('sankari.edit') && !s.is_locked ? route('sankari.edit', s.id) : null}
+                                        onDelete={!isTransactionReadOnly && can('sankari.delete') && !s.is_locked ? () => router.delete(route('sankari.destroy', s.id)) : null}
                                     />
                                 </td>
                             </tr>

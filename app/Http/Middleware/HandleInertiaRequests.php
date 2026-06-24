@@ -47,8 +47,9 @@ class HandleInertiaRequests extends Middleware
                 'location' => $request->url(),
             ],
             'activeFinancialYear' => fn () => FinancialYearResource::optional(
-                app(FinancialYearService::class)->active()
+                app(FinancialYearService::class)->activeYear()
             ),
+            'isAllYearsMode' => fn () => app(FinancialYearService::class)->isAllYearsMode(),
         ];
     }
 }

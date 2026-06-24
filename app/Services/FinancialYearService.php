@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Contracts\Repositories\FinancialYearRepositoryInterface;
 use App\Models\FinancialYear;
+use App\Support\ActiveFinancialYear;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -29,11 +30,27 @@ class FinancialYearService
 
     public function active(): ?FinancialYear
     {
-        return FinancialYear::query()->active()->first();
+        return ActiveFinancialYear::activeOption();
+    }
+
+    public function activeYear(): ?FinancialYear
+    {
+        return ActiveFinancialYear::activeYear();
+    }
+
+    public function isAllYearsMode(): bool
+    {
+        return ActiveFinancialYear::isAllYearsMode();
     }
 
     public function create(array $data): FinancialYear
     {
+        if (($data['name'] ?? '') === FinancialYear::ALL_YEARS_NAME) {
+            throw ValidationException::withMessages([
+                'name' => __('erp.financial_years.cannot_create_all_option'),
+            ]);
+        }
+
         return DB::transaction(function () use ($data) {
             if (($data['status'] ?? FinancialYear::STATUS_ACTIVE) === FinancialYear::STATUS_ACTIVE) {
                 $this->deactivateOtherYears();
@@ -45,6 +62,12 @@ class FinancialYearService
 
     public function update(FinancialYear $financialYear, array $data): FinancialYear
     {
+        if ($financialYear->isAllYears()) {
+            throw ValidationException::withMessages([
+                'name' => __('erp.financial_years.all_years_read_only'),
+            ]);
+        }
+
         if ($financialYear->isClosed()) {
             throw ValidationException::withMessages([
                 'status' => __('erp.financial_years.closed_year_locked'),
@@ -62,6 +85,12 @@ class FinancialYearService
 
     public function close(FinancialYear $financialYear): FinancialYear
     {
+        if ($financialYear->isAllYears()) {
+            throw ValidationException::withMessages([
+                'status' => __('erp.financial_years.cannot_close_all_option'),
+            ]);
+        }
+
         if ($financialYear->isClosed()) {
             throw ValidationException::withMessages([
                 'status' => __('erp.financial_years.already_closed'),

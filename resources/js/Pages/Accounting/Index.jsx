@@ -5,17 +5,19 @@ import PageHeader from '@/Components/Erp/PageHeader';
 import Pagination from '@/Components/Erp/Pagination';
 import useTranslation from '@/hooks/useTranslation';
 import usePermission from '@/hooks/usePermission';
+import useFinancialYearMode from '@/hooks/useFinancialYearMode';
 import { Head, Link, router } from '@inertiajs/react';
 
 export default function Index({ entries, filters }) {
     const { t } = useTranslation();
     const { can } = usePermission();
+    const { canCreateTransactions, isTransactionReadOnly } = useFinancialYearMode();
 
     return (
         <ErpLayout>
             <Head title={t('accounting.title')} />
             <FlashMessage />
-            <PageHeader title={t('accounting.title')} createRoute={can('accounting.create') ? route('journal-entries.create') : null} createLabel={t('accounting.create')}>
+            <PageHeader title={t('accounting.title')} createRoute={canCreateTransactions && can('accounting.create') ? route('journal-entries.create') : null} createLabel={t('accounting.create')}>
                 <Link href={route('accounting.trial-balance')} className="text-sm text-indigo-600 hover:underline">{t('accounting.trial_balance')}</Link>
             </PageHeader>
 
@@ -41,8 +43,8 @@ export default function Index({ entries, filters }) {
                                 <td className="px-4 py-3 text-right">
                                     <ActionButtons
                                         viewHref={route('journal-entries.show', e.id)}
-                                        editHref={can('accounting.edit') && !e.is_locked ? route('journal-entries.edit', e.id) : null}
-                                        onDelete={can('accounting.delete') && !e.is_locked ? () => router.delete(route('journal-entries.destroy', e.id)) : null}
+                                        editHref={!isTransactionReadOnly && can('accounting.edit') && !e.is_locked ? route('journal-entries.edit', e.id) : null}
+                                        onDelete={!isTransactionReadOnly && can('accounting.delete') && !e.is_locked ? () => router.delete(route('journal-entries.destroy', e.id)) : null}
                                     />
                                 </td>
                             </tr>
