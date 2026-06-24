@@ -71,6 +71,9 @@ class ReportController extends Controller
 
         return Inertia::render('Reports/Payroll', [
             'rows' => $data,
+            'summaries' => $this->service->employeePayrollSummaries(
+                ! empty($filters['employee_id']) ? (int) $filters['employee_id'] : null
+            ),
             'filters' => $filters,
             'financialYears' => FinancialYearResource::collection($this->service->financialYearsForFilter()),
         ]);
@@ -138,7 +141,12 @@ class ReportController extends Controller
             'sales' => ['reports.pdf.sales', ['rows' => $this->service->salesReport($filters)]],
             'payments' => ['reports.pdf.payments', ['rows' => $this->service->paymentsReport($filters)]],
             'expenses' => ['reports.pdf.expenses', ['rows' => $this->service->expensesReport($filters)]],
-            'payroll' => ['reports.pdf.payroll', ['rows' => $this->service->payrollReport($filters)]],
+            'payroll' => ['reports.pdf.payroll', [
+                'rows' => $this->service->payrollReport($filters),
+                'summaries' => $this->service->employeePayrollSummaries(
+                    ! empty($filters['employee_id']) ? (int) $filters['employee_id'] : null
+                ),
+            ]],
             'inventory' => ['reports.pdf.inventory', ['rows' => $this->service->inventoryReport($filters)]],
             'customer-balances' => ['reports.pdf.customer-balances', ['rows' => $this->service->customerBalancesReport($filters)]],
             'profit-loss' => ['reports.pdf.profit-loss', ['report' => $this->service->profitLossReport($filters)]],
@@ -190,15 +198,29 @@ class ReportController extends Controller
 
     private function payrollExportData(array $filters): array
     {
-        $rows = $this->service->payrollReport($filters)->map(fn ($row) => [
-            JalaliDate::fromGregorian($row->payment_date),
-            $row->employee?->name,
-            $row->amount,
-            $row->payment_type,
-            $row->period_month,
+        $summaries = $this->service->employeePayrollSummaries(
+            ! empty($filters['employee_id']) ? (int) $filters['employee_id'] : null
+        )->map(fn ($row) => [
+            $row['name'],
+            $row['monthly_salary'],
+            $row['months_worked'],
+            $row['total_earned_salary'],
+            $row['total_paid_salary'],
+            $row['remaining_balance'],
+            $row['overpaid_amount'],
+            __('erp.payroll_statuses.'.$row['payroll_status']),
         ]);
 
-        return [['Date', 'Employee', 'Amount', 'Type', 'Period'], $rows];
+        return [[
+            __('erp.fields.employee'),
+            __('erp.fields.salary'),
+            __('erp.fields.months_worked'),
+            __('erp.fields.total_earned_salary'),
+            __('erp.fields.total_paid_salary'),
+            __('erp.fields.remaining_balance'),
+            __('erp.fields.overpaid_amount'),
+            __('erp.fields.status'),
+        ], $summaries];
     }
 
     private function inventoryExportData(array $filters): array

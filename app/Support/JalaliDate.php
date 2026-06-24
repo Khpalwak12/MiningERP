@@ -60,4 +60,22 @@ class JalaliDate
 
         return [$start->toCarbon()->startOfDay(), $end->toCarbon()->endOfDay()];
     }
+
+    /**
+     * Full Shamsi months elapsed from joining date to the current date (exclusive of partial months).
+     * Example: 1405/01/01 → 1405/05/01 = 4 months.
+     */
+    public static function monthsWorkedSince(string $joiningDateShamsi, string $currentDateShamsi): int
+    {
+        [$joinYear, $joinMonth, $joinDay] = self::parseParts($joiningDateShamsi);
+        [$currentYear, $currentMonth, $currentDay] = self::parseParts($currentDateShamsi);
+
+        if ($currentYear < $joinYear
+            || ($currentYear === $joinYear && $currentMonth < $joinMonth)
+            || ($currentYear === $joinYear && $currentMonth === $joinMonth && $currentDay < $joinDay)) {
+            return 0;
+        }
+
+        return max(0, ($currentYear * 12 + $currentMonth) - ($joinYear * 12 + $joinMonth));
+    }
 }

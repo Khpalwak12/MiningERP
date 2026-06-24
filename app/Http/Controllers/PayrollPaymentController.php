@@ -10,6 +10,7 @@ use App\Http\Resources\PayrollPaymentResource;
 use App\Models\Employee;
 use App\Models\PayrollPayment;
 use App\Services\PayrollPaymentService;
+use App\Support\ActiveFinancialYear;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -31,14 +32,30 @@ class PayrollPaymentController extends Controller
         return Inertia::render('Payroll/Index', [
             'payments' => PayrollPaymentResource::collection($payments),
             'filters' => $request->only(['search', 'date_from', 'date_to', 'employee_id', 'payment_type']),
-            'employees' => EmployeeResource::collection(Employee::query()->where('status', 'active')->orderBy('name')->get()),
+            'employees' => EmployeeResource::collection(
+                Employee::query()->withPayrollTotal()->where('status', 'active')->orderBy('name')->get()
+            ),
         ]);
     }
 
-    public function create(): Response
+    public function create(): Response|RedirectResponse
     {
+        if (ActiveFinancialYear::isAllYearsMode()) {
+            return redirect()
+                ->route('payroll.index')
+                ->with('error', __('erp.financial_years.all_years_read_only'));
+        }
+
+        if (! ActiveFinancialYear::activeYear()) {
+            return redirect()
+                ->route('payroll.index')
+                ->with('error', __('erp.financial_years.no_active_year'));
+        }
+
         return Inertia::render('Payroll/Create', [
-            'employees' => EmployeeResource::collection(Employee::query()->where('status', 'active')->orderBy('name')->get()),
+            'employees' => EmployeeResource::collection(
+                Employee::query()->withPayrollTotal()->where('status', 'active')->orderBy('name')->get()
+            ),
         ]);
     }
 
@@ -64,7 +81,9 @@ class PayrollPaymentController extends Controller
 
         return Inertia::render('Payroll/Edit', [
             'payment' => new PayrollPaymentResource($payroll),
-            'employees' => EmployeeResource::collection(Employee::query()->where('status', 'active')->orderBy('name')->get()),
+            'employees' => EmployeeResource::collection(
+                Employee::query()->withPayrollTotal()->where('status', 'active')->orderBy('name')->get()
+            ),
         ]);
     }
 

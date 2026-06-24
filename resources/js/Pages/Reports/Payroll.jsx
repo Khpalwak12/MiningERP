@@ -8,12 +8,13 @@ import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 import PrimaryButton from '@/Components/PrimaryButton';
 
-export default function Payroll({ rows, filters, financialYears }) {
+export default function Payroll({ rows, summaries, filters, financialYears }) {
     const { t } = useTranslation();
     const [dateFrom, setDateFrom] = useState(filters?.date_from || '');
     const [dateTo, setDateTo] = useState(filters?.date_to || '');
     const [financialYearId, setFinancialYearId] = useState(filters?.financial_year_id || '');
     const list = Array.isArray(rows) ? rows : [];
+    const summaryList = Array.isArray(summaries) ? summaries : [];
 
     return (
         <ErpLayout>
@@ -29,6 +30,40 @@ export default function Payroll({ rows, filters, financialYears }) {
                 <ShamsiDateInput label={t('fields.date_to')} value={dateTo} onChange={setDateTo} />
                 <PrimaryButton type="submit">{t('actions.filter')}</PrimaryButton>
             </form>
+
+            <h2 className="mb-3 text-lg font-semibold">{t('reports.employee_salary_summary')}</h2>
+            <div className="mb-8 overflow-x-auto rounded-lg bg-white shadow">
+                <table className="min-w-full text-sm">
+                    <thead className="bg-gray-50">
+                        <tr>
+                            <th className="px-4 py-3 text-left">{t('fields.employee')}</th>
+                            <th className="px-4 py-3 text-left">{t('fields.salary')}</th>
+                            <th className="px-4 py-3 text-left">{t('fields.months_worked')}</th>
+                            <th className="px-4 py-3 text-left">{t('fields.total_earned_salary')}</th>
+                            <th className="px-4 py-3 text-left">{t('fields.total_paid_salary')}</th>
+                            <th className="px-4 py-3 text-left">{t('fields.remaining_balance')}</th>
+                            <th className="px-4 py-3 text-left">{t('fields.overpaid_amount')}</th>
+                            <th className="px-4 py-3 text-left">{t('fields.status')}</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y">
+                        {summaryList.map((row) => (
+                            <tr key={row.id}>
+                                <td className="px-4 py-3">{row.name}</td>
+                                <td className="px-4 py-3">{formatCurrency(row.monthly_salary)}</td>
+                                <td className="px-4 py-3">{row.months_worked}</td>
+                                <td className="px-4 py-3">{formatCurrency(row.total_earned_salary)}</td>
+                                <td className="px-4 py-3">{formatCurrency(row.total_paid_salary)}</td>
+                                <td className="px-4 py-3">{formatCurrency(row.remaining_balance)}</td>
+                                <td className="px-4 py-3">{formatCurrency(row.overpaid_amount)}</td>
+                                <td className="px-4 py-3">{t(`payroll_statuses.${row.payroll_status}`)}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
+            <h2 className="mb-3 text-lg font-semibold">{t('reports.payment_transactions')}</h2>
             <div className="overflow-x-auto rounded-lg bg-white shadow">
                 <table className="min-w-full text-sm">
                     <thead className="bg-gray-50"><tr><th className="px-4 py-3 text-left">{t('fields.date')}</th><th className="px-4 py-3 text-left">{t('fields.employee')}</th><th className="px-4 py-3 text-left">{t('fields.amount')}</th><th className="px-4 py-3 text-left">{t('fields.payment_type')}</th></tr></thead>

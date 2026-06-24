@@ -91,6 +91,26 @@ class ReportService
         return $query->orderBy('payment_date')->get();
     }
 
+    public function employeePayrollSummaries(?int $employeeId = null): Collection
+    {
+        $accrualService = app(EmployeeSalaryAccrualService::class);
+
+        $query = Employee::query()->withPayrollTotal()->orderBy('name');
+
+        if ($employeeId) {
+            $query->where('id', $employeeId);
+        }
+
+        return $query->get()->map(function (Employee $employee) use ($accrualService) {
+            $summary = $accrualService->summary($employee, totalPaid: (float) $employee->total_paid);
+
+            return array_merge([
+                'id' => $employee->id,
+                'name' => $employee->name,
+            ], $summary);
+        });
+    }
+
     public function inventoryReport(array $filters = []): Collection
     {
         $query = InventoryItem::query();

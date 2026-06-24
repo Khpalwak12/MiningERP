@@ -78,6 +78,12 @@ return [
         'position' => 'موقف',
         'salary' => 'معاش',
         'joining_date' => 'د دندې نیټه',
+        'current_shamsi_date' => 'اوسنۍ شمسي نیټه',
+        'months_worked' => 'کار شوي میاشتې',
+        'total_earned_salary' => 'ټول ترلاسه شوی معاش',
+        'total_paid_salary' => 'ټول تادیه شوی معاش',
+        'remaining_balance' => 'پاتې بیلانس',
+        'overpaid_amount' => 'زیات تادیه شوی مقدار',
         'period_month' => 'د میاشتې دوره',
         'sku' => 'SKU',
         'unit' => 'واحد',
@@ -242,6 +248,12 @@ return [
         'deleted' => 'کارکوونکی په بریالیتوب سره حذف شو.',
         'total_paid' => 'ټول تادیه شوی',
         'remaining_salary' => 'پاتې معاش',
+        'profile_details' => 'د پروفایل جزئیات',
+    ],
+    'payroll_statuses' => [
+        'credit' => 'د کارکوونکي پور (شرکت پور دی)',
+        'settled' => 'تسویه شوی',
+        'overpaid' => 'زیات تادیه شوی',
     ],
     'payroll' => [
         'title' => 'د معاش تادیات',
@@ -251,6 +263,7 @@ return [
         'created' => 'معاش په بریالیتوب سره ثبت شو.',
         'updated' => 'معاش په بریالیتوب سره تازه شو.',
         'deleted' => 'معاش په بریالیتوب سره حذف شو.',
+        'employee_summary' => 'د کارکوونکي معاش لنډیز',
     ],
     'inventory' => [
         'title' => 'ذخیره',
@@ -297,6 +310,8 @@ return [
         'net_profit' => 'خالص ګټه',
         'outstanding_balance' => 'پاتې پور',
         'generated_at' => 'جوړ شوی په',
+        'employee_salary_summary' => 'د کارکوونکو معاش لنډیز',
+        'payment_transactions' => 'د تادیاتو معاملات',
     ],
     'users' => [
         'title' => 'کارونکي',

@@ -47,6 +47,7 @@ class EmployeeController extends Controller
     public function show(Employee $employee): Response
     {
         $employee->load('payrollPayments');
+        $employee->loadSum('payrollPayments as total_paid_sum', 'amount');
 
         return Inertia::render('Employees/Show', [
             'employee' => new EmployeeResource($employee),

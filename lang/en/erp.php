@@ -78,6 +78,12 @@ return [
         'position' => 'Position',
         'salary' => 'Salary',
         'joining_date' => 'Joining Date',
+        'current_shamsi_date' => 'Current Shamsi Date',
+        'months_worked' => 'Months Worked',
+        'total_earned_salary' => 'Total Earned Salary',
+        'total_paid_salary' => 'Total Paid Salary',
+        'remaining_balance' => 'Remaining Balance',
+        'overpaid_amount' => 'Overpaid Amount',
         'period_month' => 'Period Month',
         'sku' => 'SKU',
         'unit' => 'Unit',
@@ -242,6 +248,12 @@ return [
         'deleted' => 'Employee deleted successfully.',
         'total_paid' => 'Total Paid',
         'remaining_salary' => 'Remaining Salary',
+        'profile_details' => 'Profile Details',
+    ],
+    'payroll_statuses' => [
+        'credit' => 'Employee Credit (Company Owes)',
+        'settled' => 'Settled',
+        'overpaid' => 'Overpaid',
     ],
     'payroll' => [
         'title' => 'Payroll Payments',
@@ -251,6 +263,7 @@ return [
         'created' => 'Payroll payment recorded successfully.',
         'updated' => 'Payroll payment updated successfully.',
         'deleted' => 'Payroll payment deleted successfully.',
+        'employee_summary' => 'Employee Salary Summary',
     ],
     'inventory' => [
         'title' => 'Inventory',
@@ -297,6 +310,8 @@ return [
         'net_profit' => 'Net Profit',
         'outstanding_balance' => 'Outstanding Balance',
         'generated_at' => 'Generated At',
+        'employee_salary_summary' => 'Employee Salary Summary',
+        'payment_transactions' => 'Payment Transactions',
     ],
     'users' => [
         'title' => 'Users',
