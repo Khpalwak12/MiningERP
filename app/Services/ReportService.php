@@ -8,11 +8,12 @@ use App\Models\CustomerPayment;
 use App\Models\Employee;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
-use App\Support\ActiveFinancialYear;
+use App\Models\InventoryMovement;
 use App\Models\InventoryItem;
 use App\Models\MarbleShipment;
 use App\Models\PayrollPayment;
 use App\Models\SankariStoneSale;
+use App\Support\ActiveFinancialYear;
 use App\Support\JalaliDate;
 use App\Support\ReportFilterSummary;
 use Illuminate\Support\Collection;
@@ -21,10 +22,14 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ReportService
 {
-    public function __construct(private MpdfPdfService $pdf) {}
+    public function __construct(
+        private MpdfPdfService $pdf,
+        private ReportAdvancedFilterService $advancedFilter,
+    ) {}
+
     public function salesReport(array $filters = []): Collection
     {
-        $query = MarbleShipment::query()->with(['customer']);
+        $query = MarbleShipment::query()->with(['customer', 'creator']);
         $this->applyFinancialYearFilter($query, $filters);
         $this->applyDateFilters($query, $filters, 'shipment_date');
 
@@ -40,6 +45,8 @@ class ReportService
             }
         }
 
+        $this->advancedFilter->apply($query, 'sales', $filters['filter_by'] ?? null, $filters['filter_value'] ?? null);
+
         return $query->orderBy('shipment_date')->get();
     }
 
@@ -48,26 +55,9 @@ class ReportService
         $query = CustomerPayment::query()->with('customer');
         $this->applyFinancialYearFilter($query, $filters);
         $this->applyDateFilters($query, $filters, 'payment_date');
-
-        if (! empty($filters['customer_id'])) {
-            $query->where('customer_id', $filters['customer_id']);
-        }
-
-        if (! empty($filters['receipt_number'])) {
-            $term = addcslashes(trim($filters['receipt_number']), '%_\\');
-            $query->where('receipt_number', 'like', '%'.$term.'%');
-        }
+        $this->advancedFilter->apply($query, 'payments', $filters['filter_by'] ?? null, $filters['filter_value'] ?? null);
 
         return $query->orderBy('payment_date')->get();
-    }
-
-    public function sankariReport(array $filters = []): Collection
-    {
-        $query = SankariStoneSale::query();
-        $this->applyFinancialYearFilter($query, $filters);
-        $this->applyDateFilters($query, $filters, 'sale_date');
-
-        return $query->orderBy('sale_date')->get();
     }
 
     public function expensesReport(array $filters = []): Collection
@@ -75,23 +65,26 @@ class ReportService
         $query = Expense::query()->with(['category']);
         $this->applyFinancialYearFilter($query, $filters);
         $this->applyDateFilters($query, $filters, 'expense_date');
-
-        if (! empty($filters['expense_category_id'])) {
-            $query->where('expense_category_id', $filters['expense_category_id']);
-        }
+        $this->advancedFilter->apply($query, 'expenses', $filters['filter_by'] ?? null, $filters['filter_value'] ?? null);
 
         return $query->orderBy('expense_date')->get();
     }
 
+    public function employeesReport(array $filters = []): Collection
+    {
+        $query = Employee::query();
+        $this->applyDateFilters($query, $filters, 'joining_date');
+        $this->advancedFilter->apply($query, 'employees', $filters['filter_by'] ?? null, $filters['filter_value'] ?? null);
+
+        return $query->orderBy('name')->get();
+    }
+
     public function payrollReport(array $filters = []): Collection
     {
-        $query = PayrollPayment::query()->with('employee');
+        $query = PayrollPayment::query()->with(['employee', 'creator']);
         $this->applyFinancialYearFilter($query, $filters);
         $this->applyDateFilters($query, $filters, 'payment_date');
-
-        if (! empty($filters['employee_id'])) {
-            $query->where('employee_id', $filters['employee_id']);
-        }
+        $this->advancedFilter->apply($query, 'payroll', $filters['filter_by'] ?? null, $filters['filter_value'] ?? null);
 
         return $query->orderBy('payment_date')->get();
     }
@@ -118,16 +111,51 @@ class ReportService
 
     public function inventoryReport(array $filters = []): Collection
     {
-        $query = InventoryItem::query();
+        $query = InventoryMovement::query()->with(['inventoryItem', 'creator']);
+        $this->applyFinancialYearFilter($query, $filters);
+        $this->applyDateFilters($query, $filters, 'movement_date');
+        $this->advancedFilter->apply($query, 'inventory', $filters['filter_by'] ?? null, $filters['filter_value'] ?? null);
 
-        if (! empty($filters['low_stock'])) {
-            $query->whereColumn('current_stock', '<=', 'min_stock');
-        }
-
-        return $query->orderBy('name')->get();
+        return $query->orderBy('movement_date')->get();
     }
 
-    public function customerBalancesReport(): Collection
+    public function dailyProductionReport(array $filters = []): Collection
+    {
+        $query = MarbleShipment::query()->with(['customer', 'creator']);
+        $this->applyFinancialYearFilter($query, $filters);
+        $this->applyDateFilters($query, $filters, 'shipment_date');
+        $this->advancedFilter->apply($query, 'daily-production', $filters['filter_by'] ?? null, $filters['filter_value'] ?? null);
+
+        return $query->orderBy('shipment_date')->get();
+    }
+
+    public function monthlyProductionReport(array $filters = []): Collection
+    {
+        $query = MarbleShipment::query()->with('creator');
+        $this->applyFinancialYearFilter($query, $filters);
+        $this->applyDateFilters($query, $filters, 'shipment_date');
+
+        if (($filters['filter_by'] ?? '') === 'created_by' && ($filters['filter_value'] ?? '') !== '') {
+            $term = addcslashes(trim((string) $filters['filter_value']), '%_\\');
+            $query->whereHas('creator', fn ($q) => $q->where('name', 'like', '%'.$term.'%'));
+        }
+
+        $rows = $query->get()->groupBy(fn (MarbleShipment $shipment) => JalaliDate::fromGregorian($shipment->shipment_date, 'Y/m'))
+            ->map(function (Collection $shipments, string $month) {
+                return [
+                    'month' => $month,
+                    'shipment_count' => $shipments->count(),
+                    'total_tons' => (float) $shipments->sum(fn (MarbleShipment $s) => (float) ($s->quantity_ton ?? 0)),
+                    'total_sales' => (float) $shipments->where('status', MarbleShipment::STATUS_COMPLETED)->sum('total_amount'),
+                ];
+            })
+            ->sortKeys()
+            ->values();
+
+        return $this->filterMonthlyProductionRows($rows, $filters);
+    }
+
+    public function customerBalancesReport(array $filters = []): Collection
     {
         $yearId = ActiveFinancialYear::isAllYearsMode() ? null : ActiveFinancialYear::activeYearId();
 
@@ -137,6 +165,27 @@ class ReportService
         if ($yearId) {
             $shipmentConstraint = fn ($q) => $q->completed()->where('financial_year_id', $yearId);
             $paymentConstraint = fn ($q) => $q->where('financial_year_id', $yearId);
+        }
+
+        if (! empty($filters['date_from']) || ! empty($filters['date_to'])) {
+            $shipmentConstraint = function ($q) use ($shipmentConstraint, $filters) {
+                $shipmentConstraint($q);
+                if (! empty($filters['date_from'])) {
+                    $q->whereDate('shipment_date', '>=', JalaliDate::toGregorian($filters['date_from']));
+                }
+                if (! empty($filters['date_to'])) {
+                    $q->whereDate('shipment_date', '<=', JalaliDate::toGregorian($filters['date_to']));
+                }
+            };
+            $paymentConstraint = function ($q) use ($paymentConstraint, $filters) {
+                $paymentConstraint($q);
+                if (! empty($filters['date_from'])) {
+                    $q->whereDate('payment_date', '>=', JalaliDate::toGregorian($filters['date_from']));
+                }
+                if (! empty($filters['date_to'])) {
+                    $q->whereDate('payment_date', '<=', JalaliDate::toGregorian($filters['date_to']));
+                }
+            };
         }
 
         return Customer::query()
@@ -177,16 +226,24 @@ class ReportService
         ];
     }
 
-    public function expenseByCategoryReport(array $filters = []): Collection
+    public function profitLossMatchesFilter(array $report, array $filters): bool
     {
-        $query = Expense::query()
-            ->selectRaw('expense_category_id, SUM(amount) as total')
-            ->groupBy('expense_category_id');
+        if (empty($filters['filter_by']) || $filters['filter_value'] === null || $filters['filter_value'] === '') {
+            return true;
+        }
 
-        $this->applyFinancialYearFilter($query, $filters);
-        $this->applyDateFilters($query, $filters, 'expense_date');
+        $field = match ($filters['filter_by']) {
+            'revenue' => 'total_income',
+            'expense' => 'total_expenses',
+            'net_profit' => 'net_profit',
+            default => null,
+        };
 
-        return $query->with('category')->get();
+        if (! $field) {
+            return true;
+        }
+
+        return (float) $report[$field] === (float) $filters['filter_value'];
     }
 
     public function exportExcel(string $reportType, array $filters, array $headings, Collection $rows): BinaryFileResponse
@@ -209,6 +266,24 @@ class ReportService
             'locale' => app()->getLocale(),
             'isRtl' => app()->getLocale() === 'ps',
         ]));
+    }
+
+    private function filterMonthlyProductionRows(Collection $rows, array $filters): Collection
+    {
+        if (empty($filters['filter_by']) || $filters['filter_value'] === null || $filters['filter_value'] === '') {
+            return $rows;
+        }
+
+        return $rows->filter(function (array $row) use ($filters) {
+            $value = $filters['filter_value'];
+
+            return match ($filters['filter_by']) {
+                'month' => str_contains($row['month'], (string) $value),
+                'quantity' => (float) $row['shipment_count'] === (float) $value,
+                'total_tons' => (float) $row['total_tons'] === (float) $value,
+                default => true,
+            };
+        })->values();
     }
 
     private function applyFinancialYearFilter($query, array $filters = []): void

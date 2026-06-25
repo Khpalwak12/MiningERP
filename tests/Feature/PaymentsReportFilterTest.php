@@ -52,13 +52,16 @@ class PaymentsReportFilterTest extends TestCase
             'created_by' => $user->id,
         ]);
 
-        $results = app(ReportService::class)->paymentsReport(['receipt_number' => '123']);
+        $results = app(ReportService::class)->paymentsReport([
+            'filter_by' => 'receipt_number',
+            'filter_value' => '123',
+        ]);
 
         $this->assertCount(2, $results);
         $this->assertTrue($results->every(fn ($payment) => str_contains($payment->receipt_number, '123')));
     }
 
-    public function test_receipt_number_filter_combines_with_customer_filter(): void
+    public function test_customer_advanced_filter_uses_exact_matching(): void
     {
         $this->seed();
 
@@ -88,8 +91,8 @@ class PaymentsReportFilterTest extends TestCase
         ]);
 
         $results = app(ReportService::class)->paymentsReport([
-            'customer_id' => $factoryA->id,
-            'receipt_number' => '123',
+            'filter_by' => 'customer',
+            'filter_value' => $factoryA->id,
         ]);
 
         $this->assertCount(1, $results);

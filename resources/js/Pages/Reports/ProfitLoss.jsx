@@ -1,19 +1,12 @@
+import ReportFilterForm from '@/Components/Erp/ReportFilterForm';
 import ErpLayout from '@/Layouts/ErpLayout';
 import FlashMessage from '@/Components/Erp/FlashMessage';
-import ReportExportButtons from '@/Components/Erp/ReportExportButtons';
-import ShamsiDateInput from '@/Components/Erp/ShamsiDateInput';
 import useTranslation from '@/hooks/useTranslation';
 import { formatCurrency } from '@/utils/format';
-import { buildExportQuery } from '@/utils/reportExport';
-import { Head, Link, router } from '@inertiajs/react';
-import { useState } from 'react';
-import PrimaryButton from '@/Components/PrimaryButton';
+import { Head, Link } from '@inertiajs/react';
 
-export default function ProfitLoss({ report, filters }) {
+export default function ProfitLoss({ report, filters, matchesFilter = true }) {
     const { t } = useTranslation();
-    const [dateFrom, setDateFrom] = useState(filters?.date_from || '');
-    const [dateTo, setDateTo] = useState(filters?.date_to || '');
-    const exportQuery = buildExportQuery({ date_from: dateFrom, date_to: dateTo });
 
     const items = [
         { key: 'marble_sales', label: t('reports.marble_sales') },
@@ -33,23 +26,29 @@ export default function ProfitLoss({ report, filters }) {
                 <h1 className="text-2xl font-bold">{t('reports.profit_loss')}</h1>
                 <Link href={route('reports.index')} className="text-sm text-indigo-600 hover:underline">{t('actions.back')}</Link>
             </div>
-            <form onSubmit={(e) => { e.preventDefault(); router.get(route('reports.profit-loss'), { date_from: dateFrom, date_to: dateTo }, { preserveState: true }); }} className="mb-4 flex flex-wrap items-end gap-4 rounded-lg bg-white p-4 shadow">
-                <ShamsiDateInput label={t('fields.date_from')} value={dateFrom} onChange={setDateFrom} />
-                <ShamsiDateInput label={t('fields.date_to')} value={dateTo} onChange={setDateTo} />
-                <PrimaryButton type="submit">{t('actions.filter')}</PrimaryButton>
-                <ReportExportButtons exportType="profit-loss" queryString={exportQuery} />
-            </form>
+
+            <ReportFilterForm
+                reportType="profit-loss"
+                routeName="reports.profit-loss"
+                filters={filters}
+                exportType="profit-loss"
+            />
+
             <div className="rounded-lg bg-white p-6 shadow">
-                <table className="min-w-full text-sm">
-                    <tbody className="divide-y">
-                        {items.map((item) => (
-                            <tr key={item.key}>
-                                <td className="py-3 font-medium">{item.label}</td>
-                                <td className="py-3 text-right">{formatCurrency(report?.[item.key] ?? 0)}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                {!matchesFilter ? (
+                    <p className="text-center text-gray-500">{t('messages.no_records')}</p>
+                ) : (
+                    <table className="min-w-full text-sm">
+                        <tbody className="divide-y">
+                            {items.map((item) => (
+                                <tr key={item.key}>
+                                    <td className="py-3 font-medium">{item.label}</td>
+                                    <td className="py-3 text-right">{formatCurrency(report?.[item.key] ?? 0)}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
             </div>
         </ErpLayout>
     );

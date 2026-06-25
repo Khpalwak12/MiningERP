@@ -7,8 +7,11 @@ const reportLinks = [
     { route: 'reports.sales', key: 'reports.sales' },
     { route: 'reports.payments', key: 'reports.payments' },
     { route: 'reports.expenses', key: 'reports.expenses' },
+    { route: 'reports.employees', key: 'reports.employees' },
     { route: 'reports.payroll', key: 'reports.payroll' },
     { route: 'reports.inventory', key: 'reports.inventory' },
+    { route: 'reports.daily-production', key: 'reports.daily_production' },
+    { route: 'reports.monthly-production', key: 'reports.monthly_production' },
     { route: 'reports.customer-balances', key: 'reports.customer_balances' },
     { route: 'reports.profit-loss', key: 'reports.profit_loss' },
 ];

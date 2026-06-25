@@ -1,21 +1,14 @@
+import ReportFilterForm from '@/Components/Erp/ReportFilterForm';
 import ErpLayout from '@/Layouts/ErpLayout';
 import FlashMessage from '@/Components/Erp/FlashMessage';
-import ReportExportButtons from '@/Components/Erp/ReportExportButtons';
-import ShamsiDateInput from '@/Components/Erp/ShamsiDateInput';
 import useTranslation from '@/hooks/useTranslation';
 import { formatCurrency } from '@/utils/format';
-import { buildExportQuery } from '@/utils/reportExport';
 import { resourceItems } from '@/utils/resource';
-import { Head, Link, router } from '@inertiajs/react';
-import { useState } from 'react';
-import PrimaryButton from '@/Components/PrimaryButton';
+import { Head, Link } from '@inertiajs/react';
 
-export default function Expenses({ rows, filters }) {
+export default function Expenses({ rows, filters, expenseCategories }) {
     const { t } = useTranslation();
-    const [dateFrom, setDateFrom] = useState(filters?.date_from || '');
-    const [dateTo, setDateTo] = useState(filters?.date_to || '');
     const list = resourceItems(rows);
-    const exportQuery = buildExportQuery({ date_from: dateFrom, date_to: dateTo });
 
     return (
         <ErpLayout>
@@ -25,12 +18,15 @@ export default function Expenses({ rows, filters }) {
                 <h1 className="text-2xl font-bold">{t('reports.expenses')}</h1>
                 <Link href={route('reports.index')} className="text-sm text-indigo-600 hover:underline">{t('actions.back')}</Link>
             </div>
-            <form onSubmit={(e) => { e.preventDefault(); router.get(route('reports.expenses'), { date_from: dateFrom, date_to: dateTo }, { preserveState: true }); }} className="mb-4 flex flex-wrap items-end gap-4 rounded-lg bg-white p-4 shadow">
-                <ShamsiDateInput label={t('fields.date_from')} value={dateFrom} onChange={setDateFrom} />
-                <ShamsiDateInput label={t('fields.date_to')} value={dateTo} onChange={setDateTo} />
-                <PrimaryButton type="submit">{t('actions.filter')}</PrimaryButton>
-                <ReportExportButtons exportType="expenses" queryString={exportQuery} />
-            </form>
+
+            <ReportFilterForm
+                reportType="expenses"
+                routeName="reports.expenses"
+                filters={filters}
+                exportType="expenses"
+                lookups={{ expenseCategories }}
+            />
+
             <div className="overflow-x-auto rounded-lg bg-white shadow">
                 <table className="min-w-full text-sm">
                     <thead className="bg-gray-50">

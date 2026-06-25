@@ -5,9 +5,14 @@ namespace App\Http\Controllers;
 use App\Exports\PayrollReportExcelExport;
 use App\Http\Resources\CustomerPaymentResource;
 use App\Http\Resources\CustomerResource;
+use App\Http\Resources\EmployeeResource;
+use App\Http\Resources\ExpenseCategoryResource;
 use App\Http\Resources\ExpenseResource;
+use App\Http\Resources\InventoryMovementResource;
 use App\Http\Resources\MarbleShipmentResource;
 use App\Models\Customer;
+use App\Models\Employee;
+use App\Models\ExpenseCategory;
 use App\Services\ReportService;
 use App\Support\JalaliDate;
 use Illuminate\Http\Request;
@@ -31,69 +36,103 @@ class ReportController extends Controller
 
     public function sales(Request $request): Response
     {
-        $filters = $request->only(['date_from', 'date_to', 'customer_id', 'status']);
+        $filters = $this->reportFilters($request, ['customer_id', 'status']);
         $data = $this->service->salesReport($filters);
 
-        return Inertia::render('Reports/Sales', [
-            'rows' => MarbleShipmentResource::collection($data),
-            'filters' => $filters,
-            'customers' => CustomerResource::collection(
-                Customer::query()->where('status', 'active')->orderBy('name')->get()
-            ),
-            'selectedCustomer' => ! empty($filters['customer_id']) && ($customer = Customer::query()->find($filters['customer_id']))
-                ? new CustomerResource($customer)
-                : null,
-        ]);
+        return Inertia::render('Reports/Sales', array_merge(
+            $this->filterLookups($filters),
+            [
+                'rows' => MarbleShipmentResource::collection($data),
+                'filters' => $filters,
+            ]
+        ));
     }
 
     public function payments(Request $request): Response
     {
-        $filters = $request->only(['date_from', 'date_to', 'customer_id', 'receipt_number']);
+        $filters = $this->reportFilters($request);
         $data = $this->service->paymentsReport($filters);
 
-        return Inertia::render('Reports/Payments', [
-            'rows' => CustomerPaymentResource::collection($data),
-            'filters' => $filters,
-            'customers' => CustomerResource::collection(
-                Customer::query()->where('status', 'active')->orderBy('name')->get()
-            ),
-            'selectedCustomer' => ! empty($filters['customer_id']) && ($customer = Customer::query()->find($filters['customer_id']))
-                ? new CustomerResource($customer)
-                : null,
-        ]);
+        return Inertia::render('Reports/Payments', array_merge(
+            $this->filterLookups($filters),
+            [
+                'rows' => CustomerPaymentResource::collection($data),
+                'filters' => $filters,
+            ]
+        ));
     }
 
     public function expenses(Request $request): Response
     {
-        $filters = $request->only(['date_from', 'date_to', 'expense_category_id']);
+        $filters = $this->reportFilters($request);
         $data = $this->service->expensesReport($filters);
 
-        return Inertia::render('Reports/Expenses', [
-            'rows' => ExpenseResource::collection($data),
-            'filters' => $filters,
-        ]);
+        return Inertia::render('Reports/Expenses', array_merge(
+            $this->filterLookups($filters),
+            [
+                'rows' => ExpenseResource::collection($data),
+                'filters' => $filters,
+            ]
+        ));
+    }
+
+    public function employees(Request $request): Response
+    {
+        $filters = $this->reportFilters($request);
+        $data = $this->service->employeesReport($filters);
+
+        return Inertia::render('Reports/Employees', array_merge(
+            $this->filterLookups($filters),
+            [
+                'rows' => EmployeeResource::collection($data),
+                'filters' => $filters,
+            ]
+        ));
     }
 
     public function payroll(Request $request): Response
     {
-        $filters = $request->only(['date_from', 'date_to', 'employee_id']);
+        $filters = $this->reportFilters($request);
         $data = $this->service->payrollReport($filters);
 
-        return Inertia::render('Reports/Payroll', [
-            'rows' => $data,
-            'summaries' => $this->service->employeePayrollSummaries(
-                ! empty($filters['employee_id']) ? (int) $filters['employee_id'] : null
-            ),
-            'filters' => $filters,
-        ]);
+        return Inertia::render('Reports/Payroll', array_merge(
+            $this->filterLookups($filters),
+            [
+                'rows' => $data,
+                'summaries' => $this->service->employeePayrollSummaries($this->employeeIdFromFilters($filters)),
+                'filters' => $filters,
+            ]
+        ));
     }
 
     public function inventory(Request $request): Response
     {
-        $filters = $request->only(['low_stock']);
+        $filters = $this->reportFilters($request);
         $data = $this->service->inventoryReport($filters);
 
         return Inertia::render('Reports/Inventory', [
+            'rows' => InventoryMovementResource::collection($data),
+            'filters' => $filters,
+        ]);
+    }
+
+    public function dailyProduction(Request $request): Response
+    {
+        $filters = $this->reportFilters($request);
+        $data = $this->service->dailyProductionReport($filters);
+
+        return Inertia::render('Reports/DailyProduction', [
+            'rows' => MarbleShipmentResource::collection($data),
+            'filters' => $filters,
+        ]);
+    }
+
+    public function monthlyProduction(Request $request): Response
+    {
+        $filters = $this->reportFilters($request);
+        $data = $this->service->monthlyProductionReport($filters);
+
+        return Inertia::render('Reports/MonthlyProduction', [
             'rows' => $data,
             'filters' => $filters,
         ]);
@@ -101,30 +140,34 @@ class ReportController extends Controller
 
     public function customerBalances(Request $request): Response
     {
-        $data = $this->service->customerBalancesReport();
+        $filters = $this->reportFilters($request);
+        $data = $this->service->customerBalancesReport($filters);
 
         return Inertia::render('Reports/CustomerBalances', [
             'customers' => CustomerResource::collection($data),
+            'filters' => $filters,
         ]);
     }
 
     public function profitLoss(Request $request): Response
     {
-        $filters = $request->only(['date_from', 'date_to']);
+        $filters = $this->reportFilters($request);
         $data = $this->service->profitLossReport($filters);
+        $matchesFilter = $this->service->profitLossMatchesFilter($data, $filters);
 
         return Inertia::render('Reports/ProfitLoss', [
             'report' => $data,
             'filters' => $filters,
+            'matchesFilter' => $matchesFilter,
         ]);
     }
 
     public function exportExcel(Request $request, string $type): BinaryFileResponse
     {
-        $filters = $request->only(['date_from', 'date_to', 'customer_id', 'employee_id', 'expense_category_id', 'low_stock', 'status', 'receipt_number']);
+        $filters = $this->exportFilters($request, $type);
 
         if ($type === 'payroll') {
-            $filename = "payroll_".now()->format('Ymd_His').'.xlsx';
+            $filename = 'payroll_'.now()->format('Ymd_His').'.xlsx';
 
             return Excel::download(new PayrollReportExcelExport($filters, $this->service), $filename);
         }
@@ -133,9 +176,12 @@ class ReportController extends Controller
             'sales' => $this->salesExportData($filters),
             'payments' => $this->paymentsExportData($filters),
             'expenses' => $this->expensesExportData($filters),
+            'employees' => $this->employeesExportData($filters),
             'payroll' => abort(404),
             'inventory' => $this->inventoryExportData($filters),
-            'customer-balances' => $this->customerBalancesExportData(),
+            'daily-production' => $this->dailyProductionExportData($filters),
+            'monthly-production' => $this->monthlyProductionExportData($filters),
+            'customer-balances' => $this->customerBalancesExportData($filters),
             'profit-loss' => $this->profitLossExportData($filters),
             default => abort(404),
         };
@@ -145,25 +191,85 @@ class ReportController extends Controller
 
     public function exportPdf(Request $request, string $type): \Illuminate\Http\Response
     {
-        $filters = $request->only(['date_from', 'date_to', 'customer_id', 'employee_id', 'expense_category_id', 'low_stock', 'status', 'receipt_number']);
+        $filters = $this->exportFilters($request, $type);
 
         [$view, $data] = match ($type) {
             'sales' => ['reports.pdf.sales', ['rows' => $this->service->salesReport($filters)]],
             'payments' => ['reports.pdf.payments', ['rows' => $this->service->paymentsReport($filters)]],
             'expenses' => ['reports.pdf.expenses', ['rows' => $this->service->expensesReport($filters)]],
+            'employees' => ['reports.pdf.employees', ['rows' => $this->service->employeesReport($filters)]],
             'payroll' => ['reports.pdf.payroll', [
                 'rows' => $this->service->payrollReport($filters),
-                'summaries' => $this->service->employeePayrollSummaries(
-                    ! empty($filters['employee_id']) ? (int) $filters['employee_id'] : null
-                ),
+                'summaries' => $this->service->employeePayrollSummaries($this->employeeIdFromFilters($filters)),
             ]],
             'inventory' => ['reports.pdf.inventory', ['rows' => $this->service->inventoryReport($filters)]],
-            'customer-balances' => ['reports.pdf.customer-balances', ['rows' => $this->service->customerBalancesReport()]],
-            'profit-loss' => ['reports.pdf.profit-loss', ['report' => $this->service->profitLossReport($filters)]],
+            'daily-production' => ['reports.pdf.daily-production', ['rows' => $this->service->dailyProductionReport($filters)]],
+            'monthly-production' => ['reports.pdf.monthly-production', ['rows' => $this->service->monthlyProductionReport($filters)]],
+            'customer-balances' => ['reports.pdf.customer-balances', ['rows' => $this->service->customerBalancesReport($filters)]],
+            'profit-loss' => ['reports.pdf.profit-loss', [
+                'report' => $this->service->profitLossReport($filters),
+                'matchesFilter' => $this->service->profitLossMatchesFilter(
+                    $this->service->profitLossReport($filters),
+                    $filters
+                ),
+            ]],
             default => abort(404),
         };
 
         return $this->service->exportPdf($type, $filters, $view, $data);
+    }
+
+    private function reportFilters(Request $request, array $extra = []): array
+    {
+        return $request->only(array_merge(['date_from', 'date_to', 'filter_by', 'filter_value'], $extra));
+    }
+
+    private function exportFilters(Request $request, string $type): array
+    {
+        $extra = match ($type) {
+            'sales' => ['customer_id', 'status'],
+            default => [],
+        };
+
+        return $this->reportFilters($request, $extra);
+    }
+
+    private function employeeIdFromFilters(array $filters): ?int
+    {
+        if (($filters['filter_by'] ?? '') === 'employee' && ! empty($filters['filter_value'])) {
+            return (int) $filters['filter_value'];
+        }
+
+        return null;
+    }
+
+    private function filterLookups(array $filters): array
+    {
+        $selectedCustomer = null;
+        if (! empty($filters['customer_id'])) {
+            $selectedCustomer = Customer::query()->find($filters['customer_id']);
+        } elseif (($filters['filter_by'] ?? '') === 'customer' && ! empty($filters['filter_value'])) {
+            $selectedCustomer = Customer::query()->find($filters['filter_value']);
+        }
+
+        $selectedEmployee = null;
+        if (($filters['filter_by'] ?? '') === 'employee' && ! empty($filters['filter_value'])) {
+            $selectedEmployee = Employee::query()->find($filters['filter_value']);
+        }
+
+        return [
+            'customers' => CustomerResource::collection(
+                Customer::query()->where('status', 'active')->orderBy('name')->get()
+            ),
+            'employees' => EmployeeResource::collection(
+                Employee::query()->orderBy('name')->get()
+            ),
+            'expenseCategories' => ExpenseCategoryResource::collection(
+                ExpenseCategory::query()->orderBy('name')->get()
+            ),
+            'selectedCustomer' => $selectedCustomer ? new CustomerResource($selectedCustomer) : null,
+            'selectedEmployee' => $selectedEmployee ? new EmployeeResource($selectedEmployee) : null,
+        ];
     }
 
     private function salesExportData(array $filters): array
@@ -244,28 +350,90 @@ class ReportController extends Controller
         ], $rows];
     }
 
-    private function inventoryExportData(array $filters): array
+    private function employeesExportData(array $filters): array
     {
-        $rows = $this->service->inventoryReport($filters)->map(fn ($row) => [
+        $data = $this->service->employeesReport($filters);
+        $rows = $data->map(fn ($row) => [
             $row->name,
-            $row->sku,
-            $row->unit,
-            $row->current_stock,
-            $row->min_stock,
+            $row->father_name ?? '—',
+            $row->position ?? '—',
+            $row->phone ?? '—',
+            __('erp.status.'.$row->status),
+            $row->salary,
+            JalaliDate::fromGregorian($row->joining_date),
         ]);
 
         return [[
-            __('erp.fields.name'),
-            __('erp.fields.sku'),
-            __('erp.fields.unit'),
-            __('erp.fields.current_stock'),
-            __('erp.fields.min_stock'),
+            __('erp.report_filters.employee_name'),
+            __('erp.fields.father_name'),
+            __('erp.fields.position'),
+            __('erp.fields.phone'),
+            __('erp.fields.status'),
+            __('erp.fields.salary'),
+            __('erp.fields.joining_date'),
         ], $rows];
     }
 
-    private function customerBalancesExportData(): array
+    private function inventoryExportData(array $filters): array
     {
-        $data = $this->service->customerBalancesReport();
+        $rows = $this->service->inventoryReport($filters)->map(fn ($row) => [
+            JalaliDate::fromGregorian($row->movement_date),
+            $row->inventoryItem?->name,
+            $row->inventoryItem?->sku,
+            $row->inventoryItem?->category ?? '—',
+            __('erp.movement_types.'.$row->movement_type),
+            $row->quantity,
+        ]);
+
+        return [[
+            __('erp.fields.date'),
+            __('erp.fields.name'),
+            __('erp.fields.sku'),
+            __('erp.fields.category'),
+            __('erp.fields.movement_type'),
+            __('erp.fields.quantity'),
+        ], $rows];
+    }
+
+    private function dailyProductionExportData(array $filters): array
+    {
+        $data = $this->service->dailyProductionReport($filters);
+        $rows = $data->map(fn ($row) => [
+            JalaliDate::fromGregorian($row->shipment_date),
+            $row->quantity_ton ?? '—',
+            $row->creator?->name ?? '—',
+            $row->notes ?? '—',
+        ]);
+
+        return [[
+            __('erp.fields.date'),
+            __('erp.fields.quantity_ton'),
+            __('erp.report_filters.created_by'),
+            __('erp.fields.notes'),
+        ], $rows];
+    }
+
+    private function monthlyProductionExportData(array $filters): array
+    {
+        $data = $this->service->monthlyProductionReport($filters);
+        $rows = $data->map(fn ($row) => [
+            $row['month'],
+            $row['shipment_count'],
+            $row['total_tons'],
+            $row['total_sales'],
+        ]);
+
+        return [[
+            __('erp.report_filters.month'),
+            __('erp.report_filters.quantity'),
+            __('erp.report_filters.total_tons'),
+            __('erp.reports.total_sales'),
+        ], $rows];
+    }
+
+    private function customerBalancesExportData(array $filters): array
+    {
+        $data = $this->service->customerBalancesReport($filters);
         $rows = $data->map(fn ($row) => [
             $row->name,
             $row->total_sales ?? 0,
@@ -291,6 +459,10 @@ class ReportController extends Controller
     private function profitLossExportData(array $filters): array
     {
         $report = $this->service->profitLossReport($filters);
+
+        if (! $this->service->profitLossMatchesFilter($report, $filters)) {
+            return [[__('erp.fields.description'), __('erp.fields.amount')], collect()];
+        }
 
         $rows = collect([
             [__('erp.reports.marble_sales'), $report['marble_sales']],

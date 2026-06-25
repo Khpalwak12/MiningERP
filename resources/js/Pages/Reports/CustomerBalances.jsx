@@ -1,13 +1,14 @@
+import ReportFilterForm from '@/Components/Erp/ReportFilterForm';
 import ErpLayout from '@/Layouts/ErpLayout';
 import FlashMessage from '@/Components/Erp/FlashMessage';
-import ReportExportButtons from '@/Components/Erp/ReportExportButtons';
 import useTranslation from '@/hooks/useTranslation';
 import { formatCurrency } from '@/utils/format';
+import { resourceItems } from '@/utils/resource';
 import { Head, Link } from '@inertiajs/react';
 
-export default function CustomerBalances({ customers }) {
+export default function CustomerBalances({ customers, filters }) {
     const { t } = useTranslation();
-    const list = customers?.data ?? [];
+    const list = resourceItems(customers);
 
     return (
         <ErpLayout>
@@ -17,9 +18,14 @@ export default function CustomerBalances({ customers }) {
                 <h1 className="text-2xl font-bold">{t('reports.customer_balances')}</h1>
                 <Link href={route('reports.index')} className="text-sm text-indigo-600 hover:underline">{t('actions.back')}</Link>
             </div>
-            <div className="mb-4 flex flex-wrap items-end gap-4 rounded-lg bg-white p-4 shadow">
-                <ReportExportButtons exportType="customer-balances" />
-            </div>
+
+            <ReportFilterForm
+                reportType="customer-balances"
+                routeName="reports.customer-balances"
+                filters={filters}
+                exportType="customer-balances"
+            />
+
             <div className="overflow-x-auto rounded-lg bg-white shadow">
                 <table className="min-w-full text-sm">
                     <thead className="bg-gray-50">

@@ -27,24 +27,6 @@ class ReportFilterSummary
             }
         }
 
-        if (! empty($filters['receipt_number'])) {
-            $summary[__('erp.fields.receipt_number')] = $filters['receipt_number'];
-        }
-
-        if (! empty($filters['employee_id'])) {
-            $employee = Employee::query()->find($filters['employee_id']);
-            if ($employee) {
-                $summary[__('erp.fields.employee')] = $employee->name;
-            }
-        }
-
-        if (! empty($filters['expense_category_id'])) {
-            $category = ExpenseCategory::query()->find($filters['expense_category_id']);
-            if ($category) {
-                $summary[__('erp.fields.category')] = $category->localized_name;
-            }
-        }
-
         if (! empty($filters['status'])) {
             $statusKey = 'erp.shipments.statuses.'.$filters['status'];
             $summary[__('erp.fields.status')] = __($statusKey) !== $statusKey
@@ -52,10 +34,36 @@ class ReportFilterSummary
                 : $filters['status'];
         }
 
-        if (! empty($filters['low_stock']) && filter_var($filters['low_stock'], FILTER_VALIDATE_BOOLEAN)) {
-            $summary[__('erp.reports.low_stock_only')] = '✓';
+        if (! empty($filters['filter_by']) && ($filters['filter_value'] ?? '') !== '') {
+            $labelKey = 'erp.report_filters.'.$filters['filter_by'];
+            $fieldLabel = __($labelKey) !== $labelKey
+                ? __($labelKey)
+                : (__('erp.fields.'.$filters['filter_by']) !== 'erp.fields.'.$filters['filter_by']
+                    ? __('erp.fields.'.$filters['filter_by'])
+                    : $filters['filter_by']);
+
+            $summary[$fieldLabel] = self::resolveFilterValue($filters['filter_by'], $filters['filter_value']);
         }
 
         return $summary;
+    }
+
+    private static function resolveFilterValue(string $filterBy, mixed $value): string
+    {
+        return match ($filterBy) {
+            'customer' => Customer::query()->find($value)?->name ?? (string) $value,
+            'employee' => Employee::query()->find($value)?->name ?? (string) $value,
+            'category' => ExpenseCategory::query()->find($value)?->localized_name ?? (string) $value,
+            'status', 'employee_status' => __('erp.status.'.$value) !== 'erp.status.'.$value
+                ? __('erp.status.'.$value)
+                : (string) $value,
+            'movement_type' => __('erp.movement_types.'.$value) !== 'erp.movement_types.'.$value
+                ? __('erp.movement_types.'.$value)
+                : (string) $value,
+            'payment_type' => __('erp.payment_types.'.$value) !== 'erp.payment_types.'.$value
+                ? __('erp.payment_types.'.$value)
+                : (string) $value,
+            default => (string) $value,
+        };
     }
 }

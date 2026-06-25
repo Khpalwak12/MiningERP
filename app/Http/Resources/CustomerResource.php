@@ -10,8 +10,8 @@ class CustomerResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
-        $totalSales = (float) ($this->total_sales_sum ?? $this->shipments_sum_total_amount ?? 0);
-        $totalPayments = (float) ($this->total_payments_sum ?? $this->payments_sum_amount ?? 0);
+        $totalSales = (float) ($this->total_sales ?? $this->total_sales_sum ?? $this->shipments_sum_total_amount ?? 0);
+        $totalPayments = (float) ($this->total_payments ?? $this->total_payments_sum ?? $this->payments_sum_amount ?? 0);
 
         return [
             'id' => $this->id,
@@ -22,7 +22,9 @@ class CustomerResource extends JsonResource
             'status' => $this->status,
             'total_sales' => $totalSales,
             'total_payments' => $totalPayments,
-            'outstanding_balance' => $totalSales - $totalPayments,
+            'outstanding_balance' => isset($this->outstanding_balance)
+                ? (float) $this->outstanding_balance
+                : $totalSales - $totalPayments,
             'shipments' => MarbleShipmentResource::collection($this->whenLoaded('shipments')),
             'payments' => CustomerPaymentResource::collection($this->whenLoaded('payments')),
             'ledger' => $this->when(isset($this->ledger), $this->ledger),

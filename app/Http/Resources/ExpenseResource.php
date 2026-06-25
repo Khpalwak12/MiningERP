@@ -20,6 +20,7 @@ class ExpenseResource extends JsonResource
             'amount' => (float) $this->amount,
             'description' => $this->description,
             'attachment' => $this->attachment,
+            'category' => new ExpenseCategoryResource($this->whenLoaded('category')),
             'is_locked' => $this->isInClosedFinancialYear(),
             'creator' => new UserResource($this->whenLoaded('creator')),
             'created_at' => $this->created_at?->toISOString(),

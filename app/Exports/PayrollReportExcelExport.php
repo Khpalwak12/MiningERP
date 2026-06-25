@@ -16,7 +16,9 @@ class PayrollReportExcelExport implements WithMultipleSheets
     public function sheets(): array
     {
         $summaries = $this->service->employeePayrollSummaries(
-            ! empty($this->filters['employee_id']) ? (int) $this->filters['employee_id'] : null
+            ($this->filters['filter_by'] ?? '') === 'employee' && ! empty($this->filters['filter_value'])
+                ? (int) $this->filters['filter_value']
+                : null
         );
 
         $summaryRows = $summaries->map(fn ($row) => [
