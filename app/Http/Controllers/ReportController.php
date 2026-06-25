@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\PayrollReportExcelExport;
 use App\Http\Resources\CustomerResource;
 use App\Http\Resources\ExpenseResource;
 use App\Http\Resources\MarbleShipmentResource;
@@ -11,6 +12,7 @@ use App\Support\JalaliDate;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ReportController extends Controller
@@ -114,11 +116,17 @@ class ReportController extends Controller
     {
         $filters = $request->only(['date_from', 'date_to', 'customer_id', 'employee_id', 'expense_category_id', 'low_stock', 'status']);
 
+        if ($type === 'payroll') {
+            $filename = "payroll_".now()->format('Ymd_His').'.xlsx';
+
+            return Excel::download(new PayrollReportExcelExport($filters, $this->service), $filename);
+        }
+
         [$headings, $rows] = match ($type) {
             'sales' => $this->salesExportData($filters),
             'payments' => $this->paymentsExportData($filters),
             'expenses' => $this->expensesExportData($filters),
-            'payroll' => $this->payrollExportData($filters),
+            'payroll' => abort(404),
             'inventory' => $this->inventoryExportData($filters),
             'customer-balances' => $this->customerBalancesExportData(),
             'profit-loss' => $this->profitLossExportData($filters),
@@ -153,7 +161,8 @@ class ReportController extends Controller
 
     private function salesExportData(array $filters): array
     {
-        $rows = $this->service->salesReport($filters)->map(fn ($row) => [
+        $data = $this->service->salesReport($filters);
+        $rows = $data->map(fn ($row) => [
             JalaliDate::fromGregorian($row->shipment_date),
             $row->customer?->name,
             $row->quantity_ton ?? '—',
@@ -162,12 +171,20 @@ class ReportController extends Controller
             __('erp.shipments.statuses.'.$row->status),
         ]);
 
-        return [['Date', 'Customer', 'Quantity (Ton)', 'Price/Ton', 'Total', 'Status'], $rows];
+        return [[
+            __('erp.fields.date'),
+            __('erp.fields.customer'),
+            __('erp.fields.quantity_ton'),
+            __('erp.fields.price_per_ton'),
+            __('erp.fields.total_amount'),
+            __('erp.fields.status'),
+        ], $rows];
     }
 
     private function paymentsExportData(array $filters): array
     {
-        $rows = $this->service->paymentsReport($filters)->map(fn ($row) => [
+        $data = $this->service->paymentsReport($filters);
+        $rows = $data->map(fn ($row) => [
             JalaliDate::fromGregorian($row->payment_date),
             $row->customer?->name,
             $row->amount,
@@ -175,12 +192,27 @@ class ReportController extends Controller
             $row->received_by,
         ]);
 
-        return [['Date', 'Customer', 'Amount', 'Receipt Number', 'Received By'], $rows];
+        $rows->push([
+            __('erp.fields.total_amount'),
+            '',
+            $data->sum('amount'),
+            '',
+            '',
+        ]);
+
+        return [[
+            __('erp.fields.date'),
+            __('erp.fields.customer'),
+            __('erp.fields.amount'),
+            __('erp.fields.receipt_number'),
+            __('erp.fields.received_by'),
+        ], $rows];
     }
 
     private function expensesExportData(array $filters): array
     {
-        $rows = $this->service->expensesReport($filters)->map(fn ($row) => [
+        $data = $this->service->expensesReport($filters);
+        $rows = $data->map(fn ($row) => [
             JalaliDate::fromGregorian($row->expense_date),
             $row->category?->localized_name,
             $row->subcategory ?? '—',
@@ -188,34 +220,21 @@ class ReportController extends Controller
             $row->amount,
         ]);
 
-        return [['Date', 'Category', 'Subcategory', 'Bill Number', 'Amount'], $rows];
-    }
-
-    private function payrollExportData(array $filters): array
-    {
-        $summaries = $this->service->employeePayrollSummaries(
-            ! empty($filters['employee_id']) ? (int) $filters['employee_id'] : null
-        )->map(fn ($row) => [
-            $row['name'],
-            $row['monthly_salary'],
-            $row['months_worked'],
-            $row['total_earned_salary'],
-            $row['total_paid_salary'],
-            $row['remaining_balance'],
-            $row['overpaid_amount'],
-            __('erp.payroll_statuses.'.$row['payroll_status']),
+        $rows->push([
+            __('erp.fields.total_amount'),
+            '',
+            '',
+            '',
+            $data->sum('amount'),
         ]);
 
         return [[
-            __('erp.fields.employee'),
-            __('erp.fields.salary'),
-            __('erp.fields.months_worked'),
-            __('erp.fields.total_earned_salary'),
-            __('erp.fields.total_paid_salary'),
-            __('erp.fields.remaining_balance'),
-            __('erp.fields.overpaid_amount'),
-            __('erp.fields.status'),
-        ], $summaries];
+            __('erp.fields.date'),
+            __('erp.fields.category'),
+            __('erp.fields.subcategory'),
+            __('erp.fields.bill_number'),
+            __('erp.fields.amount'),
+        ], $rows];
     }
 
     private function inventoryExportData(array $filters): array
@@ -228,19 +247,38 @@ class ReportController extends Controller
             $row->min_stock,
         ]);
 
-        return [['Name', 'SKU', 'Unit', 'Current Stock', 'Min Stock'], $rows];
+        return [[
+            __('erp.fields.name'),
+            __('erp.fields.sku'),
+            __('erp.fields.unit'),
+            __('erp.fields.current_stock'),
+            __('erp.fields.min_stock'),
+        ], $rows];
     }
 
     private function customerBalancesExportData(): array
     {
-        $rows = $this->service->customerBalancesReport()->map(fn ($row) => [
+        $data = $this->service->customerBalancesReport();
+        $rows = $data->map(fn ($row) => [
             $row->name,
             $row->total_sales ?? 0,
             $row->total_payments ?? 0,
             $row->outstanding_balance ?? 0,
         ]);
 
-        return [['Customer', 'Total Sales', 'Total Payments', 'Outstanding'], $rows];
+        $rows->push([
+            __('erp.fields.total_amount'),
+            $data->sum(fn ($row) => $row->total_sales ?? 0),
+            $data->sum(fn ($row) => $row->total_payments ?? 0),
+            $data->sum(fn ($row) => $row->outstanding_balance ?? 0),
+        ]);
+
+        return [[
+            __('erp.fields.customer'),
+            __('erp.reports.total_sales'),
+            __('erp.reports.total_payments'),
+            __('erp.reports.outstanding_balance'),
+        ], $rows];
     }
 
     private function profitLossExportData(array $filters): array
@@ -257,6 +295,6 @@ class ReportController extends Controller
             [__('erp.reports.net_profit'), $report['net_profit']],
         ]);
 
-        return [['Item', 'Amount'], $rows];
+        return [[__('erp.fields.description'), __('erp.fields.amount')], $rows];
     }
 }

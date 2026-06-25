@@ -1,8 +1,10 @@
 import ErpLayout from '@/Layouts/ErpLayout';
 import FlashMessage from '@/Components/Erp/FlashMessage';
+import ReportExportButtons from '@/Components/Erp/ReportExportButtons';
 import ShamsiDateInput from '@/Components/Erp/ShamsiDateInput';
 import useTranslation from '@/hooks/useTranslation';
 import { formatCurrency } from '@/utils/format';
+import { buildExportQuery } from '@/utils/reportExport';
 import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -13,6 +15,7 @@ export default function Payroll({ rows, summaries, filters }) {
     const [dateTo, setDateTo] = useState(filters?.date_to || '');
     const list = Array.isArray(rows) ? rows : [];
     const summaryList = Array.isArray(summaries) ? summaries : [];
+    const exportQuery = buildExportQuery({ date_from: dateFrom, date_to: dateTo, employee_id: filters?.employee_id });
 
     return (
         <ErpLayout>
@@ -26,6 +29,7 @@ export default function Payroll({ rows, summaries, filters }) {
                 <ShamsiDateInput label={t('fields.date_from')} value={dateFrom} onChange={setDateFrom} />
                 <ShamsiDateInput label={t('fields.date_to')} value={dateTo} onChange={setDateTo} />
                 <PrimaryButton type="submit">{t('actions.filter')}</PrimaryButton>
+                <ReportExportButtons exportType="payroll" queryString={exportQuery} />
             </form>
 
             <h2 className="mb-3 text-lg font-semibold">{t('reports.employee_salary_summary')}</h2>

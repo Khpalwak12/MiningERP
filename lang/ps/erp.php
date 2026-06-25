@@ -310,6 +310,8 @@ return [
         'net_profit' => 'خالص ګټه',
         'outstanding_balance' => 'پاتې پور',
         'generated_at' => 'جوړ شوی په',
+        'applied_filters' => 'کارول شوي فلټرونه',
+        'low_stock_only' => 'یوازې لږ ذخیره',
         'employee_salary_summary' => 'د کارکوونکو معاش لنډیز',
         'payment_transactions' => 'د تادیاتو معاملات',
     ],

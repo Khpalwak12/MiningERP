@@ -14,6 +14,7 @@ use App\Models\MarbleShipment;
 use App\Models\PayrollPayment;
 use App\Models\SankariStoneSale;
 use App\Support\JalaliDate;
+use App\Support\ReportFilterSummary;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -196,7 +197,9 @@ class ReportService
 
         return $this->pdf->downloadFromView($filename, $view, array_merge($data, [
             'reportType' => $reportType,
+            'reportTitle' => __('erp.reports.'.str_replace('-', '_', $reportType)),
             'filters' => $filters,
+            'filterSummary' => ReportFilterSummary::forExport($filters),
             'generatedAt' => JalaliDate::fromGregorian(now()),
             'locale' => app()->getLocale(),
             'isRtl' => app()->getLocale() === 'ps',

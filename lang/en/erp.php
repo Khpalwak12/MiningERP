@@ -310,6 +310,8 @@ return [
         'net_profit' => 'Net Profit',
         'outstanding_balance' => 'Outstanding Balance',
         'generated_at' => 'Generated At',
+        'applied_filters' => 'Applied Filters',
+        'low_stock_only' => 'Low Stock Only',
         'employee_salary_summary' => 'Employee Salary Summary',
         'payment_transactions' => 'Payment Transactions',
     ],

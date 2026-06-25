@@ -24,8 +24,16 @@
     </style>
 </head>
 <body>
-    <h1>{{ __('erp.reports.title') }}: {{ str_replace('-', ' ', ucfirst($reportType)) }}</h1>
+    <h1>{{ __('erp.reports.title') }}: {{ $reportTitle ?? str_replace('-', ' ', ucfirst($reportType)) }}</h1>
     <div class="meta">{{ __('erp.reports.generated_at') }}: <span class="numeric">{{ $generatedAt }}</span></div>
+    @if(!empty($filterSummary))
+        <div class="meta">
+            <strong>{{ __('erp.reports.applied_filters') }}:</strong>
+            @foreach($filterSummary as $label => $value)
+                <div>{{ $label }}: <span class="numeric">{{ $value }}</span></div>
+            @endforeach
+        </div>
+    @endif
     @yield('content')
 </body>
 </html>

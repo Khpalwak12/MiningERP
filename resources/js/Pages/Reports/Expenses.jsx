@@ -1,8 +1,10 @@
 import ErpLayout from '@/Layouts/ErpLayout';
 import FlashMessage from '@/Components/Erp/FlashMessage';
+import ReportExportButtons from '@/Components/Erp/ReportExportButtons';
 import ShamsiDateInput from '@/Components/Erp/ShamsiDateInput';
 import useTranslation from '@/hooks/useTranslation';
 import { formatCurrency } from '@/utils/format';
+import { buildExportQuery } from '@/utils/reportExport';
 import { resourceItems } from '@/utils/resource';
 import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
@@ -13,6 +15,7 @@ export default function Expenses({ rows, filters }) {
     const [dateFrom, setDateFrom] = useState(filters?.date_from || '');
     const [dateTo, setDateTo] = useState(filters?.date_to || '');
     const list = resourceItems(rows);
+    const exportQuery = buildExportQuery({ date_from: dateFrom, date_to: dateTo });
 
     return (
         <ErpLayout>
@@ -26,6 +29,7 @@ export default function Expenses({ rows, filters }) {
                 <ShamsiDateInput label={t('fields.date_from')} value={dateFrom} onChange={setDateFrom} />
                 <ShamsiDateInput label={t('fields.date_to')} value={dateTo} onChange={setDateTo} />
                 <PrimaryButton type="submit">{t('actions.filter')}</PrimaryButton>
+                <ReportExportButtons exportType="expenses" queryString={exportQuery} />
             </form>
             <div className="overflow-x-auto rounded-lg bg-white shadow">
                 <table className="min-w-full text-sm">

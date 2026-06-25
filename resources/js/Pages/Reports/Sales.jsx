@@ -1,29 +1,19 @@
-import ActionButtons from '@/Components/Erp/ActionButtons';
 import CustomerSelect from '@/Components/Erp/CustomerSelect';
+import ReportExportButtons from '@/Components/Erp/ReportExportButtons';
 import ErpLayout from '@/Layouts/ErpLayout';
 import FlashMessage from '@/Components/Erp/FlashMessage';
 import ShamsiDateInput from '@/Components/Erp/ShamsiDateInput';
 import useTranslation from '@/hooks/useTranslation';
 import { formatCurrency } from '@/utils/format';
+import { buildExportQuery } from '@/utils/reportExport';
 import { resourceData } from '@/utils/resource';
 import { formatShipmentAmount, isShipmentCompleted, shipmentStatusBadgeClass } from '@/utils/shipmentStatus';
 import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 import PrimaryButton from '@/Components/PrimaryButton';
-import usePermission from '@/hooks/usePermission';
-
-function buildExportQuery({ dateFrom, dateTo, status, customerId }) {
-    const params = new URLSearchParams();
-    if (dateFrom) params.set('date_from', dateFrom);
-    if (dateTo) params.set('date_to', dateTo);
-    if (status) params.set('status', status);
-    if (customerId) params.set('customer_id', customerId);
-    return params.toString();
-}
 
 function ReportPage({ title, rows, filters, columns, exportType, statusFilter = true, customers, selectedCustomer }) {
     const { t } = useTranslation();
-    const { can } = usePermission();
     const [dateFrom, setDateFrom] = useState(filters?.date_from || '');
     const [dateTo, setDateTo] = useState(filters?.date_to || '');
     const [status, setStatus] = useState(filters?.status || '');
@@ -40,7 +30,12 @@ function ReportPage({ title, rows, filters, columns, exportType, statusFilter = 
         }, { preserveState: true });
     };
 
-    const exportQuery = buildExportQuery({ dateFrom, dateTo, status, customerId });
+    const exportQuery = buildExportQuery({
+        date_from: dateFrom,
+        date_to: dateTo,
+        status,
+        customer_id: customerId,
+    });
 
     return (
         <ErpLayout>
@@ -79,14 +74,7 @@ function ReportPage({ title, rows, filters, columns, exportType, statusFilter = 
                     </div>
                 )}
                 <PrimaryButton type="submit">{t('actions.filter')}</PrimaryButton>
-                {can('reports.export') && exportType && (
-                    <ActionButtons
-                        downloadHref={route('reports.export.excel', exportType) + (exportQuery ? `?${exportQuery}` : '')}
-                        downloadLabel={t('actions.export_excel')}
-                        printHref={route('reports.export.pdf', exportType) + (exportQuery ? `?${exportQuery}` : '')}
-                        printLabel={t('actions.export_pdf')}
-                    />
-                )}
+                <ReportExportButtons exportType={exportType} queryString={exportQuery} />
             </form>
 
             <div className="overflow-x-auto rounded-lg bg-white shadow">
