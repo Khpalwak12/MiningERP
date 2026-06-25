@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\CustomerResource;
 use App\Http\Resources\ExpenseResource;
-use App\Http\Resources\FinancialYearResource;
 use App\Http\Resources\MarbleShipmentResource;
 use App\Services\ReportService;
 use App\Support\JalaliDate;
@@ -23,50 +22,45 @@ class ReportController extends Controller
 
     public function index(): Response
     {
-        return Inertia::render('Reports/Index', [
-            'financialYears' => FinancialYearResource::collection($this->service->financialYearsForFilter()),
-        ]);
+        return Inertia::render('Reports/Index');
     }
 
     public function sales(Request $request): Response
     {
-        $filters = $request->only(['date_from', 'date_to', 'customer_id', 'status', 'financial_year_id']);
+        $filters = $request->only(['date_from', 'date_to', 'customer_id', 'status']);
         $data = $this->service->salesReport($filters);
 
         return Inertia::render('Reports/Sales', [
             'rows' => MarbleShipmentResource::collection($data),
             'filters' => $filters,
-            'financialYears' => FinancialYearResource::collection($this->service->financialYearsForFilter()),
         ]);
     }
 
     public function payments(Request $request): Response
     {
-        $filters = $request->only(['date_from', 'date_to', 'customer_id', 'financial_year_id']);
+        $filters = $request->only(['date_from', 'date_to', 'customer_id']);
         $data = $this->service->paymentsReport($filters);
 
         return Inertia::render('Reports/Payments', [
             'rows' => $data,
             'filters' => $filters,
-            'financialYears' => FinancialYearResource::collection($this->service->financialYearsForFilter()),
         ]);
     }
 
     public function expenses(Request $request): Response
     {
-        $filters = $request->only(['date_from', 'date_to', 'expense_category_id', 'financial_year_id']);
+        $filters = $request->only(['date_from', 'date_to', 'expense_category_id']);
         $data = $this->service->expensesReport($filters);
 
         return Inertia::render('Reports/Expenses', [
             'rows' => ExpenseResource::collection($data),
             'filters' => $filters,
-            'financialYears' => FinancialYearResource::collection($this->service->financialYearsForFilter()),
         ]);
     }
 
     public function payroll(Request $request): Response
     {
-        $filters = $request->only(['date_from', 'date_to', 'employee_id', 'financial_year_id']);
+        $filters = $request->only(['date_from', 'date_to', 'employee_id']);
         $data = $this->service->payrollReport($filters);
 
         return Inertia::render('Reports/Payroll', [
@@ -75,7 +69,6 @@ class ReportController extends Controller
                 ! empty($filters['employee_id']) ? (int) $filters['employee_id'] : null
             ),
             'filters' => $filters,
-            'financialYears' => FinancialYearResource::collection($this->service->financialYearsForFilter()),
         ]);
     }
 
@@ -87,37 +80,32 @@ class ReportController extends Controller
         return Inertia::render('Reports/Inventory', [
             'rows' => $data,
             'filters' => $filters,
-            'financialYears' => FinancialYearResource::collection($this->service->financialYearsForFilter()),
         ]);
     }
 
     public function customerBalances(Request $request): Response
     {
-        $filters = $request->only(['financial_year_id']);
-        $data = $this->service->customerBalancesReport($filters);
+        $data = $this->service->customerBalancesReport();
 
         return Inertia::render('Reports/CustomerBalances', [
             'customers' => CustomerResource::collection($data),
-            'filters' => $filters,
-            'financialYears' => FinancialYearResource::collection($this->service->financialYearsForFilter()),
         ]);
     }
 
     public function profitLoss(Request $request): Response
     {
-        $filters = $request->only(['date_from', 'date_to', 'financial_year_id']);
+        $filters = $request->only(['date_from', 'date_to']);
         $data = $this->service->profitLossReport($filters);
 
         return Inertia::render('Reports/ProfitLoss', [
             'report' => $data,
             'filters' => $filters,
-            'financialYears' => FinancialYearResource::collection($this->service->financialYearsForFilter()),
         ]);
     }
 
     public function exportExcel(Request $request, string $type): BinaryFileResponse
     {
-        $filters = $request->only(['date_from', 'date_to', 'customer_id', 'employee_id', 'expense_category_id', 'low_stock', 'status', 'financial_year_id']);
+        $filters = $request->only(['date_from', 'date_to', 'customer_id', 'employee_id', 'expense_category_id', 'low_stock', 'status']);
 
         [$headings, $rows] = match ($type) {
             'sales' => $this->salesExportData($filters),
@@ -125,7 +113,7 @@ class ReportController extends Controller
             'expenses' => $this->expensesExportData($filters),
             'payroll' => $this->payrollExportData($filters),
             'inventory' => $this->inventoryExportData($filters),
-            'customer-balances' => $this->customerBalancesExportData($filters),
+            'customer-balances' => $this->customerBalancesExportData(),
             'profit-loss' => $this->profitLossExportData($filters),
             default => abort(404),
         };
@@ -135,7 +123,7 @@ class ReportController extends Controller
 
     public function exportPdf(Request $request, string $type): \Illuminate\Http\Response
     {
-        $filters = $request->only(['date_from', 'date_to', 'customer_id', 'employee_id', 'expense_category_id', 'low_stock', 'status', 'financial_year_id']);
+        $filters = $request->only(['date_from', 'date_to', 'customer_id', 'employee_id', 'expense_category_id', 'low_stock', 'status']);
 
         [$view, $data] = match ($type) {
             'sales' => ['reports.pdf.sales', ['rows' => $this->service->salesReport($filters)]],
@@ -148,7 +136,7 @@ class ReportController extends Controller
                 ),
             ]],
             'inventory' => ['reports.pdf.inventory', ['rows' => $this->service->inventoryReport($filters)]],
-            'customer-balances' => ['reports.pdf.customer-balances', ['rows' => $this->service->customerBalancesReport($filters)]],
+            'customer-balances' => ['reports.pdf.customer-balances', ['rows' => $this->service->customerBalancesReport()]],
             'profit-loss' => ['reports.pdf.profit-loss', ['report' => $this->service->profitLossReport($filters)]],
             default => abort(404),
         };
@@ -236,9 +224,9 @@ class ReportController extends Controller
         return [['Name', 'SKU', 'Unit', 'Current Stock', 'Min Stock'], $rows];
     }
 
-    private function customerBalancesExportData(array $filters): array
+    private function customerBalancesExportData(): array
     {
-        $rows = $this->service->customerBalancesReport($filters)->map(fn ($row) => [
+        $rows = $this->service->customerBalancesReport()->map(fn ($row) => [
             $row->name,
             $row->total_sales ?? 0,
             $row->total_payments ?? 0,

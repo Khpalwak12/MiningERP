@@ -1,15 +1,11 @@
 import ErpLayout from '@/Layouts/ErpLayout';
 import FlashMessage from '@/Components/Erp/FlashMessage';
-import FinancialYearSelect from '@/Components/Erp/FinancialYearSelect';
 import useTranslation from '@/hooks/useTranslation';
 import { formatCurrency } from '@/utils/format';
-import { Head, Link, router } from '@inertiajs/react';
-import { useState } from 'react';
-import PrimaryButton from '@/Components/PrimaryButton';
+import { Head, Link } from '@inertiajs/react';
 
-export default function CustomerBalances({ customers, filters, financialYears }) {
+export default function CustomerBalances({ customers }) {
     const { t } = useTranslation();
-    const [financialYearId, setFinancialYearId] = useState(filters?.financial_year_id || '');
     const list = customers?.data ?? [];
 
     return (
@@ -20,10 +16,6 @@ export default function CustomerBalances({ customers, filters, financialYears })
                 <h1 className="text-2xl font-bold">{t('reports.customer_balances')}</h1>
                 <Link href={route('reports.index')} className="text-sm text-indigo-600 hover:underline">{t('actions.back')}</Link>
             </div>
-            <form onSubmit={(e) => { e.preventDefault(); router.get(route('reports.customer-balances'), { financial_year_id: financialYearId }, { preserveState: true }); }} className="mb-4 flex flex-wrap items-end gap-4 rounded-lg bg-white p-4 shadow">
-                <FinancialYearSelect value={financialYearId} onChange={setFinancialYearId} financialYears={financialYears} />
-                <PrimaryButton type="submit">{t('actions.filter')}</PrimaryButton>
-            </form>
             <div className="overflow-x-auto rounded-lg bg-white shadow">
                 <table className="min-w-full text-sm">
                     <thead className="bg-gray-50">

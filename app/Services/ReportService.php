@@ -8,7 +8,6 @@ use App\Models\CustomerPayment;
 use App\Models\Employee;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
-use App\Models\FinancialYear;
 use App\Support\ActiveFinancialYear;
 use App\Models\InventoryItem;
 use App\Models\MarbleShipment;
@@ -122,9 +121,9 @@ class ReportService
         return $query->orderBy('name')->get();
     }
 
-    public function customerBalancesReport(array $filters = []): Collection
+    public function customerBalancesReport(): Collection
     {
-        $yearId = $filters['financial_year_id'] ?? ActiveFinancialYear::activeYearId();
+        $yearId = ActiveFinancialYear::isAllYearsMode() ? null : ActiveFinancialYear::activeYearId();
 
         $shipmentConstraint = fn ($q) => $q->completed();
         $paymentConstraint = fn ($q) => $q;
@@ -204,14 +203,8 @@ class ReportService
         ]));
     }
 
-    private function applyFinancialYearFilter($query, array $filters): void
+    private function applyFinancialYearFilter($query, array $filters = []): void
     {
-        if (! empty($filters['financial_year_id'])) {
-            $query->where('financial_year_id', $filters['financial_year_id']);
-
-            return;
-        }
-
         if (! ActiveFinancialYear::isAllYearsMode()) {
             $activeId = ActiveFinancialYear::activeYearId();
 
@@ -238,10 +231,5 @@ class ReportService
         $this->applyDateFilters($query, $filters, $dateColumn);
 
         return (float) $query->sum($sumColumn);
-    }
-
-    public function financialYearsForFilter(): Collection
-    {
-        return FinancialYear::query()->realYears()->orderByDesc('start_date')->get();
     }
 }
