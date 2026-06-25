@@ -53,6 +53,12 @@ class ReportController extends Controller
         return Inertia::render('Reports/Payments', [
             'rows' => $data,
             'filters' => $filters,
+            'customers' => CustomerResource::collection(
+                Customer::query()->where('status', 'active')->orderBy('name')->get()
+            ),
+            'selectedCustomer' => ! empty($filters['customer_id']) && ($customer = Customer::query()->find($filters['customer_id']))
+                ? new CustomerResource($customer)
+                : null,
         ]);
     }
 

@@ -1,20 +1,23 @@
 import ErpLayout from '@/Layouts/ErpLayout';
 import FlashMessage from '@/Components/Erp/FlashMessage';
+import CustomerSelect from '@/Components/Erp/CustomerSelect';
 import ReportExportButtons from '@/Components/Erp/ReportExportButtons';
 import ShamsiDateInput from '@/Components/Erp/ShamsiDateInput';
 import useTranslation from '@/hooks/useTranslation';
 import { formatCurrency } from '@/utils/format';
 import { buildExportQuery } from '@/utils/reportExport';
+import { resourceData } from '@/utils/resource';
 import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 import PrimaryButton from '@/Components/PrimaryButton';
 
-export default function Payments({ rows, filters }) {
+export default function Payments({ rows, filters, customers, selectedCustomer }) {
     const { t } = useTranslation();
     const [dateFrom, setDateFrom] = useState(filters?.date_from || '');
     const [dateTo, setDateTo] = useState(filters?.date_to || '');
+    const [customerId, setCustomerId] = useState(filters?.customer_id || '');
     const list = Array.isArray(rows) ? rows : [];
-    const exportQuery = buildExportQuery({ date_from: dateFrom, date_to: dateTo });
+    const exportQuery = buildExportQuery({ date_from: dateFrom, date_to: dateTo, customer_id: customerId });
 
     return (
         <ErpLayout>
@@ -24,7 +27,16 @@ export default function Payments({ rows, filters }) {
                 <h1 className="text-2xl font-bold">{t('reports.payments')}</h1>
                 <Link href={route('reports.index')} className="text-sm text-indigo-600 hover:underline">{t('actions.back')}</Link>
             </div>
-            <form onSubmit={(e) => { e.preventDefault(); router.get(route('reports.payments'), { date_from: dateFrom, date_to: dateTo }, { preserveState: true }); }} className="mb-4 flex flex-wrap items-end gap-4 rounded-lg bg-white p-4 shadow">
+            <form onSubmit={(e) => { e.preventDefault(); router.get(route('reports.payments'), { date_from: dateFrom, date_to: dateTo, customer_id: customerId }, { preserveState: true }); }} className="mb-4 flex flex-wrap items-end gap-4 rounded-lg bg-white p-4 shadow">
+                <div className="min-w-[220px]">
+                    <label className="mb-1 block text-sm font-medium text-gray-700">{t('fields.customer')}</label>
+                    <CustomerSelect
+                        customers={customers}
+                        value={customerId}
+                        onChange={setCustomerId}
+                        selectedCustomer={resourceData(selectedCustomer)}
+                    />
+                </div>
                 <ShamsiDateInput label={t('fields.date_from')} value={dateFrom} onChange={setDateFrom} />
                 <ShamsiDateInput label={t('fields.date_to')} value={dateTo} onChange={setDateTo} />
                 <PrimaryButton type="submit">{t('actions.filter')}</PrimaryButton>
