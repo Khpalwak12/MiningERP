@@ -1,21 +1,33 @@
 import ActionButtons from '@/Components/Erp/ActionButtons';
+import CustomerSelect from '@/Components/Erp/CustomerSelect';
 import ErpLayout from '@/Layouts/ErpLayout';
 import FlashMessage from '@/Components/Erp/FlashMessage';
 import ShamsiDateInput from '@/Components/Erp/ShamsiDateInput';
 import useTranslation from '@/hooks/useTranslation';
 import { formatCurrency } from '@/utils/format';
+import { resourceData } from '@/utils/resource';
 import { formatShipmentAmount, isShipmentCompleted, shipmentStatusBadgeClass } from '@/utils/shipmentStatus';
 import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 import PrimaryButton from '@/Components/PrimaryButton';
 import usePermission from '@/hooks/usePermission';
 
-function ReportPage({ title, rows, filters, columns, exportType, statusFilter = true }) {
+function buildExportQuery({ dateFrom, dateTo, status, customerId }) {
+    const params = new URLSearchParams();
+    if (dateFrom) params.set('date_from', dateFrom);
+    if (dateTo) params.set('date_to', dateTo);
+    if (status) params.set('status', status);
+    if (customerId) params.set('customer_id', customerId);
+    return params.toString();
+}
+
+function ReportPage({ title, rows, filters, columns, exportType, statusFilter = true, customers, selectedCustomer }) {
     const { t } = useTranslation();
     const { can } = usePermission();
     const [dateFrom, setDateFrom] = useState(filters?.date_from || '');
     const [dateTo, setDateTo] = useState(filters?.date_to || '');
     const [status, setStatus] = useState(filters?.status || '');
+    const [customerId, setCustomerId] = useState(filters?.customer_id || '');
     const list = Array.isArray(rows) ? rows : (rows?.data ?? []);
 
     const handleFilter = (e) => {
@@ -24,10 +36,11 @@ function ReportPage({ title, rows, filters, columns, exportType, statusFilter = 
             date_from: dateFrom,
             date_to: dateTo,
             status,
+            customer_id: customerId,
         }, { preserveState: true });
     };
 
-    const exportQuery = `date_from=${dateFrom}&date_to=${dateTo}&status=${status}`;
+    const exportQuery = buildExportQuery({ dateFrom, dateTo, status, customerId });
 
     return (
         <ErpLayout>
@@ -39,6 +52,17 @@ function ReportPage({ title, rows, filters, columns, exportType, statusFilter = 
             </div>
 
             <form onSubmit={handleFilter} className="mb-4 flex flex-wrap items-end gap-4 rounded-lg bg-white p-4 shadow">
+                {customers && (
+                    <div className="min-w-[220px]">
+                        <label className="mb-1 block text-sm font-medium text-gray-700">{t('fields.customer')}</label>
+                        <CustomerSelect
+                            customers={customers}
+                            value={customerId}
+                            onChange={setCustomerId}
+                            selectedCustomer={resourceData(selectedCustomer)}
+                        />
+                    </div>
+                )}
                 <ShamsiDateInput label={t('fields.date_from')} value={dateFrom} onChange={setDateFrom} />
                 <ShamsiDateInput label={t('fields.date_to')} value={dateTo} onChange={setDateTo} />
                 {statusFilter && (
@@ -57,9 +81,9 @@ function ReportPage({ title, rows, filters, columns, exportType, statusFilter = 
                 <PrimaryButton type="submit">{t('actions.filter')}</PrimaryButton>
                 {can('reports.export') && exportType && (
                     <ActionButtons
-                        downloadHref={route('reports.export.excel', exportType) + `?${exportQuery}`}
+                        downloadHref={route('reports.export.excel', exportType) + (exportQuery ? `?${exportQuery}` : '')}
                         downloadLabel={t('actions.export_excel')}
-                        printHref={route('reports.export.pdf', exportType) + `?${exportQuery}`}
+                        printHref={route('reports.export.pdf', exportType) + (exportQuery ? `?${exportQuery}` : '')}
                         printLabel={t('actions.export_pdf')}
                     />
                 )}
@@ -84,13 +108,15 @@ function ReportPage({ title, rows, filters, columns, exportType, statusFilter = 
     );
 }
 
-export default function Sales({ rows, filters }) {
+export default function Sales({ rows, filters, customers, selectedCustomer }) {
     const { t } = useTranslation();
     return (
         <ReportPage
             title={t('reports.sales')}
             rows={rows}
             filters={filters}
+            customers={customers}
+            selectedCustomer={selectedCustomer}
             exportType="sales"
             columns={[
                 { key: 'date', label: t('fields.date'), render: (r) => r.shipment_date_shamsi || r.shipment_date },

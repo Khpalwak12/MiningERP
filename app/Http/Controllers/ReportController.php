@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\CustomerResource;
 use App\Http\Resources\ExpenseResource;
 use App\Http\Resources\MarbleShipmentResource;
+use App\Models\Customer;
 use App\Services\ReportService;
 use App\Support\JalaliDate;
 use Illuminate\Http\Request;
@@ -33,6 +34,12 @@ class ReportController extends Controller
         return Inertia::render('Reports/Sales', [
             'rows' => MarbleShipmentResource::collection($data),
             'filters' => $filters,
+            'customers' => CustomerResource::collection(
+                Customer::query()->where('status', 'active')->orderBy('name')->get()
+            ),
+            'selectedCustomer' => ! empty($filters['customer_id']) && ($customer = Customer::query()->find($filters['customer_id']))
+                ? new CustomerResource($customer)
+                : null,
         ]);
     }
 
