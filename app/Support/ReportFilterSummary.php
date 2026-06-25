@@ -27,6 +27,10 @@ class ReportFilterSummary
             }
         }
 
+        if (! empty($filters['receipt_number'])) {
+            $summary[__('erp.fields.receipt_number')] = $filters['receipt_number'];
+        }
+
         if (! empty($filters['employee_id'])) {
             $employee = Employee::query()->find($filters['employee_id']);
             if ($employee) {

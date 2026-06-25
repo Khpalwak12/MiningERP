@@ -53,6 +53,11 @@ class ReportService
             $query->where('customer_id', $filters['customer_id']);
         }
 
+        if (! empty($filters['receipt_number'])) {
+            $term = addcslashes(trim($filters['receipt_number']), '%_\\');
+            $query->where('receipt_number', 'like', '%'.$term.'%');
+        }
+
         return $query->orderBy('payment_date')->get();
     }
 

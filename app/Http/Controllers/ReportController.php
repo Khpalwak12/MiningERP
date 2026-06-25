@@ -47,7 +47,7 @@ class ReportController extends Controller
 
     public function payments(Request $request): Response
     {
-        $filters = $request->only(['date_from', 'date_to', 'customer_id']);
+        $filters = $request->only(['date_from', 'date_to', 'customer_id', 'receipt_number']);
         $data = $this->service->paymentsReport($filters);
 
         return Inertia::render('Reports/Payments', [
@@ -120,7 +120,7 @@ class ReportController extends Controller
 
     public function exportExcel(Request $request, string $type): BinaryFileResponse
     {
-        $filters = $request->only(['date_from', 'date_to', 'customer_id', 'employee_id', 'expense_category_id', 'low_stock', 'status']);
+        $filters = $request->only(['date_from', 'date_to', 'customer_id', 'employee_id', 'expense_category_id', 'low_stock', 'status', 'receipt_number']);
 
         if ($type === 'payroll') {
             $filename = "payroll_".now()->format('Ymd_His').'.xlsx';
@@ -144,7 +144,7 @@ class ReportController extends Controller
 
     public function exportPdf(Request $request, string $type): \Illuminate\Http\Response
     {
-        $filters = $request->only(['date_from', 'date_to', 'customer_id', 'employee_id', 'expense_category_id', 'low_stock', 'status']);
+        $filters = $request->only(['date_from', 'date_to', 'customer_id', 'employee_id', 'expense_category_id', 'low_stock', 'status', 'receipt_number']);
 
         [$view, $data] = match ($type) {
             'sales' => ['reports.pdf.sales', ['rows' => $this->service->salesReport($filters)]],
