@@ -7,7 +7,7 @@ import TextInput from '@/Components/TextInput';
 import useTranslation from '@/hooks/useTranslation';
 import { formatCurrency } from '@/utils/format';
 import { buildExportQuery } from '@/utils/reportExport';
-import { resourceData } from '@/utils/resource';
+import { resourceData, resourceItems } from '@/utils/resource';
 import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -18,7 +18,7 @@ export default function Payments({ rows, filters, customers, selectedCustomer })
     const [dateTo, setDateTo] = useState(filters?.date_to || '');
     const [customerId, setCustomerId] = useState(filters?.customer_id || '');
     const [receiptNumber, setReceiptNumber] = useState(filters?.receipt_number || '');
-    const list = Array.isArray(rows) ? rows : [];
+    const list = resourceItems(rows);
     const exportQuery = buildExportQuery({
         date_from: dateFrom,
         date_to: dateTo,
@@ -80,7 +80,7 @@ export default function Payments({ rows, filters, customers, selectedCustomer })
                     <tbody className="divide-y">
                         {list.map((r) => (
                             <tr key={r.id}>
-                                <td className="px-4 py-3">{r.payment_date_shamsi || r.payment_date}</td>
+                                <td className="px-4 py-3">{r.payment_date_shamsi}</td>
                                 <td className="px-4 py-3">{r.customer?.name}</td>
                                 <td className="px-4 py-3">{r.receipt_number || '—'}</td>
                                 <td className="px-4 py-3">{r.received_by}</td>

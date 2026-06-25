@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\PayrollReportExcelExport;
+use App\Http\Resources\CustomerPaymentResource;
 use App\Http\Resources\CustomerResource;
 use App\Http\Resources\ExpenseResource;
 use App\Http\Resources\MarbleShipmentResource;
@@ -51,7 +52,7 @@ class ReportController extends Controller
         $data = $this->service->paymentsReport($filters);
 
         return Inertia::render('Reports/Payments', [
-            'rows' => $data,
+            'rows' => CustomerPaymentResource::collection($data),
             'filters' => $filters,
             'customers' => CustomerResource::collection(
                 Customer::query()->where('status', 'active')->orderBy('name')->get()
