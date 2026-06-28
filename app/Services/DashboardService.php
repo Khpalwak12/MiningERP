@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Customer;
+use App\Models\ContractorExpenseCharge;
 use App\Models\ContractorPayment;
 use App\Models\ContractorProduction;
 use App\Models\ContractorSalaryCharge;
@@ -38,11 +39,13 @@ class DashboardService
         $contractorProductionQuery = ContractorProduction::query()->when($yearId, fn ($q) => $q->where('financial_year_id', $yearId));
         $contractorPaymentQuery = ContractorPayment::query()->when($yearId, fn ($q) => $q->where('financial_year_id', $yearId));
         $contractorSalaryChargeQuery = ContractorSalaryCharge::query()->when($yearId, fn ($q) => $q->where('financial_year_id', $yearId));
+        $contractorExpenseChargeQuery = ContractorExpenseCharge::query()->when($yearId, fn ($q) => $q->where('financial_year_id', $yearId));
 
         $contractorRoyalties = (float) (clone $contractorProductionQuery)->sum('total_royalty');
         $contractorSalaryCharges = (float) (clone $contractorSalaryChargeQuery)->sum('amount');
+        $contractorExpenseCharges = (float) (clone $contractorExpenseChargeQuery)->sum('amount');
         $contractorPaymentsReceived = (float) (clone $contractorPaymentQuery)->sum('amount');
-        $contractorReceivable = $contractorRoyalties + $contractorSalaryCharges;
+        $contractorReceivable = $contractorRoyalties + $contractorSalaryCharges + $contractorExpenseCharges;
 
         $totalRevenue = (float) (clone $shipmentQuery)->completed()->sum('total_amount')
             + (float) (clone $sankariQuery)->sum('total_amount')
@@ -82,6 +85,7 @@ class DashboardService
                 'dispatch_count' => (clone $contractorProductionQuery)->count(),
                 'total_tons' => (float) (clone $contractorProductionQuery)->sum('quantity_ton'),
                 'total_salary_charges' => $contractorSalaryCharges,
+                'total_expense_charges' => $contractorExpenseCharges,
                 'total_receivable' => $contractorReceivable,
                 'total_payments' => $contractorPaymentsReceived,
                 'outstanding_balance' => $contractorReceivable - $contractorPaymentsReceived,

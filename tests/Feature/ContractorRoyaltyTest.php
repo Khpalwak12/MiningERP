@@ -245,4 +245,40 @@ class ContractorRoyaltyTest extends TestCase
         $this->assertSame(10000.0, $summary['total_salary_charges']);
         $this->assertSame(25000.0, $summary['outstanding_balance']);
     }
+
+    public function test_contractor_expense_creates_expense_charge_in_ledger(): void
+    {
+        $this->seed();
+
+        $year = FinancialYear::query()->active()->where('is_all_years', false)->firstOrFail();
+        $user = User::where('email', 'admin@marbleerp.local')->firstOrFail();
+        $category = \App\Models\ExpenseCategory::query()->firstOrFail();
+
+        app(\App\Services\ExpenseService::class)->create([
+            'financial_year_id' => $year->id,
+            'expense_category_id' => $category->id,
+            'expense_date' => now(),
+            'amount' => 5000,
+            'description' => 'Fuel for contractor trucks',
+            'is_for_contractor' => true,
+            'created_by' => $user->id,
+        ]);
+
+        $summary = app(ContractorRoyaltyLedgerService::class)->summary();
+
+        $this->assertSame(5000.0, $summary['total_expense_charges']);
+        $this->assertSame(5000.0, $summary['outstanding_balance']);
+
+        ContractorProduction::query()->create([
+            'financial_year_id' => $year->id,
+            'production_date' => now(),
+            'quantity_ton' => 10,
+            'rate_per_ton' => 150,
+            'total_royalty' => 1500,
+            'created_by' => $user->id,
+        ]);
+
+        $summary = app(ContractorRoyaltyLedgerService::class)->summary();
+        $this->assertSame(6500.0, $summary['outstanding_balance']);
+    }
 }

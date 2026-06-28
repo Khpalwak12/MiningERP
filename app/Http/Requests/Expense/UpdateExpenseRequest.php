@@ -23,6 +23,12 @@ class UpdateExpenseRequest extends FormRequest
         if ($this->has('bill_number') && $this->input('bill_number') === '') {
             $this->merge(['bill_number' => null]);
         }
+
+        if ($this->has('is_for_contractor')) {
+            $this->merge([
+                'is_for_contractor' => filter_var($this->input('is_for_contractor'), FILTER_VALIDATE_BOOLEAN),
+            ]);
+        }
     }
 
     public function rules(): array
@@ -34,6 +40,7 @@ class UpdateExpenseRequest extends FormRequest
             'expense_date' => ['sometimes', 'required', 'date'],
             'amount' => ['sometimes', 'required', 'numeric', 'min:0.01'],
             'description' => ['nullable', 'string'],
+            'is_for_contractor' => ['sometimes', 'boolean'],
             'attachment' => ['nullable', 'file', 'max:5120'],
         ];
     }

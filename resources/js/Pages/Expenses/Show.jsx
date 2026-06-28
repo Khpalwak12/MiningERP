@@ -25,6 +25,9 @@ export default function Show({ expense }) {
                     <div><dt className="text-gray-500">{t('fields.subcategory')}</dt><dd>{e.subcategory || '—'}</dd></div>
                     <div><dt className="text-gray-500">{t('fields.bill_number')}</dt><dd>{e.bill_number || '—'}</dd></div>
                     <div><dt className="text-gray-500">{t('fields.amount')}</dt><dd className="font-bold">{formatCurrency(e.amount)}</dd></div>
+                    {e.is_for_contractor && (
+                        <div><dt className="text-gray-500">{t('expenses.for_contractor')}</dt><dd className="text-amber-700">{t('expenses.for_contractor')}</dd></div>
+                    )}
                     {e.description && <div className="sm:col-span-2"><dt className="text-gray-500">{t('fields.description')}</dt><dd>{e.description}</dd></div>}
                 </dl>
             </div>

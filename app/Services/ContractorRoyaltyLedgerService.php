@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ContractorExpenseCharge;
 use App\Models\ContractorPayment;
 use App\Models\ContractorProduction;
 use App\Models\ContractorSalaryCharge;
@@ -16,24 +17,29 @@ class ContractorRoyaltyLedgerService
         $productionQuery = ContractorProduction::query();
         $paymentQuery = ContractorPayment::query();
         $salaryChargeQuery = ContractorSalaryCharge::query();
+        $expenseChargeQuery = ContractorExpenseCharge::query();
 
         $this->applyFinancialYearFilter($productionQuery);
         $this->applyFinancialYearFilter($paymentQuery);
         $this->applyFinancialYearFilter($salaryChargeQuery);
+        $this->applyFinancialYearFilter($expenseChargeQuery);
         $this->applyDateFilters($productionQuery, $filters, 'production_date');
         $this->applyDateFilters($paymentQuery, $filters, 'payment_date');
         $this->applyDateFilters($salaryChargeQuery, $filters, 'charge_date');
+        $this->applyDateFilters($expenseChargeQuery, $filters, 'charge_date');
 
         $totalRoyalties = (float) (clone $productionQuery)->sum('total_royalty');
         $totalSalaryCharges = (float) (clone $salaryChargeQuery)->sum('amount');
+        $totalExpenseCharges = (float) (clone $expenseChargeQuery)->sum('amount');
         $totalPayments = (float) (clone $paymentQuery)->sum('amount');
-        $totalReceivable = $totalRoyalties + $totalSalaryCharges;
+        $totalReceivable = $totalRoyalties + $totalSalaryCharges + $totalExpenseCharges;
 
         return [
             'total_royalties' => $totalRoyalties,
             'dispatch_count' => (clone $productionQuery)->count(),
             'total_tons' => (float) (clone $productionQuery)->sum('quantity_ton'),
             'total_salary_charges' => $totalSalaryCharges,
+            'total_expense_charges' => $totalExpenseCharges,
             'total_receivable' => $totalReceivable,
             'total_payments' => $totalPayments,
             'outstanding_balance' => $totalReceivable - $totalPayments,
@@ -45,13 +51,16 @@ class ContractorRoyaltyLedgerService
         $productionQuery = ContractorProduction::query();
         $paymentQuery = ContractorPayment::query();
         $salaryChargeQuery = ContractorSalaryCharge::query()->with('employee');
+        $expenseChargeQuery = ContractorExpenseCharge::query()->with('expense.category');
 
         $this->applyFinancialYearFilter($productionQuery);
         $this->applyFinancialYearFilter($paymentQuery);
         $this->applyFinancialYearFilter($salaryChargeQuery);
+        $this->applyFinancialYearFilter($expenseChargeQuery);
         $this->applyDateFilters($productionQuery, $filters, 'production_date');
         $this->applyDateFilters($paymentQuery, $filters, 'payment_date');
         $this->applyDateFilters($salaryChargeQuery, $filters, 'charge_date');
+        $this->applyDateFilters($expenseChargeQuery, $filters, 'charge_date');
 
         $productions = $productionQuery->orderBy('production_date')->get()->map(fn (ContractorProduction $row) => [
             'id' => 'production-'.$row->id,
@@ -77,6 +86,18 @@ class ContractorRoyaltyLedgerService
             'payment_amount' => null,
         ]);
 
+        $expenseCharges = $expenseChargeQuery->orderBy('charge_date')->get()->map(fn (ContractorExpenseCharge $row) => [
+            'id' => 'expense-charge-'.$row->id,
+            'type' => 'expense_charge',
+            'date' => $row->charge_date?->format('Y-m-d'),
+            'date_shamsi' => JalaliDate::fromGregorian($row->charge_date),
+            'description' => trim($row->remarks ?? __('erp.contractor_royalty.expense_charge_entry')),
+            'quantity_ton' => null,
+            'rate_per_ton' => null,
+            'royalty_amount' => (float) $row->amount,
+            'payment_amount' => null,
+        ]);
+
         $payments = $paymentQuery->orderBy('payment_date')->get()->map(fn (ContractorPayment $row) => [
             'id' => 'payment-'.$row->id,
             'type' => 'payment',
@@ -89,7 +110,7 @@ class ContractorRoyaltyLedgerService
             'payment_amount' => (float) $row->amount,
         ]);
 
-        return $productions->concat($salaryCharges)->concat($payments)
+        return $productions->concat($salaryCharges)->concat($expenseCharges)->concat($payments)
             ->sortBy([
                 ['date', 'asc'],
                 ['type', 'asc'],

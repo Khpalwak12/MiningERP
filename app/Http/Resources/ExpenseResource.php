@@ -19,6 +19,7 @@ class ExpenseResource extends JsonResource
             'expense_date_shamsi' => JalaliDate::fromGregorian($this->expense_date),
             'amount' => (float) $this->amount,
             'description' => $this->description,
+            'is_for_contractor' => (bool) $this->is_for_contractor,
             'attachment' => $this->attachment,
             'category' => new ExpenseCategoryResource($this->whenLoaded('category')),
             'is_locked' => $this->isInClosedFinancialYear(),

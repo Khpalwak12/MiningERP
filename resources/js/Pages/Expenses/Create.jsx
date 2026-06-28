@@ -1,3 +1,4 @@
+import Checkbox from '@/Components/Checkbox';
 import ErpLayout from '@/Layouts/ErpLayout';
 import FlashMessage from '@/Components/Erp/FlashMessage';
 import ShamsiDateInput from '@/Components/Erp/ShamsiDateInput';
@@ -19,6 +20,7 @@ export default function Create({ categories }) {
         bill_number: '',
         amount: '',
         description: '',
+        is_for_contractor: false,
     });
 
     const categoryList = resourceItems(categories);
@@ -68,6 +70,16 @@ export default function Create({ categories }) {
                     <InputLabel value={t('fields.description')} />
                     <textarea className="mt-1 block w-full rounded-md border-gray-300" rows="2" value={data.description} onChange={(e) => setData('description', e.target.value)} />
                     <InputError message={errors.description} />
+                </div>
+                <div className="rounded-md border border-gray-200 p-4">
+                    <label className="flex items-center gap-2">
+                        <Checkbox
+                            checked={data.is_for_contractor}
+                            onChange={(e) => setData('is_for_contractor', e.target.checked)}
+                        />
+                        <span>{t('expenses.for_contractor')}</span>
+                    </label>
+                    <p className="mt-2 text-sm text-gray-500">{t('expenses.for_contractor_hint')}</p>
                 </div>
                 <div className="flex gap-2">
                     <PrimaryButton disabled={processing}>{t('actions.save')}</PrimaryButton>

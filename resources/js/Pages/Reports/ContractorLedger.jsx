@@ -13,6 +13,7 @@ export default function ContractorLedger({ summary, transactions, filters }) {
     const ledgerTypeLabel = (type) => {
         if (type === 'royalty') return t('contractor_royalty.royalty_entry');
         if (type === 'salary_charge') return t('contractor_royalty.salary_charge_entry');
+        if (type === 'expense_charge') return t('contractor_royalty.expense_charge_entry');
         return t('contractor_royalty.payment_entry');
     };
 
@@ -26,9 +27,10 @@ export default function ContractorLedger({ summary, transactions, filters }) {
             </div>
             <ReportFilterForm reportType="contractor-ledger" routeName="reports.contractor-ledger" filters={filters} exportType="contractor-ledger" />
 
-            <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                 <StatCard title={t('contractor_royalty.total_royalties')} value={formatCurrency(summary?.total_royalties)} color="indigo" />
                 <StatCard title={t('contractor_royalty.total_salary_charges')} value={formatCurrency(summary?.total_salary_charges)} color="blue" />
+                <StatCard title={t('contractor_royalty.total_expense_charges')} value={formatCurrency(summary?.total_expense_charges)} color="purple" />
                 <StatCard title={t('contractor_royalty.total_payments_received')} value={formatCurrency(summary?.total_payments)} color="green" />
                 <StatCard title={t('contractor_royalty.outstanding_balance')} value={formatCurrency(summary?.outstanding_balance)} color="amber" />
             </div>

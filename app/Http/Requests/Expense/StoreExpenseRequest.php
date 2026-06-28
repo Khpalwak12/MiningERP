@@ -21,6 +21,12 @@ class StoreExpenseRequest extends FormRequest
         if ($this->has('bill_number') && $this->input('bill_number') === '') {
             $this->merge(['bill_number' => null]);
         }
+
+        if ($this->has('is_for_contractor')) {
+            $this->merge([
+                'is_for_contractor' => filter_var($this->input('is_for_contractor'), FILTER_VALIDATE_BOOLEAN),
+            ]);
+        }
     }
 
     public function rules(): array
@@ -31,6 +37,7 @@ class StoreExpenseRequest extends FormRequest
             'bill_number' => ['nullable', 'string', 'max:255'],
             'amount' => ['required', 'numeric', 'min:0.01'],
             'description' => ['nullable', 'string'],
+            'is_for_contractor' => ['sometimes', 'boolean'],
             'attachment' => ['nullable', 'file', 'max:5120'],
         ]);
     }

@@ -594,6 +594,7 @@ class ReportController extends Controller
         $rows = collect([
             [__('erp.contractor_royalty.total_royalties'), '', '', $report['summary']['total_royalties'], ''],
             [__('erp.contractor_royalty.total_salary_charges'), '', '', $report['summary']['total_salary_charges'], ''],
+            [__('erp.contractor_royalty.total_expense_charges'), '', '', $report['summary']['total_expense_charges'], ''],
             [__('erp.contractor_royalty.total_payments_received'), '', '', '', $report['summary']['total_payments']],
             [__('erp.contractor_royalty.outstanding_balance'), '', '', $report['summary']['outstanding_balance'], ''],
             ['', '', '', '', ''],
@@ -603,6 +604,7 @@ class ReportController extends Controller
             $typeLabel = match ($row['type']) {
                 'royalty' => __('erp.contractor_royalty.royalty_entry'),
                 'salary_charge' => __('erp.contractor_royalty.salary_charge_entry'),
+                'expense_charge' => __('erp.contractor_royalty.expense_charge_entry'),
                 default => __('erp.contractor_royalty.payment_entry'),
             };
 

@@ -48,7 +48,7 @@ export default function Index({ stats, recentShipments, recentPayments }) {
             </div>
 
             {can('contractor-royalty.view') && (
-                <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                     <StatCard
                         title={t('dashboard.contractor_total_royalties')}
                         value={formatCurrency(stats?.contractor_royalty?.total_royalties)}
@@ -56,6 +56,7 @@ export default function Index({ stats, recentShipments, recentPayments }) {
                         color="indigo"
                     />
                     <StatCard title={t('dashboard.contractor_salary_charges')} value={formatCurrency(stats?.contractor_royalty?.total_salary_charges)} color="blue" />
+                    <StatCard title={t('dashboard.contractor_expense_charges')} value={formatCurrency(stats?.contractor_royalty?.total_expense_charges)} color="purple" />
                     <StatCard title={t('dashboard.contractor_payments_received')} value={formatCurrency(stats?.contractor_royalty?.total_payments)} color="green" />
                     <StatCard title={t('dashboard.contractor_outstanding_balance')} value={formatCurrency(stats?.contractor_royalty?.outstanding_balance)} color="amber" />
                 </div>

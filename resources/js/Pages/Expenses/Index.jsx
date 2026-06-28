@@ -82,7 +82,12 @@ export default function Index({ expenses, filters, categories }) {
                                 <td className="px-4 py-3">{e.category?.name}</td>
                                 <td className="px-4 py-3">{e.subcategory || '—'}</td>
                                 <td className="px-4 py-3">{e.bill_number || '—'}</td>
-                                <td className="px-4 py-3 font-medium">{formatCurrency(e.amount)}</td>
+                                <td className="px-4 py-3">
+                                    {formatCurrency(e.amount)}
+                                    {e.is_for_contractor && (
+                                        <span className="ms-2 rounded bg-amber-100 px-2 py-0.5 text-xs text-amber-800">{t('expenses.for_contractor')}</span>
+                                    )}
+                                </td>
                                 <td className="px-4 py-3 text-right">
                                     <ActionButtons
                                         viewHref={route('expenses.show', e.id)}

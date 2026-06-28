@@ -151,6 +151,7 @@ return [
         'contractor_payments_received' => 'Contractor Payments Received',
         'contractor_outstanding_balance' => 'Contractor Outstanding Balance',
         'contractor_salary_charges' => 'Shared Salary Owed',
+        'contractor_expense_charges' => 'Contractor Expense Owed',
         'contractor_dispatches' => 'Dispatches',
         'contractor_tons' => 'Tons',
     ],
@@ -210,6 +211,8 @@ return [
         'created' => 'Expense recorded successfully.',
         'updated' => 'Expense updated successfully.',
         'deleted' => 'Expense deleted successfully.',
+        'for_contractor' => 'For Contractor Company',
+        'for_contractor_hint' => 'You paid this expense; the contractor owes you back. It is tracked in the royalty ledger.',
     ],
     'expense_categories' => [
         'kitchen' => 'Kitchen',
@@ -362,7 +365,10 @@ return [
         'salary_charge_entry' => 'Shared Salary',
         'salary_charge_for_employee' => 'Shared salary — :employee (:period)',
         'total_salary_charges' => 'Shared Salary Owed',
-        'total_receivable' => 'Total Receivable (Royalty + Salary)',
+        'expense_charge_entry' => 'Contractor Expense',
+        'expense_charge_for_expense' => 'Contractor expense — :description',
+        'total_expense_charges' => 'Contractor Expense Owed',
+        'total_receivable' => 'Total Receivable (Royalty + Salary + Expense)',
         'production_entry' => 'Production',
     ],
     'report_filters' => [

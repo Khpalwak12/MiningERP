@@ -13,7 +13,7 @@ class Expense extends AuditableModel
 
     protected $fillable = [
         'financial_year_id', 'expense_category_id', 'subcategory', 'bill_number', 'expense_date',
-        'amount', 'description', 'attachment', 'created_by',
+        'amount', 'description', 'is_for_contractor', 'attachment', 'created_by',
     ];
 
     protected function casts(): array
@@ -21,7 +21,13 @@ class Expense extends AuditableModel
         return [
             'expense_date' => 'date',
             'amount' => 'decimal:2',
+            'is_for_contractor' => 'boolean',
         ];
+    }
+
+    public function contractorExpenseCharge(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(ContractorExpenseCharge::class);
     }
 
     public function category(): BelongsTo

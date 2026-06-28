@@ -12,7 +12,11 @@ use Illuminate\Support\Facades\Storage;
 class ExpenseService
 {
     use ManagesFinancialYear;
-    public function __construct(private ExpenseRepositoryInterface $repository) {}
+
+    public function __construct(
+        private ExpenseRepositoryInterface $repository,
+        private ContractorExpenseChargeService $contractorExpenseChargeService,
+    ) {}
 
     public function paginate(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
@@ -31,7 +35,10 @@ class ExpenseService
             $data = $this->assignActiveFinancialYear($data);
             $data = $this->handleAttachment($data);
 
-            return $this->repository->create($data);
+            $expense = $this->repository->create($data);
+            $this->contractorExpenseChargeService->syncFromExpense($expense->fresh(['category']));
+
+            return $expense;
         });
     }
 
@@ -46,7 +53,10 @@ class ExpenseService
 
             $data = $this->handleAttachment($data);
 
-            return $this->repository->update($expense, $data);
+            $expense = $this->repository->update($expense, $data);
+            $this->contractorExpenseChargeService->syncFromExpense($expense->fresh(['category']));
+
+            return $expense;
         });
     }
 
@@ -58,6 +68,8 @@ class ExpenseService
             if ($expense->attachment) {
                 Storage::disk('public')->delete($expense->attachment);
             }
+
+            $this->contractorExpenseChargeService->removeForExpense($expense);
 
             return $this->repository->delete($expense);
         });

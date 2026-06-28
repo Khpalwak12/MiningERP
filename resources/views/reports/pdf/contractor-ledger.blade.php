@@ -5,6 +5,7 @@
     <tbody>
         <tr><th>{{ __('erp.contractor_royalty.total_royalties') }}</th><td class="numeric">{{ number_format($summary['total_royalties'], 2) }}</td></tr>
         <tr><th>{{ __('erp.contractor_royalty.total_salary_charges') }}</th><td class="numeric">{{ number_format($summary['total_salary_charges'], 2) }}</td></tr>
+        <tr><th>{{ __('erp.contractor_royalty.total_expense_charges') }}</th><td class="numeric">{{ number_format($summary['total_expense_charges'], 2) }}</td></tr>
         <tr><th>{{ __('erp.contractor_royalty.total_payments_received') }}</th><td class="numeric">{{ number_format($summary['total_payments'], 2) }}</td></tr>
         <tr><th>{{ __('erp.contractor_royalty.outstanding_balance') }}</th><td class="numeric">{{ number_format($summary['outstanding_balance'], 2) }}</td></tr>
     </tbody>
@@ -30,6 +31,8 @@
                     {{ __('erp.contractor_royalty.royalty_entry') }}
                 @elseif($row['type'] === 'salary_charge')
                     {{ __('erp.contractor_royalty.salary_charge_entry') }}
+                @elseif($row['type'] === 'expense_charge')
+                    {{ __('erp.contractor_royalty.expense_charge_entry') }}
                 @else
                     {{ __('erp.contractor_royalty.payment_entry') }}
                 @endif

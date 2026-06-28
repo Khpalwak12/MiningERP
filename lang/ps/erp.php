@@ -151,6 +151,7 @@ return [
         'contractor_payments_received' => 'د قراردادي ترلاسه شوي تادیات',
         'contractor_outstanding_balance' => 'د قراردادي پاتې پور',
         'contractor_salary_charges' => 'د شریک معاش پور',
+        'contractor_expense_charges' => 'د قراردادي مصرف پور',
         'contractor_dispatches' => 'لېږدونه',
         'contractor_tons' => 'ټن',
     ],
@@ -210,6 +211,8 @@ return [
         'created' => 'لګښت په بریالیتوب سره ثبت شو.',
         'updated' => 'لګښت په بریالیتوب سره تازه شو.',
         'deleted' => 'لګښت په بریالیتوب سره حذف شو.',
+        'for_contractor' => 'د قراردادي شرکت لپاره',
+        'for_contractor_hint' => 'تاسو پیسې ورکوئ؛ قراردادي شرکت باید بیرته ورکړي. دا په راج لجر کې د پور په توګه ثبتېږي.',
     ],
     'expense_categories' => [
         'kitchen' => 'اشپزخانه',
@@ -362,7 +365,10 @@ return [
         'salary_charge_entry' => 'شریک معاش',
         'salary_charge_for_employee' => 'شریک معاش — :employee (:period)',
         'total_salary_charges' => 'د شریک معاش پور',
-        'total_receivable' => 'ټول پور (راج + معاش)',
+        'expense_charge_entry' => 'قراردادي مصرف',
+        'expense_charge_for_expense' => 'قراردادي مصرف — :description',
+        'total_expense_charges' => 'د قراردادي مصرف پور',
+        'total_receivable' => 'ټول پور (راج + معاش + مصرف)',
         'production_entry' => 'تولید',
     ],
     'report_filters' => [
