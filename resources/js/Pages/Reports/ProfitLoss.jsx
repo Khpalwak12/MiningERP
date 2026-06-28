@@ -11,6 +11,7 @@ export default function ProfitLoss({ report, filters, matchesFilter = true }) {
     const items = [
         { key: 'marble_sales', label: t('reports.marble_sales') },
         { key: 'sankari_sales', label: t('reports.sankari_sales') },
+        { key: 'contractor_royalty', label: t('reports.contractor_royalty') },
         { key: 'total_income', label: t('reports.total_income') },
         { key: 'operating_expenses', label: t('reports.operating_expenses') },
         { key: 'payroll_expenses', label: t('reports.payroll_expenses') },

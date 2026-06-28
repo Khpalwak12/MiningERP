@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Exports\ReportExcelExport;
+use App\Models\ContractorPayment;
+use App\Models\ContractorProduction;
 use App\Models\Customer;
 use App\Models\CustomerPayment;
 use App\Models\Employee;
@@ -200,6 +202,34 @@ class ReportService
             });
     }
 
+    public function contractorProductionReport(array $filters = []): Collection
+    {
+        $query = ContractorProduction::query()->with('creator');
+        $this->applyFinancialYearFilter($query, $filters);
+        $this->applyDateFilters($query, $filters, 'production_date');
+
+        return $query->orderBy('production_date')->get();
+    }
+
+    public function contractorPaymentsReport(array $filters = []): Collection
+    {
+        $query = ContractorPayment::query()->with('creator');
+        $this->applyFinancialYearFilter($query, $filters);
+        $this->applyDateFilters($query, $filters, 'payment_date');
+
+        return $query->orderBy('payment_date')->get();
+    }
+
+    public function contractorLedgerReport(array $filters = []): array
+    {
+        $ledgerService = app(ContractorRoyaltyLedgerService::class);
+
+        return [
+            'summary' => $ledgerService->summary($filters),
+            'transactions' => $ledgerService->transactions($filters),
+        ];
+    }
+
     public function profitLossReport(array $filters = []): array
     {
         $marbleSales = $this->sumInRange(
@@ -209,15 +239,17 @@ class ReportService
             'total_amount'
         );
         $sankariSales = $this->sumInRange(SankariStoneSale::query(), $filters, 'sale_date', 'total_amount');
+        $contractorRoyalty = $this->sumInRange(ContractorProduction::query(), $filters, 'production_date', 'total_royalty');
         $expenses = $this->sumInRange(Expense::query(), $filters, 'expense_date', 'amount');
         $payroll = $this->sumInRange(PayrollPayment::query(), $filters, 'payment_date', 'amount');
 
-        $income = $marbleSales + $sankariSales;
+        $income = $marbleSales + $sankariSales + $contractorRoyalty;
         $totalExpenses = $expenses + $payroll;
 
         return [
             'marble_sales' => $marbleSales,
             'sankari_sales' => $sankariSales,
+            'contractor_royalty' => $contractorRoyalty,
             'total_income' => $income,
             'operating_expenses' => $expenses,
             'payroll_expenses' => $payroll,

@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\AccountingController;
+use App\Http\Controllers\ContractorPaymentController;
+use App\Http\Controllers\ContractorProductionController;
+use App\Http\Controllers\ContractorRoyaltyLedgerController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomerPaymentController;
 use App\Http\Controllers\DashboardController;
@@ -66,6 +69,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('accounting/trial-balance', [AccountingController::class, 'trialBalance'])
         ->name('accounting.trial-balance');
 
+    Route::prefix('contractor-royalty')->name('contractor-royalty.')->group(function () {
+        Route::get('/ledger', [ContractorRoyaltyLedgerController::class, 'index'])->name('ledger');
+        Route::resource('productions', ContractorProductionController::class);
+        Route::resource('payments', ContractorPaymentController::class)
+            ->parameters(['payments' => 'payment']);
+    });
+
     Route::prefix('reports')->name('reports.')->group(function () {
         Route::get('/', [ReportController::class, 'index'])->name('index');
         Route::get('/sales', [ReportController::class, 'sales'])->name('sales');
@@ -78,6 +88,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/monthly-production', [ReportController::class, 'monthlyProduction'])->name('monthly-production');
         Route::get('/customer-balances', [ReportController::class, 'customerBalances'])->name('customer-balances');
         Route::get('/profit-loss', [ReportController::class, 'profitLoss'])->name('profit-loss');
+        Route::get('/contractor-production', [ReportController::class, 'contractorProduction'])->name('contractor-production');
+        Route::get('/contractor-payments', [ReportController::class, 'contractorPayments'])->name('contractor-payments');
+        Route::get('/contractor-ledger', [ReportController::class, 'contractorLedger'])->name('contractor-ledger');
         Route::get('/export/{type}/excel', [ReportController::class, 'exportExcel'])->name('export.excel');
         Route::get('/export/{type}/pdf', [ReportController::class, 'exportPdf'])->name('export.pdf');
     });

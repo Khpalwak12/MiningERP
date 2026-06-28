@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Exports\PayrollReportExcelExport;
+use App\Http\Resources\ContractorPaymentResource;
+use App\Http\Resources\ContractorProductionResource;
 use App\Http\Resources\CustomerPaymentResource;
 use App\Http\Resources\CustomerResource;
 use App\Http\Resources\EmployeeResource;
@@ -25,8 +27,20 @@ class ReportController extends Controller
 {
     public function __construct(private ReportService $service)
     {
-        $this->middleware('permission:reports.view')->except(['exportExcel', 'exportPdf']);
-        $this->middleware('permission:reports.export')->only(['exportExcel', 'exportPdf']);
+        $this->middleware('permission:reports.view')->except(['exportExcel', 'exportPdf', 'contractorProduction', 'contractorPayments', 'contractorLedger']);
+        $this->middleware('permission:contractor-royalty.reports')->only(['contractorProduction', 'contractorPayments', 'contractorLedger']);
+        $this->middleware(function ($request, $next) {
+            $type = $request->route('type');
+            $contractorTypes = ['contractor-production', 'contractor-payments', 'contractor-ledger'];
+
+            if (in_array($type, $contractorTypes, true)) {
+                abort_unless($request->user()?->can('contractor-royalty.reports'), 403);
+            } else {
+                abort_unless($request->user()?->can('reports.export'), 403);
+            }
+
+            return $next($request);
+        })->only(['exportExcel', 'exportPdf']);
     }
 
     public function index(): Response
@@ -162,6 +176,38 @@ class ReportController extends Controller
         ]);
     }
 
+    public function contractorProduction(Request $request): Response
+    {
+        $filters = $this->reportFilters($request);
+
+        return Inertia::render('Reports/ContractorProduction', [
+            'rows' => ContractorProductionResource::collection($this->service->contractorProductionReport($filters)),
+            'filters' => $filters,
+        ]);
+    }
+
+    public function contractorPayments(Request $request): Response
+    {
+        $filters = $this->reportFilters($request);
+
+        return Inertia::render('Reports/ContractorPayments', [
+            'rows' => ContractorPaymentResource::collection($this->service->contractorPaymentsReport($filters)),
+            'filters' => $filters,
+        ]);
+    }
+
+    public function contractorLedger(Request $request): Response
+    {
+        $filters = $this->reportFilters($request);
+        $report = $this->service->contractorLedgerReport($filters);
+
+        return Inertia::render('Reports/ContractorLedger', [
+            'summary' => $report['summary'],
+            'transactions' => $report['transactions'],
+            'filters' => $filters,
+        ]);
+    }
+
     public function exportExcel(Request $request, string $type): BinaryFileResponse
     {
         $filters = $this->exportFilters($request, $type);
@@ -183,6 +229,9 @@ class ReportController extends Controller
             'monthly-production' => $this->monthlyProductionExportData($filters),
             'customer-balances' => $this->customerBalancesExportData($filters),
             'profit-loss' => $this->profitLossExportData($filters),
+            'contractor-production' => $this->contractorProductionExportData($filters),
+            'contractor-payments' => $this->contractorPaymentsExportData($filters),
+            'contractor-ledger' => $this->contractorLedgerExportData($filters),
             default => abort(404),
         };
 
@@ -213,6 +262,16 @@ class ReportController extends Controller
                     $filters
                 ),
             ]],
+            'contractor-production' => ['reports.pdf.contractor-production', [
+                'rows' => $this->service->contractorProductionReport($filters),
+            ]],
+            'contractor-payments' => ['reports.pdf.contractor-payments', [
+                'rows' => $this->service->contractorPaymentsReport($filters),
+            ]],
+            'contractor-ledger' => ['reports.pdf.contractor-ledger', array_merge(
+                $this->service->contractorLedgerReport($filters),
+                ['filters' => $filters]
+            )],
             default => abort(404),
         };
 
@@ -467,6 +526,7 @@ class ReportController extends Controller
         $rows = collect([
             [__('erp.reports.marble_sales'), $report['marble_sales']],
             [__('erp.reports.sankari_sales'), $report['sankari_sales']],
+            [__('erp.reports.contractor_royalty'), $report['contractor_royalty']],
             [__('erp.reports.total_income'), $report['total_income']],
             [__('erp.reports.operating_expenses'), $report['operating_expenses']],
             [__('erp.reports.payroll_expenses'), $report['payroll_expenses']],
@@ -475,5 +535,90 @@ class ReportController extends Controller
         ]);
 
         return [[__('erp.fields.description'), __('erp.fields.amount')], $rows];
+    }
+
+    private function contractorProductionExportData(array $filters): array
+    {
+        $data = $this->service->contractorProductionReport($filters);
+        $rows = $data->map(fn ($row) => [
+            JalaliDate::fromGregorian($row->production_date),
+            $row->truck_number ?? '—',
+            $row->quantity_ton,
+            $row->rate_per_ton,
+            $row->total_royalty,
+        ]);
+
+        $rows->push([
+            __('erp.fields.total_amount'),
+            '',
+            $data->sum('quantity_ton'),
+            '',
+            $data->sum('total_royalty'),
+        ]);
+
+        return [[
+            __('erp.fields.date'),
+            __('erp.fields.truck_number'),
+            __('erp.fields.quantity_ton'),
+            __('erp.fields.rate_per_ton'),
+            __('erp.contractor_royalty.total_royalty'),
+        ], $rows];
+    }
+
+    private function contractorPaymentsExportData(array $filters): array
+    {
+        $data = $this->service->contractorPaymentsReport($filters);
+        $rows = $data->map(fn ($row) => [
+            JalaliDate::fromGregorian($row->payment_date),
+            $row->amount,
+            $row->receipt_number ?? '—',
+            $row->received_by,
+        ]);
+
+        $rows->push([
+            __('erp.fields.total_amount'),
+            $data->sum('amount'),
+            '',
+            '',
+        ]);
+
+        return [[
+            __('erp.fields.date'),
+            __('erp.fields.amount'),
+            __('erp.fields.receipt_number'),
+            __('erp.fields.received_by'),
+        ], $rows];
+    }
+
+    private function contractorLedgerExportData(array $filters): array
+    {
+        $report = $this->service->contractorLedgerReport($filters);
+
+        $rows = collect([
+            [__('erp.contractor_royalty.total_royalties'), '', '', $report['summary']['total_royalties'], ''],
+            [__('erp.contractor_royalty.total_payments_received'), '', '', '', $report['summary']['total_payments']],
+            [__('erp.contractor_royalty.outstanding_balance'), '', '', $report['summary']['outstanding_balance'], ''],
+            ['', '', '', '', ''],
+        ]);
+
+        foreach ($report['transactions'] as $row) {
+            $rows->push([
+                $row['date_shamsi'],
+                $row['type'] === 'royalty'
+                    ? __('erp.contractor_royalty.royalty_entry')
+                    : __('erp.contractor_royalty.payment_entry'),
+                $row['description'],
+                $row['royalty_amount'] ?? '',
+                $row['payment_amount'] ?? '',
+            ]);
+        }
+
+        return [[
+            __('erp.fields.date'),
+            __('erp.fields.type'),
+            __('erp.fields.description'),
+            __('erp.contractor_royalty.total_royalty'),
+            __('erp.fields.amount'),
+        ], $rows];
     }
 }

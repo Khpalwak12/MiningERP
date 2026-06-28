@@ -18,6 +18,8 @@ class RepositoryServiceProvider extends ServiceProvider
             \App\Contracts\Repositories\PayrollPaymentRepositoryInterface::class => \App\Repositories\PayrollPaymentRepository::class,
             \App\Contracts\Repositories\InventoryItemRepositoryInterface::class => \App\Repositories\InventoryItemRepository::class,
             \App\Contracts\Repositories\FinancialYearRepositoryInterface::class => \App\Repositories\FinancialYearRepository::class,
+            \App\Contracts\Repositories\ContractorProductionRepositoryInterface::class => \App\Repositories\ContractorProductionRepository::class,
+            \App\Contracts\Repositories\ContractorPaymentRepositoryInterface::class => \App\Repositories\ContractorPaymentRepository::class,
         ];
 
         foreach ($bindings as $abstract => $concrete) {

@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Models\Customer;
+use App\Models\ContractorPayment;
+use App\Models\ContractorProduction;
 use App\Models\CustomerPayment;
 use App\Models\Employee;
 use App\Models\Expense;
@@ -32,8 +34,15 @@ class DashboardService
         $payrollQuery = PayrollPayment::query()->when($yearId, fn ($q) => $q->where('financial_year_id', $yearId));
         $paymentQuery = CustomerPayment::query()->when($yearId, fn ($q) => $q->where('financial_year_id', $yearId));
         $sankariQuery = SankariStoneSale::query()->when($yearId, fn ($q) => $q->where('financial_year_id', $yearId));
+        $contractorProductionQuery = ContractorProduction::query()->when($yearId, fn ($q) => $q->where('financial_year_id', $yearId));
+        $contractorPaymentQuery = ContractorPayment::query()->when($yearId, fn ($q) => $q->where('financial_year_id', $yearId));
 
-        $totalRevenue = (float) (clone $shipmentQuery)->completed()->sum('total_amount') + (float) (clone $sankariQuery)->sum('total_amount');
+        $contractorRoyalties = (float) (clone $contractorProductionQuery)->sum('total_royalty');
+        $contractorPaymentsReceived = (float) (clone $contractorPaymentQuery)->sum('amount');
+
+        $totalRevenue = (float) (clone $shipmentQuery)->completed()->sum('total_amount')
+            + (float) (clone $sankariQuery)->sum('total_amount')
+            + $contractorRoyalties;
         $totalExpenses = (float) (clone $expenseQuery)->sum('amount') + (float) (clone $payrollQuery)->sum('amount');
 
         $marbleSales = [
@@ -63,6 +72,11 @@ class DashboardService
                 'income' => (float) (clone $paymentQuery)->sum('amount') + (float) (clone $sankariQuery)->sum('cash_received'),
                 'expenses' => $totalExpenses,
                 'net' => (float) (clone $paymentQuery)->sum('amount') + (float) (clone $sankariQuery)->sum('cash_received') - $totalExpenses,
+            ],
+            'contractor_royalty' => [
+                'total_royalties' => $contractorRoyalties,
+                'total_payments' => $contractorPaymentsReceived,
+                'outstanding_balance' => $contractorRoyalties - $contractorPaymentsReceived,
             ],
             'recent_transactions' => $this->recentTransactions($yearId),
         ];

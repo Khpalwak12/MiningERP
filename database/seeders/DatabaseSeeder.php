@@ -9,9 +9,9 @@ use App\Models\ExpenseCategory;
 use App\Models\InventoryItem;
 use App\Models\MarbleType;
 use App\Models\User;
+use App\Support\ErpPermissionSync;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class DatabaseSeeder extends Seeder
@@ -29,55 +29,13 @@ class DatabaseSeeder extends Seeder
 
     private function seedPermissions(): void
     {
-        $modules = [
-            'dashboard', 'users', 'roles', 'customers', 'shipments', 'payments',
-            'sankari', 'expenses', 'employees', 'payroll', 'inventory',
-            'accounting', 'reports', 'financial-year',
-        ];
-
-        $actions = ['view', 'create', 'edit', 'delete', 'export'];
-
-        foreach ($modules as $module) {
-            $moduleActions = $module === 'financial-year'
-                ? ['view', 'create', 'edit', 'close', 'activate']
-                : $actions;
-
-            foreach ($moduleActions as $action) {
-                Permission::findOrCreate("{$module}.{$action}");
-            }
-        }
+        ErpPermissionSync::sync();
     }
 
     private function seedRoles(): void
     {
-        $roles = [
-            'Super Admin' => null,
-            'Accountant' => [
-                'dashboard.view', 'customers.view', 'customers.create', 'customers.edit',
-                'shipments.view', 'payments.view', 'payments.create', 'payments.edit',
-                'sankari.view', 'sankari.create', 'expenses.view', 'expenses.create', 'expenses.edit',
-                'employees.view', 'payroll.view', 'payroll.create', 'payroll.edit',
-                'accounting.view', 'accounting.create', 'reports.view', 'reports.export',
-                'financial-year.view', 'financial-year.create', 'financial-year.edit', 'financial-year.close', 'financial-year.activate',
-            ],
-            'Manager' => [
-                'dashboard.view', 'customers.view', 'shipments.view', 'shipments.create', 'shipments.edit',
-                'payments.view', 'sankari.view', 'expenses.view', 'employees.view', 'payroll.view',
-                'inventory.view', 'reports.view', 'reports.export', 'financial-year.view',
-            ],
-            'Data Entry Operator' => [
-                'dashboard.view', 'customers.view', 'customers.create', 'shipments.view', 'shipments.create',
-                'sankari.view', 'sankari.create', 'expenses.view', 'expenses.create',
-                'inventory.view', 'inventory.create',
-            ],
-        ];
-
-        foreach ($roles as $roleName => $permissions) {
-            $role = Role::findOrCreate($roleName);
-            $role->syncPermissions($permissions ?? Permission::all()->pluck('name')->toArray());
-        }
-
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        // Role permissions are synced in seedPermissions().
+        Role::findOrCreate('Super Admin');
     }
 
     private function seedUsers(): void

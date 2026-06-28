@@ -2,11 +2,13 @@ import ErpLayout from '@/Layouts/ErpLayout';
 import FlashMessage from '@/Components/Erp/FlashMessage';
 import StatCard from '@/Components/Erp/StatCard';
 import useTranslation from '@/hooks/useTranslation';
+import usePermission from '@/hooks/usePermission';
 import { formatCurrency, formatNumber } from '@/utils/format';
 import { Head, Link } from '@inertiajs/react';
 
 export default function Index({ stats, recentShipments, recentPayments }) {
     const { t } = useTranslation();
+    const { can } = usePermission();
 
     return (
         <ErpLayout>
@@ -44,6 +46,14 @@ export default function Index({ stats, recentShipments, recentPayments }) {
                 <StatCard title={t('dashboard.payments_received')} value={formatCurrency(stats?.cash_flow?.income)} color="green" />
                 <StatCard title={t('dashboard.net_profit')} value={formatCurrency(stats?.cash_flow?.net)} color="indigo" />
             </div>
+
+            {can('contractor-royalty.view') && (
+                <div className="mb-6 grid gap-4 sm:grid-cols-3">
+                    <StatCard title={t('dashboard.contractor_total_royalties')} value={formatCurrency(stats?.contractor_royalty?.total_royalties)} color="indigo" />
+                    <StatCard title={t('dashboard.contractor_payments_received')} value={formatCurrency(stats?.contractor_royalty?.total_payments)} color="green" />
+                    <StatCard title={t('dashboard.contractor_outstanding_balance')} value={formatCurrency(stats?.contractor_royalty?.outstanding_balance)} color="amber" />
+                </div>
+            )}
 
             <div className="grid gap-6 lg:grid-cols-2">
                 <div className="rounded-lg bg-white p-4 shadow">
