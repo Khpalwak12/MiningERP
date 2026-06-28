@@ -150,6 +150,8 @@ return [
         'contractor_total_royalties' => 'د قراردادي ټول راجونه',
         'contractor_payments_received' => 'د قراردادي ترلاسه شوي تادیات',
         'contractor_outstanding_balance' => 'د قراردادي پاتې پور',
+        'contractor_dispatches' => 'لېږدونه',
+        'contractor_tons' => 'ټن',
     ],
     'customers' => [
         'title' => 'پیرودونکي',

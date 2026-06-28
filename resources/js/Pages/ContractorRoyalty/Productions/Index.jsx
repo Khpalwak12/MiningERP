@@ -50,7 +50,6 @@ export default function Index({ productions, filters }) {
                     <thead className="bg-gray-50">
                         <tr>
                             <th className="px-4 py-3 text-left">{t('fields.date')}</th>
-                            <th className="px-4 py-3 text-left">{t('fields.truck_number')}</th>
                             <th className="px-4 py-3 text-left">{t('fields.quantity_ton')}</th>
                             <th className="px-4 py-3 text-left">{t('fields.rate_per_ton')}</th>
                             <th className="px-4 py-3 text-left">{t('contractor_royalty.total_royalty')}</th>
@@ -58,11 +57,10 @@ export default function Index({ productions, filters }) {
                         </tr>
                     </thead>
                     <tbody className="divide-y">
-                        {list.length === 0 && <tr><td colSpan={6} className="px-4 py-6 text-center text-gray-500">{t('messages.no_records')}</td></tr>}
+                        {list.length === 0 && <tr><td colSpan={5} className="px-4 py-6 text-center text-gray-500">{t('messages.no_records')}</td></tr>}
                         {list.map((row) => (
                             <tr key={row.id}>
                                 <td className="px-4 py-3">{row.production_date_shamsi}</td>
-                                <td className="px-4 py-3">{row.truck_number || '—'}</td>
                                 <td className="px-4 py-3">{formatNumber(row.quantity_ton, 3)}</td>
                                 <td className="px-4 py-3">{formatCurrency(row.rate_per_ton)}</td>
                                 <td className="px-4 py-3 font-medium">{formatCurrency(row.total_royalty)}</td>

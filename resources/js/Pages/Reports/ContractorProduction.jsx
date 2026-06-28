@@ -24,7 +24,6 @@ export default function ContractorProduction({ rows, filters }) {
                     <thead className="bg-gray-50">
                         <tr>
                             <th className="px-4 py-3 text-left">{t('fields.date')}</th>
-                            <th className="px-4 py-3 text-left">{t('fields.truck_number')}</th>
                             <th className="px-4 py-3 text-left">{t('fields.quantity_ton')}</th>
                             <th className="px-4 py-3 text-left">{t('fields.rate_per_ton')}</th>
                             <th className="px-4 py-3 text-left">{t('contractor_royalty.total_royalty')}</th>
@@ -34,7 +33,6 @@ export default function ContractorProduction({ rows, filters }) {
                         {list.map((row) => (
                             <tr key={row.id}>
                                 <td className="px-4 py-3">{row.production_date_shamsi}</td>
-                                <td className="px-4 py-3">{row.truck_number || '—'}</td>
                                 <td className="px-4 py-3">{formatNumber(row.quantity_ton, 3)}</td>
                                 <td className="px-4 py-3">{formatCurrency(row.rate_per_ton)}</td>
                                 <td className="px-4 py-3">{formatCurrency(row.total_royalty)}</td>

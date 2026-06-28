@@ -45,7 +45,7 @@ class ContractorRoyaltyLedgerService
             'type' => 'royalty',
             'date' => $row->production_date?->format('Y-m-d'),
             'date_shamsi' => JalaliDate::fromGregorian($row->production_date),
-            'description' => trim(($row->truck_number ? $row->truck_number.' — ' : '').($row->remarks ?? __('erp.contractor_royalty.production_entry'))),
+            'description' => trim($row->remarks ?? __('erp.contractor_royalty.production_entry')),
             'quantity_ton' => (float) $row->quantity_ton,
             'rate_per_ton' => (float) $row->rate_per_ton,
             'royalty_amount' => (float) $row->total_royalty,

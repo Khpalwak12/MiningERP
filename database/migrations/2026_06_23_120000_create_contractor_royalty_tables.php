@@ -12,7 +12,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('financial_year_id')->constrained('financial_years');
             $table->date('production_date');
-            $table->string('truck_number')->nullable();
             $table->decimal('quantity_ton', 12, 3);
             $table->decimal('rate_per_ton', 12, 2);
             $table->decimal('total_royalty', 14, 2);

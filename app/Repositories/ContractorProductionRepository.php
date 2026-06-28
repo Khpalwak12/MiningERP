@@ -33,7 +33,7 @@ class ContractorProductionRepository extends BaseRepository implements Contracto
         if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function (Builder $builder) use ($search) {
-                foreach (['truck_number', 'remarks'] as $column) {
+                foreach (['remarks'] as $column) {
                     $builder->orWhere($column, 'like', "%{$search}%");
                 }
             });

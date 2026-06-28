@@ -75,6 +75,8 @@ class DashboardService
             ],
             'contractor_royalty' => [
                 'total_royalties' => $contractorRoyalties,
+                'dispatch_count' => (clone $contractorProductionQuery)->count(),
+                'total_tons' => (float) (clone $contractorProductionQuery)->sum('quantity_ton'),
                 'total_payments' => $contractorPaymentsReceived,
                 'outstanding_balance' => $contractorRoyalties - $contractorPaymentsReceived,
             ],

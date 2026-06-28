@@ -18,7 +18,6 @@ export default function Edit({ production }) {
     const p = resourceData(production);
     const { data, setData, put, processing, errors } = useForm({
         production_date: p.production_date_shamsi || '',
-        truck_number: p.truck_number || '',
         quantity_ton: String(p.quantity_ton ?? ''),
         rate_per_ton: String(p.rate_per_ton ?? ''),
         remarks: p.remarks || '',
@@ -40,11 +39,6 @@ export default function Edit({ production }) {
 
             <form onSubmit={(e) => { e.preventDefault(); put(route('contractor-royalty.productions.update', p.id)); }} className="max-w-2xl space-y-4 rounded-lg bg-white p-6 shadow">
                 <ShamsiDateInput label={t('fields.date')} value={data.production_date} onChange={(v) => setData('production_date', v)} error={errors.production_date} required />
-                <div>
-                    <InputLabel value={t('fields.truck_number')} />
-                    <TextInput className="mt-1 block w-full" value={data.truck_number} onChange={(e) => setData('truck_number', e.target.value)} />
-                    <InputError message={errors.truck_number} />
-                </div>
                 <div>
                     <InputLabel value={t('fields.quantity_ton')} required />
                     <TextInput type="number" step="0.001" className="mt-1 block w-full" value={data.quantity_ton} onChange={(e) => setData('quantity_ton', e.target.value)} />

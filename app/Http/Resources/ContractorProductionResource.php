@@ -14,7 +14,6 @@ class ContractorProductionResource extends JsonResource
             'id' => $this->id,
             'production_date' => $this->production_date?->format('Y-m-d'),
             'production_date_shamsi' => JalaliDate::fromGregorian($this->production_date),
-            'truck_number' => $this->truck_number,
             'quantity_ton' => (float) $this->quantity_ton,
             'rate_per_ton' => (float) $this->rate_per_ton,
             'total_royalty' => (float) $this->total_royalty,

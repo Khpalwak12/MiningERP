@@ -542,7 +542,6 @@ class ReportController extends Controller
         $data = $this->service->contractorProductionReport($filters);
         $rows = $data->map(fn ($row) => [
             JalaliDate::fromGregorian($row->production_date),
-            $row->truck_number ?? '—',
             $row->quantity_ton,
             $row->rate_per_ton,
             $row->total_royalty,
@@ -550,7 +549,6 @@ class ReportController extends Controller
 
         $rows->push([
             __('erp.fields.total_amount'),
-            '',
             $data->sum('quantity_ton'),
             '',
             $data->sum('total_royalty'),
@@ -558,7 +556,6 @@ class ReportController extends Controller
 
         return [[
             __('erp.fields.date'),
-            __('erp.fields.truck_number'),
             __('erp.fields.quantity_ton'),
             __('erp.fields.rate_per_ton'),
             __('erp.contractor_royalty.total_royalty'),

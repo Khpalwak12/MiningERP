@@ -150,6 +150,8 @@ return [
         'contractor_total_royalties' => 'Contractor Total Royalties',
         'contractor_payments_received' => 'Contractor Payments Received',
         'contractor_outstanding_balance' => 'Contractor Outstanding Balance',
+        'contractor_dispatches' => 'Dispatches',
+        'contractor_tons' => 'Tons',
     ],
     'customers' => [
         'title' => 'Customers',

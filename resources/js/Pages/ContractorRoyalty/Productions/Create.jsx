@@ -16,7 +16,6 @@ export default function Create({ defaultRatePerTon }) {
     const { t } = useTranslation();
     const { data, setData, post, processing, errors } = useForm({
         production_date: '',
-        truck_number: '',
         quantity_ton: '',
         rate_per_ton: String(defaultRatePerTon ?? 150),
         remarks: '',
@@ -38,11 +37,6 @@ export default function Create({ defaultRatePerTon }) {
 
             <form onSubmit={(e) => { e.preventDefault(); post(route('contractor-royalty.productions.store')); }} className="max-w-2xl space-y-4 rounded-lg bg-white p-6 shadow">
                 <ShamsiDateInput label={t('fields.date')} value={data.production_date} onChange={(v) => setData('production_date', v)} error={errors.production_date} required />
-                <div>
-                    <InputLabel value={t('fields.truck_number')} />
-                    <TextInput className="mt-1 block w-full" value={data.truck_number} onChange={(e) => setData('truck_number', e.target.value)} />
-                    <InputError message={errors.truck_number} />
-                </div>
                 <div>
                     <InputLabel value={t('fields.quantity_ton')} required />
                     <TextInput type="number" step="0.001" className="mt-1 block w-full" value={data.quantity_ton} onChange={(e) => setData('quantity_ton', e.target.value)} />

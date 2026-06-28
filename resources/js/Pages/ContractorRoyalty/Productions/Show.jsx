@@ -24,7 +24,6 @@ export default function Show({ production }) {
             <div className="max-w-2xl rounded-lg bg-white p-6 shadow">
                 <dl className="grid gap-4 sm:grid-cols-2">
                     <div><dt className="text-gray-500">{t('fields.date')}</dt><dd>{p.production_date_shamsi}</dd></div>
-                    <div><dt className="text-gray-500">{t('fields.truck_number')}</dt><dd>{p.truck_number || '—'}</dd></div>
                     <div><dt className="text-gray-500">{t('fields.quantity_ton')}</dt><dd>{formatNumber(p.quantity_ton, 3)}</dd></div>
                     <div><dt className="text-gray-500">{t('fields.rate_per_ton')}</dt><dd>{formatCurrency(p.rate_per_ton)}</dd></div>
                     <div><dt className="text-gray-500">{t('contractor_royalty.total_royalty')}</dt><dd className="font-semibold">{formatCurrency(p.total_royalty)}</dd></div>

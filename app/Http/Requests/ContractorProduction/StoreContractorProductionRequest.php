@@ -18,10 +18,6 @@ class StoreContractorProductionRequest extends FormRequest
     {
         $this->convertShamsiDates(['production_date']);
 
-        if ($this->has('truck_number') && $this->input('truck_number') === '') {
-            $this->merge(['truck_number' => null]);
-        }
-
         if ($this->has('remarks') && $this->input('remarks') === '') {
             $this->merge(['remarks' => null]);
         }
@@ -36,7 +32,6 @@ class StoreContractorProductionRequest extends FormRequest
     public function rules(): array
     {
         return array_merge($this->shamsiDateRules(['production_date']), [
-            'truck_number' => ['nullable', 'string', 'max:255'],
             'quantity_ton' => ['required', 'numeric', 'min:0.001'],
             'rate_per_ton' => ['required', 'numeric', 'min:0.01'],
             'remarks' => ['nullable', 'string'],

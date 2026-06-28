@@ -8,6 +8,7 @@ use App\Models\FinancialYear;
 use App\Models\User;
 use App\Services\ContractorProductionService;
 use App\Services\ContractorRoyaltyLedgerService;
+use App\Services\DashboardService;
 use App\Services\ReportService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -119,5 +120,37 @@ class ContractorRoyaltyTest extends TestCase
         $this->assertSame(150000.0, $report['contractor_royalty']);
         $this->assertGreaterThanOrEqual(150000.0, $report['total_income']);
         $this->assertSame(100000.0, $ledger['outstanding_balance']);
+    }
+
+    public function test_dashboard_contractor_stats_include_dispatch_count_and_total_tons(): void
+    {
+        $this->seed();
+
+        $year = FinancialYear::query()->active()->where('is_all_years', false)->firstOrFail();
+        $user = User::where('email', 'admin@marbleerp.local')->firstOrFail();
+
+        ContractorProduction::query()->create([
+            'financial_year_id' => $year->id,
+            'production_date' => now(),
+            'quantity_ton' => 10.5,
+            'rate_per_ton' => 150,
+            'total_royalty' => 1575,
+            'created_by' => $user->id,
+        ]);
+
+        ContractorProduction::query()->create([
+            'financial_year_id' => $year->id,
+            'production_date' => now(),
+            'quantity_ton' => 20,
+            'rate_per_ton' => 150,
+            'total_royalty' => 3000,
+            'created_by' => $user->id,
+        ]);
+
+        $stats = app(DashboardService::class)->stats();
+
+        $this->assertSame(4575.0, $stats['contractor_royalty']['total_royalties']);
+        $this->assertSame(2, $stats['contractor_royalty']['dispatch_count']);
+        $this->assertSame(30.5, $stats['contractor_royalty']['total_tons']);
     }
 }

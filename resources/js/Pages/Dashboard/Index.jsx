@@ -49,7 +49,12 @@ export default function Index({ stats, recentShipments, recentPayments }) {
 
             {can('contractor-royalty.view') && (
                 <div className="mb-6 grid gap-4 sm:grid-cols-3">
-                    <StatCard title={t('dashboard.contractor_total_royalties')} value={formatCurrency(stats?.contractor_royalty?.total_royalties)} color="indigo" />
+                    <StatCard
+                        title={t('dashboard.contractor_total_royalties')}
+                        value={formatCurrency(stats?.contractor_royalty?.total_royalties)}
+                        subtitle={`${stats?.contractor_royalty?.dispatch_count || 0} ${t('dashboard.contractor_dispatches')} / ${formatNumber(stats?.contractor_royalty?.total_tons, 2)} ${t('dashboard.contractor_tons')}`}
+                        color="indigo"
+                    />
                     <StatCard title={t('dashboard.contractor_payments_received')} value={formatCurrency(stats?.contractor_royalty?.total_payments)} color="green" />
                     <StatCard title={t('dashboard.contractor_outstanding_balance')} value={formatCurrency(stats?.contractor_royalty?.outstanding_balance)} color="amber" />
                 </div>
