@@ -90,6 +90,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/profit-loss', [ReportController::class, 'profitLoss'])->name('profit-loss');
         Route::get('/contractor-production', [ReportController::class, 'contractorProduction'])->name('contractor-production');
         Route::get('/contractor-payments', [ReportController::class, 'contractorPayments'])->name('contractor-payments');
+        Route::get('/contractor-expenses', [ReportController::class, 'contractorExpenses'])->name('contractor-expenses');
         Route::get('/contractor-ledger', [ReportController::class, 'contractorLedger'])->name('contractor-ledger');
         Route::get('/export/{type}/excel', [ReportController::class, 'exportExcel'])->name('export.excel');
         Route::get('/export/{type}/pdf', [ReportController::class, 'exportPdf'])->name('export.pdf');

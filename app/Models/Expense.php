@@ -39,4 +39,14 @@ class Expense extends AuditableModel
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
+    public function scopeForCompany($query)
+    {
+        return $query->where('is_for_contractor', false);
+    }
+
+    public function scopeForContractor($query)
+    {
+        return $query->where('is_for_contractor', true);
+    }
 }

@@ -17,6 +17,7 @@ const reportLinks = [
     { route: 'reports.profit-loss', key: 'reports.profit_loss' },
     { route: 'reports.contractor-production', key: 'reports.contractor_production', permission: 'contractor-royalty.reports' },
     { route: 'reports.contractor-payments', key: 'reports.contractor_payments', permission: 'contractor-royalty.reports' },
+    { route: 'reports.contractor-expenses', key: 'reports.contractor_expenses', permission: 'contractor-royalty.reports' },
     { route: 'reports.contractor-ledger', key: 'reports.contractor_ledger', permission: 'contractor-royalty.reports' },
 ];
 

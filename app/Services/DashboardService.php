@@ -32,7 +32,7 @@ class DashboardService
         $shamsiMonth = JalaliDate::fromGregorian($today, 'Y/m');
 
         $shipmentQuery = MarbleShipment::query()->when($yearId, fn ($q) => $q->where('financial_year_id', $yearId));
-        $expenseQuery = Expense::query()->when($yearId, fn ($q) => $q->where('financial_year_id', $yearId));
+        $expenseQuery = Expense::query()->forCompany()->when($yearId, fn ($q) => $q->where('financial_year_id', $yearId));
         $payrollQuery = PayrollPayment::query()->when($yearId, fn ($q) => $q->where('financial_year_id', $yearId));
         $paymentQuery = CustomerPayment::query()->when($yearId, fn ($q) => $q->where('financial_year_id', $yearId));
         $sankariQuery = SankariStoneSale::query()->when($yearId, fn ($q) => $q->where('financial_year_id', $yearId));

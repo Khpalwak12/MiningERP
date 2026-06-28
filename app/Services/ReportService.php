@@ -64,7 +64,17 @@ class ReportService
 
     public function expensesReport(array $filters = []): Collection
     {
-        $query = Expense::query()->with(['category']);
+        $query = Expense::query()->forCompany()->with(['category']);
+        $this->applyFinancialYearFilter($query, $filters);
+        $this->applyDateFilters($query, $filters, 'expense_date');
+        $this->advancedFilter->apply($query, 'expenses', $filters['filter_by'] ?? null, $filters['filter_value'] ?? null);
+
+        return $query->orderBy('expense_date')->get();
+    }
+
+    public function contractorExpensesReport(array $filters = []): Collection
+    {
+        $query = Expense::query()->forContractor()->with(['category']);
         $this->applyFinancialYearFilter($query, $filters);
         $this->applyDateFilters($query, $filters, 'expense_date');
         $this->advancedFilter->apply($query, 'expenses', $filters['filter_by'] ?? null, $filters['filter_value'] ?? null);
@@ -240,7 +250,7 @@ class ReportService
         );
         $sankariSales = $this->sumInRange(SankariStoneSale::query(), $filters, 'sale_date', 'total_amount');
         $contractorRoyalty = $this->sumInRange(ContractorProduction::query(), $filters, 'production_date', 'total_royalty');
-        $expenses = $this->sumInRange(Expense::query(), $filters, 'expense_date', 'amount');
+        $expenses = $this->sumInRange(Expense::query()->forCompany(), $filters, 'expense_date', 'amount');
         $payroll = $this->sumInRange(PayrollPayment::query(), $filters, 'payment_date', 'amount');
 
         $income = $marbleSales + $sankariSales + $contractorRoyalty;

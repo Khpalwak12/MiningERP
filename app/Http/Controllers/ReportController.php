@@ -27,11 +27,11 @@ class ReportController extends Controller
 {
     public function __construct(private ReportService $service)
     {
-        $this->middleware('permission:reports.view')->except(['exportExcel', 'exportPdf', 'contractorProduction', 'contractorPayments', 'contractorLedger']);
-        $this->middleware('permission:contractor-royalty.reports')->only(['contractorProduction', 'contractorPayments', 'contractorLedger']);
+        $this->middleware('permission:reports.view')->except(['exportExcel', 'exportPdf', 'contractorProduction', 'contractorPayments', 'contractorExpenses', 'contractorLedger']);
+        $this->middleware('permission:contractor-royalty.reports')->only(['contractorProduction', 'contractorPayments', 'contractorExpenses', 'contractorLedger']);
         $this->middleware(function ($request, $next) {
             $type = $request->route('type');
-            $contractorTypes = ['contractor-production', 'contractor-payments', 'contractor-ledger'];
+            $contractorTypes = ['contractor-production', 'contractor-payments', 'contractor-expenses', 'contractor-ledger'];
 
             if (in_array($type, $contractorTypes, true)) {
                 abort_unless($request->user()?->can('contractor-royalty.reports'), 403);
@@ -196,6 +196,21 @@ class ReportController extends Controller
         ]);
     }
 
+    public function contractorExpenses(Request $request): Response
+    {
+        $filters = $this->reportFilters($request);
+        $data = $this->service->contractorExpensesReport($filters);
+
+        return Inertia::render('Reports/ContractorExpenses', array_merge(
+            $this->filterLookups($filters),
+            [
+                'rows' => ExpenseResource::collection($data),
+                'filters' => $filters,
+                'total' => (float) $data->sum('amount'),
+            ]
+        ));
+    }
+
     public function contractorLedger(Request $request): Response
     {
         $filters = $this->reportFilters($request);
@@ -231,6 +246,7 @@ class ReportController extends Controller
             'profit-loss' => $this->profitLossExportData($filters),
             'contractor-production' => $this->contractorProductionExportData($filters),
             'contractor-payments' => $this->contractorPaymentsExportData($filters),
+            'contractor-expenses' => $this->contractorExpensesExportData($filters),
             'contractor-ledger' => $this->contractorLedgerExportData($filters),
             default => abort(404),
         };
@@ -267,6 +283,9 @@ class ReportController extends Controller
             ]],
             'contractor-payments' => ['reports.pdf.contractor-payments', [
                 'rows' => $this->service->contractorPaymentsReport($filters),
+            ]],
+            'contractor-expenses' => ['reports.pdf.contractor-expenses', [
+                'rows' => $this->service->contractorExpensesReport($filters),
             ]],
             'contractor-ledger' => ['reports.pdf.contractor-ledger', array_merge(
                 $this->service->contractorLedgerReport($filters),
@@ -584,6 +603,37 @@ class ReportController extends Controller
             __('erp.fields.amount'),
             __('erp.fields.receipt_number'),
             __('erp.fields.received_by'),
+        ], $rows];
+    }
+
+    private function contractorExpensesExportData(array $filters): array
+    {
+        $data = $this->service->contractorExpensesReport($filters);
+        $rows = $data->map(fn ($row) => [
+            JalaliDate::fromGregorian($row->expense_date),
+            $row->category?->localized_name,
+            $row->subcategory ?? '—',
+            $row->bill_number ?? '—',
+            $row->description ?? '—',
+            $row->amount,
+        ]);
+
+        $rows->push([
+            __('erp.fields.total_amount'),
+            '',
+            '',
+            '',
+            '',
+            $data->sum('amount'),
+        ]);
+
+        return [[
+            __('erp.fields.date'),
+            __('erp.fields.category'),
+            __('erp.fields.subcategory'),
+            __('erp.fields.bill_number'),
+            __('erp.fields.description'),
+            __('erp.fields.amount'),
         ], $rows];
     }
 

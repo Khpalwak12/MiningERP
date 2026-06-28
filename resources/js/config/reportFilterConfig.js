@@ -61,6 +61,13 @@ export const REPORT_FILTER_OPTIONS = {
         { value: 'expense', type: 'number', labelKey: 'report_filters.expense' },
         { value: 'net_profit', type: 'number', labelKey: 'reports.net_profit' },
     ],
+    'contractor-expenses': [
+        { value: 'category', type: 'category', labelKey: 'fields.category' },
+        { value: 'sub_category', type: 'text', labelKey: 'report_filters.sub_category' },
+        { value: 'bill_number', type: 'text', labelKey: 'fields.bill_number' },
+        { value: 'amount', type: 'number', labelKey: 'fields.amount' },
+        { value: 'description', type: 'text', labelKey: 'fields.description' },
+    ],
 };
 
 export function getFilterOptions(reportType) {

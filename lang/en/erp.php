@@ -336,6 +336,7 @@ return [
         'monthly_production' => 'Monthly Production Report',
         'contractor_production' => 'Contractor Production Report',
         'contractor_payments' => 'Contractor Payments Report',
+        'contractor_expenses' => 'Contractor Expenses Report',
         'contractor_ledger' => 'Contractor Ledger Report',
         'contractor_royalty' => 'Contractor Royalty Revenue',
     ],

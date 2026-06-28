@@ -281,4 +281,45 @@ class ContractorRoyaltyTest extends TestCase
         $summary = app(ContractorRoyaltyLedgerService::class)->summary();
         $this->assertSame(6500.0, $summary['outstanding_balance']);
     }
+
+    public function test_contractor_expenses_excluded_from_company_expenses_report(): void
+    {
+        $this->seed();
+
+        $year = FinancialYear::query()->active()->where('is_all_years', false)->firstOrFail();
+        $user = User::where('email', 'admin@marbleerp.local')->firstOrFail();
+        $category = \App\Models\ExpenseCategory::query()->firstOrFail();
+        $expenseService = app(\App\Services\ExpenseService::class);
+        $reportService = app(\App\Services\ReportService::class);
+
+        $expenseService->create([
+            'financial_year_id' => $year->id,
+            'expense_category_id' => $category->id,
+            'expense_date' => now(),
+            'amount' => 3000,
+            'description' => 'Company fuel',
+            'is_for_contractor' => false,
+            'created_by' => $user->id,
+        ]);
+
+        $expenseService->create([
+            'financial_year_id' => $year->id,
+            'expense_category_id' => $category->id,
+            'expense_date' => now(),
+            'amount' => 7000,
+            'description' => 'Contractor supplies',
+            'is_for_contractor' => true,
+            'created_by' => $user->id,
+        ]);
+
+        $companyExpenses = $reportService->expensesReport();
+        $contractorExpenses = $reportService->contractorExpensesReport();
+        $profitLoss = $reportService->profitLossReport();
+
+        $this->assertCount(1, $companyExpenses);
+        $this->assertSame(3000.0, (float) $companyExpenses->first()->amount);
+        $this->assertCount(1, $contractorExpenses);
+        $this->assertSame(7000.0, (float) $contractorExpenses->first()->amount);
+        $this->assertSame(3000.0, $profitLoss['operating_expenses']);
+    }
 }

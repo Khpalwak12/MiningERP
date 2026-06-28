@@ -45,6 +45,7 @@ class RouteSmokeTest extends TestCase
             'reports.profit-loss',
             'reports.contractor-production',
             'reports.contractor-payments',
+            'reports.contractor-expenses',
             'reports.contractor-ledger',
             'contractor-royalty.ledger',
             'contractor-royalty.productions.index',

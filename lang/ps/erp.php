@@ -336,6 +336,7 @@ return [
         'monthly_production' => 'میاشتنی تولید راپور',
         'contractor_production' => 'د قراردادي تولید راپور',
         'contractor_payments' => 'د قراردادي تادیاتو راپور',
+        'contractor_expenses' => 'د قراردادي مصرفونو راپور',
         'contractor_ledger' => 'د قراردادي لجر راپور',
         'contractor_royalty' => 'د قراردادي راج عاید',
     ],
