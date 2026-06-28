@@ -27,7 +27,10 @@ export default function Show({ employee }) {
                     <div><dt className="text-gray-500">{t('fields.father_name')}</dt><dd>{e.father_name}</dd></div>
                     <div><dt className="text-gray-500">{t('fields.phone')}</dt><dd>{e.phone}</dd></div>
                     <div><dt className="text-gray-500">{t('fields.position')}</dt><dd>{e.position}</dd></div>
-                    <div><dt className="text-gray-500">{t('fields.status')}</dt><dd>{t(`statuses.${e.status}`)}</dd></div>
+                    <div><dt className="text-gray-500">{t('fields.status')}</dt><dd>{t(`status.${e.status}`)}</dd></div>
+                    {e.is_shared_with_contractor && (
+                        <div><dt className="text-gray-500">{t('employees.shared_with_contractor')}</dt><dd>{e.contractor_salary_share_percent}%</dd></div>
+                    )}
                 </dl>
             </div>
         </ErpLayout>

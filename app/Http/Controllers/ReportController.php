@@ -593,17 +593,22 @@ class ReportController extends Controller
 
         $rows = collect([
             [__('erp.contractor_royalty.total_royalties'), '', '', $report['summary']['total_royalties'], ''],
+            [__('erp.contractor_royalty.total_salary_charges'), '', '', $report['summary']['total_salary_charges'], ''],
             [__('erp.contractor_royalty.total_payments_received'), '', '', '', $report['summary']['total_payments']],
             [__('erp.contractor_royalty.outstanding_balance'), '', '', $report['summary']['outstanding_balance'], ''],
             ['', '', '', '', ''],
         ]);
 
         foreach ($report['transactions'] as $row) {
+            $typeLabel = match ($row['type']) {
+                'royalty' => __('erp.contractor_royalty.royalty_entry'),
+                'salary_charge' => __('erp.contractor_royalty.salary_charge_entry'),
+                default => __('erp.contractor_royalty.payment_entry'),
+            };
+
             $rows->push([
                 $row['date_shamsi'],
-                $row['type'] === 'royalty'
-                    ? __('erp.contractor_royalty.royalty_entry')
-                    : __('erp.contractor_royalty.payment_entry'),
+                $typeLabel,
                 $row['description'],
                 $row['royalty_amount'] ?? '',
                 $row['payment_amount'] ?? '',

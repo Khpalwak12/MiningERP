@@ -32,7 +32,12 @@ export default function Index({ employees, filters }) {
                     <tbody className="divide-y">
                         {employees?.data?.map((e) => (
                             <tr key={e.id}>
-                                <td className="px-4 py-3">{e.name}</td>
+                                <td className="px-4 py-3">
+                                    {e.name}
+                                    {e.is_shared_with_contractor && (
+                                        <span className="ms-2 rounded bg-amber-100 px-2 py-0.5 text-xs text-amber-800">{t('employees.shared_with_contractor')}</span>
+                                    )}
+                                </td>
                                 <td className="px-4 py-3">{e.position}</td>
                                 <td className="px-4 py-3">{formatCurrency(e.salary)}</td>
                                 <td className="px-4 py-3">{t(`status.${e.status}`)}</td>

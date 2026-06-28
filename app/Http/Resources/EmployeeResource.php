@@ -26,6 +26,10 @@ class EmployeeResource extends JsonResource
             'joining_date' => $this->joining_date?->format('Y-m-d'),
             'joining_date_shamsi' => JalaliDate::fromGregorian($this->joining_date),
             'status' => $this->status,
+            'is_shared_with_contractor' => (bool) $this->is_shared_with_contractor,
+            'contractor_salary_share_percent' => $this->is_shared_with_contractor
+                ? (float) ($this->contractor_salary_share_percent ?? 50)
+                : null,
             'total_paid' => $accrual['total_paid_salary'],
             'remaining_salary' => $accrual['remaining_balance'],
             'monthly_salary' => $accrual['monthly_salary'],

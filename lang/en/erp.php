@@ -150,6 +150,7 @@ return [
         'contractor_total_royalties' => 'Contractor Total Royalties',
         'contractor_payments_received' => 'Contractor Payments Received',
         'contractor_outstanding_balance' => 'Contractor Outstanding Balance',
+        'contractor_salary_charges' => 'Shared Salary Owed',
         'contractor_dispatches' => 'Dispatches',
         'contractor_tons' => 'Tons',
     ],
@@ -259,6 +260,9 @@ return [
         'total_paid' => 'Total Paid',
         'remaining_salary' => 'Remaining Salary',
         'profile_details' => 'Profile Details',
+        'shared_with_contractor' => 'Shared with Contractor',
+        'contractor_salary_share' => 'Contractor Salary Share (%)',
+        'shared_with_contractor_hint' => 'You pay full salary; the contractor share is tracked as receivable in the royalty ledger.',
     ],
     'payroll_statuses' => [
         'credit' => 'Employee Credit (Company Owes)',
@@ -355,6 +359,10 @@ return [
         'outstanding_balance' => 'Outstanding Balance',
         'royalty_entry' => 'Royalty',
         'payment_entry' => 'Payment',
+        'salary_charge_entry' => 'Shared Salary',
+        'salary_charge_for_employee' => 'Shared salary — :employee (:period)',
+        'total_salary_charges' => 'Shared Salary Owed',
+        'total_receivable' => 'Total Receivable (Royalty + Salary)',
         'production_entry' => 'Production',
     ],
     'report_filters' => [

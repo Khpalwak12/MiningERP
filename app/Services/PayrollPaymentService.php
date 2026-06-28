@@ -12,7 +12,10 @@ class PayrollPaymentService
 {
     use ManagesFinancialYear;
 
-    public function __construct(private PayrollPaymentRepositoryInterface $repository) {}
+    public function __construct(
+        private PayrollPaymentRepositoryInterface $repository,
+        private ContractorSalaryChargeService $contractorSalaryChargeService,
+    ) {}
 
     public function paginate(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
@@ -30,7 +33,10 @@ class PayrollPaymentService
             $data['created_by'] = $data['created_by'] ?? auth()->id();
             $data = $this->assignActiveFinancialYear($data);
 
-            return $this->repository->create($data);
+            $payment = $this->repository->create($data);
+            $this->contractorSalaryChargeService->syncFromPayrollPayment($payment);
+
+            return $payment;
         });
     }
 
@@ -38,13 +44,22 @@ class PayrollPaymentService
     {
         $this->ensureFinancialYearWritable($payment);
 
-        return DB::transaction(fn () => $this->repository->update($payment, $data));
+        return DB::transaction(function () use ($payment, $data) {
+            $payment = $this->repository->update($payment, $data);
+            $this->contractorSalaryChargeService->syncFromPayrollPayment($payment->fresh(['employee']));
+
+            return $payment;
+        });
     }
 
     public function delete(PayrollPayment $payment): bool
     {
         $this->ensureFinancialYearWritable($payment);
 
-        return DB::transaction(fn () => $this->repository->delete($payment));
+        return DB::transaction(function () use ($payment) {
+            $this->contractorSalaryChargeService->removeForPayrollPayment($payment);
+
+            return $this->repository->delete($payment);
+        });
     }
 }

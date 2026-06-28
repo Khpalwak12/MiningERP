@@ -10,6 +10,12 @@ export default function ContractorLedger({ summary, transactions, filters }) {
     const { t } = useTranslation();
     const list = Array.isArray(transactions) ? transactions : [];
 
+    const ledgerTypeLabel = (type) => {
+        if (type === 'royalty') return t('contractor_royalty.royalty_entry');
+        if (type === 'salary_charge') return t('contractor_royalty.salary_charge_entry');
+        return t('contractor_royalty.payment_entry');
+    };
+
     return (
         <ErpLayout>
             <Head title={t('reports.contractor_ledger')} />
@@ -20,8 +26,9 @@ export default function ContractorLedger({ summary, transactions, filters }) {
             </div>
             <ReportFilterForm reportType="contractor-ledger" routeName="reports.contractor-ledger" filters={filters} exportType="contractor-ledger" />
 
-            <div className="mb-6 grid gap-4 sm:grid-cols-3">
+            <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <StatCard title={t('contractor_royalty.total_royalties')} value={formatCurrency(summary?.total_royalties)} color="indigo" />
+                <StatCard title={t('contractor_royalty.total_salary_charges')} value={formatCurrency(summary?.total_salary_charges)} color="blue" />
                 <StatCard title={t('contractor_royalty.total_payments_received')} value={formatCurrency(summary?.total_payments)} color="green" />
                 <StatCard title={t('contractor_royalty.outstanding_balance')} value={formatCurrency(summary?.outstanding_balance)} color="amber" />
             </div>
@@ -41,7 +48,7 @@ export default function ContractorLedger({ summary, transactions, filters }) {
                         {list.map((row) => (
                             <tr key={row.id}>
                                 <td className="px-4 py-3">{row.date_shamsi}</td>
-                                <td className="px-4 py-3">{row.type === 'royalty' ? t('contractor_royalty.royalty_entry') : t('contractor_royalty.payment_entry')}</td>
+                                <td className="px-4 py-3">{ledgerTypeLabel(row.type)}</td>
                                 <td className="px-4 py-3">{row.description}</td>
                                 <td className="px-4 py-3">{row.royalty_amount != null ? formatCurrency(row.royalty_amount) : '—'}</td>
                                 <td className="px-4 py-3">{row.payment_amount != null ? formatCurrency(row.payment_amount) : '—'}</td>

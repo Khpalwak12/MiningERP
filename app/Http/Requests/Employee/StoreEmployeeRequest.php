@@ -20,6 +20,8 @@ class StoreEmployeeRequest extends FormRequest
         if ($this->filled('joining_date')) {
             $this->convertShamsiDates(['joining_date']);
         }
+
+        $this->normalizeSharedContractorFields();
     }
 
     public function rules(): array
@@ -31,6 +33,20 @@ class StoreEmployeeRequest extends FormRequest
             'position' => ['nullable', 'string', 'max:255'],
             'salary' => ['required', 'numeric', 'min:0'],
             'status' => ['required', Rule::in(['active', 'inactive'])],
+            'is_shared_with_contractor' => ['sometimes', 'boolean'],
+            'contractor_salary_share_percent' => ['nullable', 'required_if:is_shared_with_contractor,1,true', 'numeric', 'min:0.01', 'max:100'],
+        ]);
+    }
+
+    private function normalizeSharedContractorFields(): void
+    {
+        $isShared = filter_var($this->input('is_shared_with_contractor', false), FILTER_VALIDATE_BOOLEAN);
+
+        $this->merge([
+            'is_shared_with_contractor' => $isShared,
+            'contractor_salary_share_percent' => $isShared
+                ? ($this->input('contractor_salary_share_percent') ?: 50)
+                : null,
         ]);
     }
 }

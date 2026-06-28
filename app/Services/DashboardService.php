@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Customer;
 use App\Models\ContractorPayment;
 use App\Models\ContractorProduction;
+use App\Models\ContractorSalaryCharge;
 use App\Models\CustomerPayment;
 use App\Models\Employee;
 use App\Models\Expense;
@@ -36,9 +37,12 @@ class DashboardService
         $sankariQuery = SankariStoneSale::query()->when($yearId, fn ($q) => $q->where('financial_year_id', $yearId));
         $contractorProductionQuery = ContractorProduction::query()->when($yearId, fn ($q) => $q->where('financial_year_id', $yearId));
         $contractorPaymentQuery = ContractorPayment::query()->when($yearId, fn ($q) => $q->where('financial_year_id', $yearId));
+        $contractorSalaryChargeQuery = ContractorSalaryCharge::query()->when($yearId, fn ($q) => $q->where('financial_year_id', $yearId));
 
         $contractorRoyalties = (float) (clone $contractorProductionQuery)->sum('total_royalty');
+        $contractorSalaryCharges = (float) (clone $contractorSalaryChargeQuery)->sum('amount');
         $contractorPaymentsReceived = (float) (clone $contractorPaymentQuery)->sum('amount');
+        $contractorReceivable = $contractorRoyalties + $contractorSalaryCharges;
 
         $totalRevenue = (float) (clone $shipmentQuery)->completed()->sum('total_amount')
             + (float) (clone $sankariQuery)->sum('total_amount')
@@ -77,8 +81,10 @@ class DashboardService
                 'total_royalties' => $contractorRoyalties,
                 'dispatch_count' => (clone $contractorProductionQuery)->count(),
                 'total_tons' => (float) (clone $contractorProductionQuery)->sum('quantity_ton'),
+                'total_salary_charges' => $contractorSalaryCharges,
+                'total_receivable' => $contractorReceivable,
                 'total_payments' => $contractorPaymentsReceived,
-                'outstanding_balance' => $contractorRoyalties - $contractorPaymentsReceived,
+                'outstanding_balance' => $contractorReceivable - $contractorPaymentsReceived,
             ],
             'recent_transactions' => $this->recentTransactions($yearId),
         ];

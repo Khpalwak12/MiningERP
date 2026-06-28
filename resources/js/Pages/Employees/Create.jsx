@@ -1,3 +1,4 @@
+import Checkbox from '@/Components/Checkbox';
 import ErpLayout from '@/Layouts/ErpLayout';
 import FlashMessage from '@/Components/Erp/FlashMessage';
 import ShamsiDateInput from '@/Components/Erp/ShamsiDateInput';
@@ -13,6 +14,7 @@ export default function Create() {
     const { t } = useTranslation();
     const { data, setData, post, processing, errors } = useForm({
         name: '', father_name: '', phone: '', position: '', salary: '', joining_date: '', status: 'active',
+        is_shared_with_contractor: false, contractor_salary_share_percent: 50,
     });
 
     return (
@@ -27,6 +29,31 @@ export default function Create() {
                 <div><InputLabel value={t('fields.phone')} /><TextInput className="mt-1 block w-full" value={data.phone} onChange={(e) => setData('phone', e.target.value)} /></div>
                 <div><InputLabel value={t('fields.position')} /><TextInput className="mt-1 block w-full" value={data.position} onChange={(e) => setData('position', e.target.value)} /></div>
                 <div><InputLabel value={t('fields.salary')} required /><TextInput type="number" step="0.01" className="mt-1 block w-full" value={data.salary} onChange={(e) => setData('salary', e.target.value)} /><InputError message={errors.salary} /></div>
+                <div className="rounded-md border border-gray-200 p-4">
+                    <label className="flex items-center gap-2">
+                        <Checkbox
+                            checked={data.is_shared_with_contractor}
+                            onChange={(e) => setData('is_shared_with_contractor', e.target.checked)}
+                        />
+                        <span>{t('employees.shared_with_contractor')}</span>
+                    </label>
+                    <p className="mt-2 text-sm text-gray-500">{t('employees.shared_with_contractor_hint')}</p>
+                    {data.is_shared_with_contractor && (
+                        <div className="mt-3">
+                            <InputLabel value={t('employees.contractor_salary_share')} required />
+                            <TextInput
+                                type="number"
+                                step="0.01"
+                                min="0.01"
+                                max="100"
+                                className="mt-1 block w-full max-w-xs"
+                                value={data.contractor_salary_share_percent}
+                                onChange={(e) => setData('contractor_salary_share_percent', e.target.value)}
+                            />
+                            <InputError message={errors.contractor_salary_share_percent} />
+                        </div>
+                    )}
+                </div>
                 <ShamsiDateInput label={t('fields.joining_date')} value={data.joining_date} onChange={(v) => setData('joining_date', v)} error={errors.joining_date} />
                 <div>
                     <InputLabel value={t('fields.status')} />

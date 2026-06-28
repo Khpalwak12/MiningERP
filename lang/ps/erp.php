@@ -150,6 +150,7 @@ return [
         'contractor_total_royalties' => 'د قراردادي ټول راجونه',
         'contractor_payments_received' => 'د قراردادي ترلاسه شوي تادیات',
         'contractor_outstanding_balance' => 'د قراردادي پاتې پور',
+        'contractor_salary_charges' => 'د شریک معاش پور',
         'contractor_dispatches' => 'لېږدونه',
         'contractor_tons' => 'ټن',
     ],
@@ -259,6 +260,9 @@ return [
         'total_paid' => 'ټول تادیه شوی',
         'remaining_salary' => 'پاتې معاش',
         'profile_details' => 'د پروفایل جزئیات',
+        'shared_with_contractor' => 'د قراردادي شرکت سره شریک',
+        'contractor_salary_share' => 'د قراردادي معاش برخه (%)',
+        'shared_with_contractor_hint' => 'تاسو بشپړ معاش ورکوئ؛ د قراردادي برخه په راج لجر کې د بیرته اخیستلو پور ثبتېږي.',
     ],
     'payroll_statuses' => [
         'credit' => 'د کارکوونکي پور (شرکت پور دی)',
@@ -355,6 +359,10 @@ return [
         'outstanding_balance' => 'پاتې پور',
         'royalty_entry' => 'راج',
         'payment_entry' => 'تادیه',
+        'salary_charge_entry' => 'شریک معاش',
+        'salary_charge_for_employee' => 'شریک معاش — :employee (:period)',
+        'total_salary_charges' => 'د شریک معاش پور',
+        'total_receivable' => 'ټول پور (راج + معاش)',
         'production_entry' => 'تولید',
     ],
     'report_filters' => [

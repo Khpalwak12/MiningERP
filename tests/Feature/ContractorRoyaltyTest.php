@@ -160,4 +160,89 @@ class ContractorRoyaltyTest extends TestCase
         $this->assertSame($stats['contractor_royalty']['dispatch_count'], $ledgerSummary['dispatch_count']);
         $this->assertSame($stats['contractor_royalty']['total_tons'], $ledgerSummary['total_tons']);
     }
+
+    public function test_shared_employee_payroll_creates_contractor_salary_charge(): void
+    {
+        $this->seed();
+
+        $year = FinancialYear::query()->active()->where('is_all_years', false)->firstOrFail();
+        $user = User::where('email', 'admin@marbleerp.local')->firstOrFail();
+
+        $employee = \App\Models\Employee::query()->create([
+            'name' => 'Shared Worker',
+            'salary' => 30000,
+            'joining_date' => now()->subMonth(),
+            'status' => 'active',
+            'is_shared_with_contractor' => true,
+            'contractor_salary_share_percent' => 50,
+        ]);
+
+        app(\App\Services\PayrollPaymentService::class)->create([
+            'financial_year_id' => $year->id,
+            'employee_id' => $employee->id,
+            'payment_date' => now(),
+            'amount' => 30000,
+            'payment_type' => 'full_salary',
+            'period_month' => '1404/01',
+            'created_by' => $user->id,
+        ]);
+
+        $summary = app(ContractorRoyaltyLedgerService::class)->summary();
+
+        $this->assertSame(15000.0, $summary['total_salary_charges']);
+        $this->assertSame(15000.0, $summary['outstanding_balance']);
+
+        ContractorPayment::query()->create([
+            'financial_year_id' => $year->id,
+            'payment_date' => now(),
+            'amount' => 10000,
+            'received_by' => 'Cashier',
+            'created_by' => $user->id,
+        ]);
+
+        $summary = app(ContractorRoyaltyLedgerService::class)->summary();
+        $this->assertSame(5000.0, $summary['outstanding_balance']);
+    }
+
+    public function test_ledger_includes_royalties_and_salary_charges_in_outstanding(): void
+    {
+        $this->seed();
+
+        $year = FinancialYear::query()->active()->where('is_all_years', false)->firstOrFail();
+        $user = User::where('email', 'admin@marbleerp.local')->firstOrFail();
+
+        ContractorProduction::query()->create([
+            'financial_year_id' => $year->id,
+            'production_date' => now(),
+            'quantity_ton' => 100,
+            'rate_per_ton' => 150,
+            'total_royalty' => 15000,
+            'created_by' => $user->id,
+        ]);
+
+        $employee = \App\Models\Employee::query()->create([
+            'name' => 'Shared Worker',
+            'salary' => 20000,
+            'joining_date' => now()->subMonth(),
+            'status' => 'active',
+            'is_shared_with_contractor' => true,
+            'contractor_salary_share_percent' => 50,
+        ]);
+
+        app(\App\Services\PayrollPaymentService::class)->create([
+            'financial_year_id' => $year->id,
+            'employee_id' => $employee->id,
+            'payment_date' => now(),
+            'amount' => 20000,
+            'payment_type' => 'full_salary',
+            'period_month' => '1404/02',
+            'created_by' => $user->id,
+        ]);
+
+        $summary = app(ContractorRoyaltyLedgerService::class)->summary();
+
+        $this->assertSame(15000.0, $summary['total_royalties']);
+        $this->assertSame(10000.0, $summary['total_salary_charges']);
+        $this->assertSame(25000.0, $summary['outstanding_balance']);
+    }
 }
