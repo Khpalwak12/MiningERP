@@ -20,11 +20,13 @@ class ContractorRoyaltyLedgerService
         $this->applyDateFilters($productionQuery, $filters, 'production_date');
         $this->applyDateFilters($paymentQuery, $filters, 'payment_date');
 
-        $totalRoyalties = (float) $productionQuery->sum('total_royalty');
-        $totalPayments = (float) $paymentQuery->sum('amount');
+        $totalRoyalties = (float) (clone $productionQuery)->sum('total_royalty');
+        $totalPayments = (float) (clone $paymentQuery)->sum('amount');
 
         return [
             'total_royalties' => $totalRoyalties,
+            'dispatch_count' => (clone $productionQuery)->count(),
+            'total_tons' => (float) (clone $productionQuery)->sum('quantity_ton'),
             'total_payments' => $totalPayments,
             'outstanding_balance' => $totalRoyalties - $totalPayments,
         ];

@@ -4,7 +4,7 @@ import FlashMessage from '@/Components/Erp/FlashMessage';
 import StatCard from '@/Components/Erp/StatCard';
 import ShamsiDateInput from '@/Components/Erp/ShamsiDateInput';
 import useTranslation from '@/hooks/useTranslation';
-import { formatCurrency } from '@/utils/format';
+import { formatCurrency, formatNumber } from '@/utils/format';
 import { Head, router } from '@inertiajs/react';
 import { useState } from 'react';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -32,7 +32,12 @@ export default function Index({ summary, transactions, filters }) {
             </form>
 
             <div className="mb-6 grid gap-4 sm:grid-cols-3">
-                <StatCard title={t('contractor_royalty.total_royalties')} value={formatCurrency(summary?.total_royalties)} color="indigo" />
+                <StatCard
+                    title={t('contractor_royalty.total_royalties')}
+                    value={formatCurrency(summary?.total_royalties)}
+                    subtitle={`${summary?.dispatch_count || 0} ${t('dashboard.contractor_dispatches')} / ${formatNumber(summary?.total_tons, 2)} ${t('dashboard.contractor_tons')}`}
+                    color="indigo"
+                />
                 <StatCard title={t('contractor_royalty.total_payments_received')} value={formatCurrency(summary?.total_payments)} color="green" />
                 <StatCard title={t('contractor_royalty.outstanding_balance')} value={formatCurrency(summary?.outstanding_balance)} color="amber" />
             </div>

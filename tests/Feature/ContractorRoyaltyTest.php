@@ -86,6 +86,8 @@ class ContractorRoyaltyTest extends TestCase
         $summary = app(ContractorRoyaltyLedgerService::class)->summary();
 
         $this->assertSame(45000.0, $summary['total_royalties']);
+        $this->assertSame(2, $summary['dispatch_count']);
+        $this->assertSame(300.0, $summary['total_tons']);
         $this->assertSame(70000.0, $summary['total_payments']);
         $this->assertSame(-25000.0, $summary['outstanding_balance']);
     }
@@ -152,5 +154,10 @@ class ContractorRoyaltyTest extends TestCase
         $this->assertSame(4575.0, $stats['contractor_royalty']['total_royalties']);
         $this->assertSame(2, $stats['contractor_royalty']['dispatch_count']);
         $this->assertSame(30.5, $stats['contractor_royalty']['total_tons']);
+
+        $ledgerSummary = app(ContractorRoyaltyLedgerService::class)->summary();
+        $this->assertSame($stats['contractor_royalty']['total_royalties'], $ledgerSummary['total_royalties']);
+        $this->assertSame($stats['contractor_royalty']['dispatch_count'], $ledgerSummary['dispatch_count']);
+        $this->assertSame($stats['contractor_royalty']['total_tons'], $ledgerSummary['total_tons']);
     }
 }
