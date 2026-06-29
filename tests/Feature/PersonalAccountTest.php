@@ -75,5 +75,7 @@ class PersonalAccountTest extends TestCase
 
         $this->actingAs($user)->get(route('personal-accounts.contacts.index'))->assertOk();
         $this->actingAs($user)->get(route('personal-accounts.home-expenses.index'))->assertOk();
+        $this->actingAs($user)->get(route('reports.personal-ledger'))->assertOk();
+        $this->actingAs($user)->get(route('reports.personal-home-expenses'))->assertOk();
     }
 }

@@ -13,9 +13,12 @@ use App\Http\Resources\ExpenseResource;
 use App\Http\Resources\InventoryMovementResource;
 use App\Http\Resources\MarbleShipmentResource;
 use App\Http\Resources\MineAssetResource;
+use App\Http\Resources\PersonalContactResource;
+use App\Http\Resources\PersonalHomeExpenseResource;
 use App\Models\Customer;
 use App\Models\Employee;
 use App\Models\ExpenseCategory;
+use App\Models\PersonalContact;
 use App\Services\ReportService;
 use App\Support\JalaliDate;
 use Illuminate\Http\Request;
@@ -143,6 +146,34 @@ class ReportController extends Controller
         ]);
     }
 
+    public function personalLedger(Request $request): Response
+    {
+        $filters = $this->reportFilters($request, ['personal_contact_id', 'currency']);
+        $report = $this->service->personalLedgerReport($filters);
+
+        return Inertia::render('Reports/PersonalLedger', array_merge(
+            $this->personalAccountFilterLookups($filters),
+            [
+                'summary' => $report['summary'],
+                'transactions' => $report['transactions'],
+                'contactBalances' => $report['contact_balances'],
+                'filters' => $filters,
+            ]
+        ));
+    }
+
+    public function personalHomeExpenses(Request $request): Response
+    {
+        $filters = $this->reportFilters($request);
+        $data = $this->service->personalHomeExpensesReport($filters);
+
+        return Inertia::render('Reports/PersonalHomeExpenses', [
+            'rows' => PersonalHomeExpenseResource::collection($data),
+            'filters' => $filters,
+            'total' => (float) $data->sum('amount'),
+        ]);
+    }
+
     public function dailyProduction(Request $request): Response
     {
         $filters = $this->reportFilters($request);
@@ -254,6 +285,8 @@ class ReportController extends Controller
             'payroll' => abort(404),
             'inventory' => $this->inventoryExportData($filters),
             'mine-assets' => $this->mineAssetsExportData($filters),
+            'personal-ledger' => $this->personalLedgerExportData($filters),
+            'personal-home-expenses' => $this->personalHomeExpensesExportData($filters),
             'daily-production' => $this->dailyProductionExportData($filters),
             'monthly-production' => $this->monthlyProductionExportData($filters),
             'customer-balances' => $this->customerBalancesExportData($filters),
@@ -283,6 +316,13 @@ class ReportController extends Controller
             ]],
             'inventory' => ['reports.pdf.inventory', ['rows' => $this->service->inventoryReport($filters)]],
             'mine-assets' => ['reports.pdf.mine-assets', ['rows' => $this->service->mineAssetsReport($filters)]],
+            'personal-ledger' => ['reports.pdf.personal-ledger', array_merge(
+                $this->service->personalLedgerReport($filters),
+                ['filters' => $filters]
+            )],
+            'personal-home-expenses' => ['reports.pdf.personal-home-expenses', [
+                'rows' => $this->service->personalHomeExpensesReport($filters),
+            ]],
             'daily-production' => ['reports.pdf.daily-production', ['rows' => $this->service->dailyProductionReport($filters)]],
             'monthly-production' => ['reports.pdf.monthly-production', ['rows' => $this->service->monthlyProductionReport($filters)]],
             'customer-balances' => ['reports.pdf.customer-balances', ['rows' => $this->service->customerBalancesReport($filters)]],
@@ -322,6 +362,7 @@ class ReportController extends Controller
         $extra = match ($type) {
             'sales' => ['customer_id', 'status'],
             'mine-assets' => ['status'],
+            'personal-ledger' => ['personal_contact_id', 'currency'],
             default => [],
         };
 
@@ -363,6 +404,21 @@ class ReportController extends Controller
             ),
             'selectedCustomer' => $selectedCustomer ? new CustomerResource($selectedCustomer) : null,
             'selectedEmployee' => $selectedEmployee ? new EmployeeResource($selectedEmployee) : null,
+        ];
+    }
+
+    private function personalAccountFilterLookups(array $filters): array
+    {
+        $selectedContact = null;
+        if (! empty($filters['personal_contact_id'])) {
+            $selectedContact = PersonalContact::query()->find($filters['personal_contact_id']);
+        }
+
+        return [
+            'contacts' => PersonalContactResource::collection(
+                PersonalContact::query()->orderBy('name')->get()
+            ),
+            'selectedContact' => $selectedContact ? new PersonalContactResource($selectedContact) : null,
         ];
     }
 
@@ -520,6 +576,86 @@ class ReportController extends Controller
             __('erp.fields.unit'),
             __('erp.fields.status'),
             __('erp.fields.notes'),
+        ], $rows];
+    }
+
+    private function personalLedgerExportData(array $filters): array
+    {
+        $report = $this->service->personalLedgerReport($filters);
+        $summary = $report['summary'];
+
+        $rows = collect([
+            [__('erp.personal_accounts.total_credit_afn'), number_format($summary['total_credit_afn'] ?? 0, 2)],
+            [__('erp.personal_accounts.total_payment_afn'), number_format($summary['total_payment_afn'] ?? 0, 2)],
+            [__('erp.personal_accounts.balance_afn'), number_format($summary['outstanding_afn'] ?? 0, 2)],
+            [__('erp.personal_accounts.total_credit_usd'), number_format($summary['total_credit_usd'] ?? 0, 2)],
+            [__('erp.personal_accounts.total_payment_usd'), number_format($summary['total_payment_usd'] ?? 0, 2)],
+            [__('erp.personal_accounts.balance_usd'), number_format($summary['outstanding_usd'] ?? 0, 2)],
+            ['', ''],
+        ]);
+
+        foreach ($report['contact_balances'] as $contact) {
+            $rows->push([
+                $contact['name'],
+                __('erp.personal_contact_types.'.$contact['contact_type']),
+                number_format($contact['balance_afn'], 2),
+                number_format($contact['balance_usd'], 2),
+            ]);
+        }
+
+        $rows->push(['', '', '', '']);
+
+        foreach ($report['transactions'] as $row) {
+            $typeLabel = $row['type'] === 'credit'
+                ? __('erp.personal_transaction_types.credit')
+                : __('erp.personal_transaction_types.payment');
+
+            $rows->push([
+                $row['date_shamsi'],
+                $row['contact_name'],
+                $typeLabel,
+                $row['currency'],
+                $row['credit_amount'] !== null ? number_format($row['credit_amount'], 2) : '',
+                $row['payment_amount'] !== null ? number_format($row['payment_amount'], 2) : '',
+                $row['description'] ?? '—',
+                number_format($row['running_balance'], 2),
+            ]);
+        }
+
+        return [[
+            __('erp.fields.date'),
+            __('erp.fields.name'),
+            __('erp.fields.type'),
+            __('erp.fields.currency'),
+            __('erp.personal_transaction_types.credit'),
+            __('erp.personal_transaction_types.payment'),
+            __('erp.fields.description'),
+            __('erp.personal_accounts.running_balance'),
+        ], $rows];
+    }
+
+    private function personalHomeExpensesExportData(array $filters): array
+    {
+        $data = $this->service->personalHomeExpensesReport($filters);
+        $rows = $data->map(fn ($row) => [
+            JalaliDate::fromGregorian($row->expense_date),
+            $row->item_name,
+            $row->amount,
+            $row->description ?? '—',
+        ]);
+
+        $rows->push([
+            __('erp.fields.total_amount'),
+            '',
+            $data->sum('amount'),
+            '',
+        ]);
+
+        return [[
+            __('erp.fields.date'),
+            __('erp.fields.name'),
+            __('erp.fields.amount'),
+            __('erp.fields.description'),
         ], $rows];
     }
 

@@ -21,6 +21,8 @@ class ReportAdvancedFilterService
             'inventory' => $this->applyInventory($query, $filterBy, $filterValue),
             'daily-production' => $this->applyDailyProduction($query, $filterBy, $filterValue),
             'mine-assets' => $this->applyMineAssets($query, $filterBy, $filterValue),
+            'personal-ledger' => $this->applyPersonalLedger($query, $filterBy, $filterValue),
+            'personal-home-expenses' => $this->applyPersonalHomeExpenses($query, $filterBy, $filterValue),
             default => null,
         };
     }
@@ -122,6 +124,27 @@ class ReportAdvancedFilterService
             'unit' => $query->where('unit', $value),
             'status' => $query->where('status', $value),
             'remarks' => $this->like($query, 'remarks', $value),
+            default => null,
+        };
+    }
+
+    private function applyPersonalLedger(Builder $query, string $filterBy, mixed $value): void
+    {
+        match ($filterBy) {
+            'contact_name' => $query->whereHas('contact', fn (Builder $q) => $this->like($q, 'name', $value)),
+            'amount' => $this->exactNumeric($query, 'amount', $value),
+            'description' => $this->like($query, 'description', $value),
+            'transaction_type' => $query->where('transaction_type', $value),
+            default => null,
+        };
+    }
+
+    private function applyPersonalHomeExpenses(Builder $query, string $filterBy, mixed $value): void
+    {
+        match ($filterBy) {
+            'item_name' => $this->like($query, 'item_name', $value),
+            'amount' => $this->exactNumeric($query, 'amount', $value),
+            'description' => $this->like($query, 'description', $value),
             default => null,
         };
     }

@@ -5,6 +5,7 @@ namespace App\Support;
 use App\Models\Customer;
 use App\Models\Employee;
 use App\Models\ExpenseCategory;
+use App\Models\PersonalContact;
 
 class ReportFilterSummary
 {
@@ -32,6 +33,20 @@ class ReportFilterSummary
             $summary[__('erp.fields.status')] = __($statusKey) !== $statusKey
                 ? __($statusKey)
                 : $filters['status'];
+        }
+
+        if (! empty($filters['personal_contact_id'])) {
+            $contact = PersonalContact::query()->find($filters['personal_contact_id']);
+            if ($contact) {
+                $summary[__('erp.fields.name')] = $contact->name;
+            }
+        }
+
+        if (! empty($filters['currency'])) {
+            $currencyKey = 'erp.currencies.'.$filters['currency'];
+            $summary[__('erp.fields.currency')] = __($currencyKey) !== $currencyKey
+                ? __($currencyKey)
+                : $filters['currency'];
         }
 
         if (! empty($filters['filter_by']) && ($filters['filter_value'] ?? '') !== '') {
@@ -62,6 +77,9 @@ class ReportFilterSummary
                 : (string) $value,
             'payment_type' => __('erp.payment_types.'.$value) !== 'erp.payment_types.'.$value
                 ? __('erp.payment_types.'.$value)
+                : (string) $value,
+            'transaction_type' => __('erp.personal_transaction_types.'.$value) !== 'erp.personal_transaction_types.'.$value
+                ? __('erp.personal_transaction_types.'.$value)
                 : (string) $value,
             default => (string) $value,
         };

@@ -6,8 +6,9 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import useTranslation from '@/hooks/useTranslation';
 import { SHIPMENT_STATUS_OPTIONS } from '@/config/reportFilterConfig';
 import { MINE_ASSET_STATUSES } from '@/config/mineAssetConfig';
+import { PERSONAL_CURRENCIES } from '@/config/personalAccountConfig';
 import { buildExportQuery } from '@/utils/reportExport';
-import { resourceData } from '@/utils/resource';
+import { resourceData, resourceItems } from '@/utils/resource';
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
 
@@ -20,6 +21,8 @@ export default function ReportFilterForm({
     showCustomer = false,
     showStatus = false,
     showMineAssetStatus = false,
+    showPersonalContact = false,
+    showPersonalCurrency = false,
     children,
 }) {
     const { t } = useTranslation();
@@ -27,6 +30,8 @@ export default function ReportFilterForm({
     const [dateTo, setDateTo] = useState(filters?.date_to || '');
     const [customerId, setCustomerId] = useState(filters?.customer_id || '');
     const [status, setStatus] = useState(filters?.status || '');
+    const [personalContactId, setPersonalContactId] = useState(filters?.personal_contact_id || '');
+    const [personalCurrency, setPersonalCurrency] = useState(filters?.currency || '');
     const [filterBy, setFilterBy] = useState(filters?.filter_by || '');
     const [filterValue, setFilterValue] = useState(filters?.filter_value ?? '');
 
@@ -42,6 +47,14 @@ export default function ReportFilterForm({
 
         if (showStatus || showMineAssetStatus) {
             params.status = status;
+        }
+
+        if (showPersonalContact && personalContactId) {
+            params.personal_contact_id = personalContactId;
+        }
+
+        if (showPersonalCurrency && personalCurrency) {
+            params.currency = personalCurrency;
         }
 
         if (filterBy) {
@@ -111,6 +124,38 @@ export default function ReportFilterForm({
                             <option value="">{t('mine_assets.all_statuses')}</option>
                             {MINE_ASSET_STATUSES.map((option) => (
                                 <option key={option} value={option}>{t(`mine_asset_statuses.${option}`)}</option>
+                            ))}
+                        </select>
+                    </div>
+                )}
+
+                {showPersonalContact && (
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">{t('fields.name')}</label>
+                        <select
+                            className="mt-1 min-w-[200px] rounded-md border-gray-300 text-sm"
+                            value={personalContactId}
+                            onChange={(e) => setPersonalContactId(e.target.value)}
+                        >
+                            <option value="">{t('actions.filter')} — {t('personal_accounts.contacts')}</option>
+                            {resourceItems(lookups.contacts).map((contact) => (
+                                <option key={contact.id} value={contact.id}>{contact.name}</option>
+                            ))}
+                        </select>
+                    </div>
+                )}
+
+                {showPersonalCurrency && (
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">{t('fields.currency')}</label>
+                        <select
+                            className="mt-1 rounded-md border-gray-300 text-sm"
+                            value={personalCurrency}
+                            onChange={(e) => setPersonalCurrency(e.target.value)}
+                        >
+                            <option value="">{t('actions.filter')} — {t('fields.currency')}</option>
+                            {PERSONAL_CURRENCIES.map((currency) => (
+                                <option key={currency} value={currency}>{t(`currencies.${currency}`)}</option>
                             ))}
                         </select>
                     </div>

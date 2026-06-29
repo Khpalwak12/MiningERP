@@ -345,6 +345,11 @@ return [
         'ledger' => 'شخصي لجر',
         'balance_afn' => 'پاتې پور (افغانۍ)',
         'balance_usd' => 'پاتې پور (ډالر)',
+        'total_credit_afn' => 'ټول قرض/سودا (افغانۍ)',
+        'total_payment_afn' => 'ټولې تادیات (افغانۍ)',
+        'total_credit_usd' => 'ټول قرض/سودا (ډالر)',
+        'total_payment_usd' => 'ټولې تادیات (ډالر)',
+        'contact_balances' => 'د اشخاصو پاتې پور',
         'running_balance' => 'جاري بیلانس',
     ],
     'personal_contact_types' => [
@@ -405,6 +410,8 @@ return [
         'contractor_expenses' => 'د قراردادي مصرفونو راپور',
         'contractor_ledger' => 'د قراردادي لجر راپور',
         'contractor_royalty' => 'د قراردادي راج عاید',
+        'personal_ledger' => 'د شخصي قرض او سودا راپور',
+        'personal_home_expenses' => 'د کور مصارفو راپور',
     ],
     'contractor_royalty' => [
         'title' => 'د قراردادي راج',

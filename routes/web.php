@@ -104,6 +104,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/payroll', [ReportController::class, 'payroll'])->name('payroll');
         Route::get('/inventory', [ReportController::class, 'inventory'])->name('inventory');
         Route::get('/mine-assets', [ReportController::class, 'mineAssets'])->name('mine-assets');
+        Route::get('/personal-ledger', [ReportController::class, 'personalLedger'])->name('personal-ledger');
+        Route::get('/personal-home-expenses', [ReportController::class, 'personalHomeExpenses'])->name('personal-home-expenses');
         Route::get('/daily-production', [ReportController::class, 'dailyProduction'])->name('daily-production');
         Route::get('/monthly-production', [ReportController::class, 'monthlyProduction'])->name('monthly-production');
         Route::get('/customer-balances', [ReportController::class, 'customerBalances'])->name('customer-balances');

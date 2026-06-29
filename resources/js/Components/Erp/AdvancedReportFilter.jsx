@@ -11,6 +11,7 @@ import {
     MOVEMENT_TYPES,
     PAYROLL_PAYMENT_TYPES,
 } from '@/config/reportFilterConfig';
+import { PERSONAL_TRANSACTION_TYPES } from '@/config/personalAccountConfig';
 
 function FilterValueInput({
     reportType,
@@ -101,6 +102,19 @@ function FilterValueInput({
                     <option value="">{t('actions.filter')} — {t('fields.movement_type')}</option>
                     {MOVEMENT_TYPES.map((type) => (
                         <option key={type} value={type}>{t(`movement_types.${type}`)}</option>
+                    ))}
+                </select>
+            );
+        case 'personal_transaction_type':
+            return (
+                <select
+                    className="mt-0 block w-full min-w-[180px] rounded-md border-gray-300 text-sm"
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                >
+                    <option value="">{t('actions.filter')} — {t('fields.type')}</option>
+                    {PERSONAL_TRANSACTION_TYPES.map((type) => (
+                        <option key={type} value={type}>{t(`personal_transaction_types.${type}`)}</option>
                     ))}
                 </select>
             );

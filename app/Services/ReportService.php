@@ -14,6 +14,7 @@ use App\Models\InventoryMovement;
 use App\Models\InventoryItem;
 use App\Models\MarbleShipment;
 use App\Models\MineAsset;
+use App\Models\PersonalHomeExpense;
 use App\Models\PayrollPayment;
 use App\Models\SankariStoneSale;
 use App\Support\ActiveFinancialYear;
@@ -244,6 +245,27 @@ class ReportService
         $this->advancedFilter->apply($query, 'mine-assets', $filters['filter_by'] ?? null, $filters['filter_value'] ?? null);
 
         return $query->orderBy('registration_date')->orderByDesc('id')->get();
+    }
+
+    public function personalLedgerReport(array $filters = []): array
+    {
+        $service = app(PersonalAccountsReportService::class);
+
+        return [
+            'summary' => $service->ledgerSummary($filters),
+            'transactions' => $service->ledgerTransactions($filters),
+            'contact_balances' => $service->contactBalances($filters),
+        ];
+    }
+
+    public function personalHomeExpensesReport(array $filters = []): Collection
+    {
+        $query = PersonalHomeExpense::query()->with('creator');
+        $this->applyFinancialYearFilter($query, $filters);
+        $this->applyDateFilters($query, $filters, 'expense_date');
+        $this->advancedFilter->apply($query, 'personal-home-expenses', $filters['filter_by'] ?? null, $filters['filter_value'] ?? null);
+
+        return $query->orderBy('expense_date')->orderByDesc('id')->get();
     }
 
     public function contractorLedgerReport(array $filters = []): array

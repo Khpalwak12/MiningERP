@@ -76,6 +76,17 @@ export const REPORT_FILTER_OPTIONS = {
         { value: 'status', type: 'text', labelKey: 'fields.status' },
         { value: 'remarks', type: 'text', labelKey: 'fields.notes' },
     ],
+    'personal-ledger': [
+        { value: 'contact_name', type: 'text', labelKey: 'fields.name' },
+        { value: 'amount', type: 'number', labelKey: 'fields.amount' },
+        { value: 'description', type: 'text', labelKey: 'fields.description' },
+        { value: 'transaction_type', type: 'personal_transaction_type', labelKey: 'fields.type' },
+    ],
+    'personal-home-expenses': [
+        { value: 'item_name', type: 'text', labelKey: 'fields.name' },
+        { value: 'amount', type: 'number', labelKey: 'fields.amount' },
+        { value: 'description', type: 'text', labelKey: 'fields.description' },
+    ],
 };
 
 export function getFilterOptions(reportType) {

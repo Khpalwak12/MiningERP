@@ -345,6 +345,11 @@ return [
         'ledger' => 'Personal Ledger',
         'balance_afn' => 'Balance (AFN)',
         'balance_usd' => 'Balance (USD)',
+        'total_credit_afn' => 'Total credit (AFN)',
+        'total_payment_afn' => 'Total payments (AFN)',
+        'total_credit_usd' => 'Total credit (USD)',
+        'total_payment_usd' => 'Total payments (USD)',
+        'contact_balances' => 'Contact balances',
         'running_balance' => 'Running Balance',
     ],
     'personal_contact_types' => [
@@ -405,6 +410,8 @@ return [
         'contractor_expenses' => 'Contractor Expenses Report',
         'contractor_ledger' => 'Contractor Ledger Report',
         'contractor_royalty' => 'Contractor Royalty Revenue',
+        'personal_ledger' => 'Personal Loans & Credit Report',
+        'personal_home_expenses' => 'Home Expenses Report',
     ],
     'contractor_royalty' => [
         'title' => 'Contractor Royalty',
