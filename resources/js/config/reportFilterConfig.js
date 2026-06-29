@@ -87,6 +87,13 @@ export const REPORT_FILTER_OPTIONS = {
         { value: 'amount', type: 'number', labelKey: 'fields.amount' },
         { value: 'description', type: 'text', labelKey: 'fields.description' },
     ],
+    machinery: [
+        { value: 'item_name', type: 'text', labelKey: 'fields.name' },
+        { value: 'bill_number', type: 'text', labelKey: 'fields.bill_number' },
+        { value: 'amount', type: 'number', labelKey: 'fields.amount' },
+        { value: 'currency', type: 'currency', labelKey: 'fields.currency' },
+        { value: 'description', type: 'text', labelKey: 'fields.description' },
+    ],
 };
 
 export function getFilterOptions(reportType) {

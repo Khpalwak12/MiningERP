@@ -11,7 +11,7 @@ import {
     MOVEMENT_TYPES,
     PAYROLL_PAYMENT_TYPES,
 } from '@/config/reportFilterConfig';
-import { PERSONAL_TRANSACTION_TYPES } from '@/config/personalAccountConfig';
+import { PERSONAL_CURRENCIES, PERSONAL_TRANSACTION_TYPES } from '@/config/personalAccountConfig';
 
 function FilterValueInput({
     reportType,
@@ -115,6 +115,19 @@ function FilterValueInput({
                     <option value="">{t('actions.filter')} — {t('fields.type')}</option>
                     {PERSONAL_TRANSACTION_TYPES.map((type) => (
                         <option key={type} value={type}>{t(`personal_transaction_types.${type}`)}</option>
+                    ))}
+                </select>
+            );
+        case 'currency':
+            return (
+                <select
+                    className="mt-0 block w-full min-w-[180px] rounded-md border-gray-300 text-sm"
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                >
+                    <option value="">{t('actions.filter')} — {t('fields.currency')}</option>
+                    {PERSONAL_CURRENCIES.map((currency) => (
+                        <option key={currency} value={currency}>{t(`currencies.${currency}`)}</option>
                     ))}
                 </select>
             );

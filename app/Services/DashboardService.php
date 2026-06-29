@@ -11,6 +11,7 @@ use App\Models\CustomerPayment;
 use App\Models\Employee;
 use App\Models\Expense;
 use App\Support\ActiveFinancialYear;
+use App\Models\MachineryItem;
 use App\Models\MarbleShipment;
 use App\Models\PayrollPayment;
 use App\Models\SankariStoneSale;
@@ -46,6 +47,12 @@ class DashboardService
         $contractorExpenseCharges = (float) (clone $contractorExpenseChargeQuery)->sum('amount');
         $contractorPaymentsReceived = (float) (clone $contractorPaymentQuery)->sum('amount');
         $contractorReceivable = $contractorRoyalties + $contractorSalaryCharges + $contractorExpenseCharges;
+
+        $machineryQuery = MachineryItem::query()->when($yearId, fn ($q) => $q->where('financial_year_id', $yearId));
+        $machineryTotals = [
+            'AFN' => (float) (clone $machineryQuery)->where('currency', MachineryItem::CURRENCY_AFN)->sum('amount'),
+            'USD' => (float) (clone $machineryQuery)->where('currency', MachineryItem::CURRENCY_USD)->sum('amount'),
+        ];
 
         $totalRevenue = (float) (clone $shipmentQuery)->completed()->sum('total_amount')
             + (float) (clone $sankariQuery)->sum('total_amount')
@@ -90,6 +97,7 @@ class DashboardService
                 'total_payments' => $contractorPaymentsReceived,
                 'outstanding_balance' => $contractorReceivable - $contractorPaymentsReceived,
             ],
+            'machinery' => $machineryTotals,
             'recent_transactions' => $this->recentTransactions($yearId),
         ];
     }

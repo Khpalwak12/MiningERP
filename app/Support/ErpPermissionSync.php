@@ -33,7 +33,7 @@ class ErpPermissionSync
 
         $modules = [
             'dashboard', 'users', 'roles', 'customers', 'shipments', 'payments',
-            'sankari', 'expenses', 'expense-categories', 'employees', 'payroll',             'inventory', 'mine-assets', 'personal-accounts',
+            'sankari', 'expenses', 'expense-categories', 'employees', 'payroll',             'inventory', 'mine-assets', 'machinery', 'personal-accounts',
             'accounting', 'reports', 'financial-year', 'contractor-royalty',
         ];
 
@@ -62,6 +62,7 @@ class ErpPermissionSync
                 'accounting.view', 'accounting.create', 'reports.view', 'reports.export',
                 'contractor-royalty.view', 'contractor-royalty.create', 'contractor-royalty.edit', 'contractor-royalty.reports',
                 'mine-assets.view', 'mine-assets.create', 'mine-assets.edit',
+                'machinery.view', 'machinery.create', 'machinery.edit',
                 'personal-accounts.view', 'personal-accounts.create', 'personal-accounts.edit',
                 'financial-year.view', 'financial-year.create', 'financial-year.edit', 'financial-year.close', 'financial-year.activate',
             ],
@@ -70,7 +71,7 @@ class ErpPermissionSync
                 'payments.view', 'sankari.view', 'expenses.view', 'expense-categories.view', 'employees.view', 'payroll.view',
                 'inventory.view', 'reports.view', 'reports.export', 'financial-year.view',
                 'mine-assets.view',
-                'mine-assets.view',
+                'machinery.view',
                 'contractor-royalty.view', 'contractor-royalty.reports',
             ],
             'Data Entry Operator' => [
@@ -79,6 +80,7 @@ class ErpPermissionSync
                 'expense-categories.view',
                 'inventory.view', 'inventory.create',
                 'mine-assets.view', 'mine-assets.create',
+                'machinery.view', 'machinery.create',
             ],
         ];
     }

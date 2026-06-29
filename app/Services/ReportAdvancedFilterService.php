@@ -23,6 +23,7 @@ class ReportAdvancedFilterService
             'mine-assets' => $this->applyMineAssets($query, $filterBy, $filterValue),
             'personal-ledger' => $this->applyPersonalLedger($query, $filterBy, $filterValue),
             'personal-home-expenses' => $this->applyPersonalHomeExpenses($query, $filterBy, $filterValue),
+            'machinery' => $this->applyMachinery($query, $filterBy, $filterValue),
             default => null,
         };
     }
@@ -145,6 +146,18 @@ class ReportAdvancedFilterService
             'item_name' => $this->like($query, 'item_name', $value),
             'amount' => $this->exactNumeric($query, 'amount', $value),
             'description' => $this->like($query, 'description', $value),
+            default => null,
+        };
+    }
+
+    private function applyMachinery(Builder $query, string $filterBy, mixed $value): void
+    {
+        match ($filterBy) {
+            'item_name' => $this->like($query, 'item_name', $value),
+            'bill_number' => $this->like($query, 'bill_number', $value),
+            'amount' => $this->exactNumeric($query, 'amount', $value),
+            'description' => $this->like($query, 'description', $value),
+            'currency' => $query->where('currency', $value),
             default => null,
         };
     }

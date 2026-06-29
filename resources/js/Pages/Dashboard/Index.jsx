@@ -3,7 +3,7 @@ import FlashMessage from '@/Components/Erp/FlashMessage';
 import StatCard from '@/Components/Erp/StatCard';
 import useTranslation from '@/hooks/useTranslation';
 import usePermission from '@/hooks/usePermission';
-import { formatCurrency, formatNumber } from '@/utils/format';
+import { formatCurrency, formatMoney, formatNumber } from '@/utils/format';
 import { Head, Link } from '@inertiajs/react';
 
 export default function Index({ stats, recentShipments, recentPayments }) {
@@ -48,17 +48,21 @@ export default function Index({ stats, recentShipments, recentPayments }) {
             </div>
 
             {can('contractor-royalty.view') && (
-                <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+                <div className="mb-6 grid gap-4 sm:grid-cols-2">
                     <StatCard
                         title={t('dashboard.contractor_total_royalties')}
                         value={formatCurrency(stats?.contractor_royalty?.total_royalties)}
                         subtitle={`${stats?.contractor_royalty?.dispatch_count || 0} ${t('dashboard.contractor_dispatches')} / ${formatNumber(stats?.contractor_royalty?.total_tons, 2)} ${t('dashboard.contractor_tons')}`}
                         color="indigo"
                     />
-                    <StatCard title={t('dashboard.contractor_salary_charges')} value={formatCurrency(stats?.contractor_royalty?.total_salary_charges)} color="blue" />
-                    <StatCard title={t('dashboard.contractor_expense_charges')} value={formatCurrency(stats?.contractor_royalty?.total_expense_charges)} color="purple" />
-                    <StatCard title={t('dashboard.contractor_payments_received')} value={formatCurrency(stats?.contractor_royalty?.total_payments)} color="green" />
                     <StatCard title={t('dashboard.contractor_outstanding_balance')} value={formatCurrency(stats?.contractor_royalty?.outstanding_balance)} color="amber" />
+                </div>
+            )}
+
+            {can('machinery.view') && (
+                <div className="mb-6 grid gap-4 sm:grid-cols-2">
+                    <StatCard title={t('dashboard.machinery_total_afn')} value={formatMoney(stats?.machinery?.AFN)} color="amber" />
+                    <StatCard title={t('dashboard.machinery_total_usd')} value={formatMoney(stats?.machinery?.USD, 'USD')} color="indigo" />
                 </div>
             )}
 

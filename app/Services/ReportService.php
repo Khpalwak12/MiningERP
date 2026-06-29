@@ -13,6 +13,7 @@ use App\Models\ExpenseCategory;
 use App\Models\InventoryMovement;
 use App\Models\InventoryItem;
 use App\Models\MarbleShipment;
+use App\Models\MachineryItem;
 use App\Models\MineAsset;
 use App\Models\PersonalHomeExpense;
 use App\Models\PayrollPayment;
@@ -266,6 +267,21 @@ class ReportService
         $this->advancedFilter->apply($query, 'personal-home-expenses', $filters['filter_by'] ?? null, $filters['filter_value'] ?? null);
 
         return $query->orderBy('expense_date')->orderByDesc('id')->get();
+    }
+
+    public function machineryReport(array $filters = []): Collection
+    {
+        $query = MachineryItem::query()->with('creator');
+        $this->applyFinancialYearFilter($query, $filters);
+        $this->applyDateFilters($query, $filters, 'purchase_date');
+
+        if (! empty($filters['currency']) && in_array($filters['currency'], [MachineryItem::CURRENCY_AFN, MachineryItem::CURRENCY_USD], true)) {
+            $query->where('currency', $filters['currency']);
+        }
+
+        $this->advancedFilter->apply($query, 'machinery', $filters['filter_by'] ?? null, $filters['filter_value'] ?? null);
+
+        return $query->orderBy('purchase_date')->orderByDesc('id')->get();
     }
 
     public function contractorLedgerReport(array $filters = []): array

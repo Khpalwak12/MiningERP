@@ -12,6 +12,7 @@ use App\Http\Resources\ExpenseCategoryResource;
 use App\Http\Resources\ExpenseResource;
 use App\Http\Resources\InventoryMovementResource;
 use App\Http\Resources\MarbleShipmentResource;
+use App\Http\Resources\MachineryItemResource;
 use App\Http\Resources\MineAssetResource;
 use App\Http\Resources\PersonalContactResource;
 use App\Http\Resources\PersonalHomeExpenseResource;
@@ -174,6 +175,21 @@ class ReportController extends Controller
         ]);
     }
 
+    public function machinery(Request $request): Response
+    {
+        $filters = $this->reportFilters($request, ['currency']);
+        $data = $this->service->machineryReport($filters);
+
+        return Inertia::render('Reports/Machinery', [
+            'rows' => MachineryItemResource::collection($data),
+            'filters' => $filters,
+            'totals' => [
+                'AFN' => (float) $data->where('currency', 'AFN')->sum('amount'),
+                'USD' => (float) $data->where('currency', 'USD')->sum('amount'),
+            ],
+        ]);
+    }
+
     public function dailyProduction(Request $request): Response
     {
         $filters = $this->reportFilters($request);
@@ -287,6 +303,7 @@ class ReportController extends Controller
             'mine-assets' => $this->mineAssetsExportData($filters),
             'personal-ledger' => $this->personalLedgerExportData($filters),
             'personal-home-expenses' => $this->personalHomeExpensesExportData($filters),
+            'machinery' => $this->machineryExportData($filters),
             'daily-production' => $this->dailyProductionExportData($filters),
             'monthly-production' => $this->monthlyProductionExportData($filters),
             'customer-balances' => $this->customerBalancesExportData($filters),
@@ -322,6 +339,9 @@ class ReportController extends Controller
             )],
             'personal-home-expenses' => ['reports.pdf.personal-home-expenses', [
                 'rows' => $this->service->personalHomeExpensesReport($filters),
+            ]],
+            'machinery' => ['reports.pdf.machinery', [
+                'rows' => $this->service->machineryReport($filters),
             ]],
             'daily-production' => ['reports.pdf.daily-production', ['rows' => $this->service->dailyProductionReport($filters)]],
             'monthly-production' => ['reports.pdf.monthly-production', ['rows' => $this->service->monthlyProductionReport($filters)]],
@@ -363,6 +383,7 @@ class ReportController extends Controller
             'sales' => ['customer_id', 'status'],
             'mine-assets' => ['status'],
             'personal-ledger' => ['personal_contact_id', 'currency'],
+            'machinery' => ['currency'],
             default => [],
         };
 
@@ -652,6 +673,45 @@ class ReportController extends Controller
         return [[
             __('erp.fields.date'),
             __('erp.fields.name'),
+            __('erp.fields.amount'),
+            __('erp.fields.description'),
+        ], $rows];
+    }
+
+    private function machineryExportData(array $filters): array
+    {
+        $data = $this->service->machineryReport($filters);
+        $rows = $data->map(fn ($row) => [
+            JalaliDate::fromGregorian($row->purchase_date),
+            $row->item_name,
+            $row->bill_number ?? '—',
+            __('erp.currencies.'.$row->currency),
+            $row->amount,
+            $row->description ?? '—',
+        ]);
+
+        $rows->push([
+            __('erp.machinery.total_afn'),
+            '',
+            '',
+            '',
+            $data->where('currency', 'AFN')->sum('amount'),
+            '',
+        ]);
+        $rows->push([
+            __('erp.machinery.total_usd'),
+            '',
+            '',
+            '',
+            $data->where('currency', 'USD')->sum('amount'),
+            '',
+        ]);
+
+        return [[
+            __('erp.fields.date'),
+            __('erp.fields.name'),
+            __('erp.fields.bill_number'),
+            __('erp.fields.currency'),
             __('erp.fields.amount'),
             __('erp.fields.description'),
         ], $rows];
