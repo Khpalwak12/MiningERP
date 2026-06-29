@@ -399,9 +399,7 @@ class ReportController extends Controller
             'employees' => EmployeeResource::collection(
                 Employee::query()->orderBy('name')->get()
             ),
-            'expenseCategories' => ExpenseCategoryResource::collection(
-                ExpenseCategory::query()->orderBy('name')->get()
-            ),
+            'expenseCategories' => ExpenseCategoryResource::collection(ExpenseCategory::listForSelect()),
             'selectedCustomer' => $selectedCustomer ? new CustomerResource($selectedCustomer) : null,
             'selectedEmployee' => $selectedEmployee ? new EmployeeResource($selectedEmployee) : null,
         ];

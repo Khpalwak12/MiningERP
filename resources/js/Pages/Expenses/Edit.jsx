@@ -1,4 +1,5 @@
 import Checkbox from '@/Components/Checkbox';
+import ExpensesNav from '@/Components/Erp/ExpensesNav';
 import ErpLayout from '@/Layouts/ErpLayout';
 import FlashMessage from '@/Components/Erp/FlashMessage';
 import ShamsiDateInput from '@/Components/Erp/ShamsiDateInput';
@@ -29,7 +30,8 @@ export default function Edit({ expense, categories }) {
         <ErpLayout>
             <Head title={t('expenses.edit')} />
             <FlashMessage />
-            <h1 className="mb-6 text-2xl font-bold">{t('expenses.edit')}</h1>
+            <h1 className="mb-2 text-2xl font-bold">{t('expenses.edit')}</h1>
+            <ExpensesNav active="expenses.index" />
 
             <form onSubmit={(ev) => { ev.preventDefault(); put(route('expenses.update', e.id)); }} className="max-w-2xl space-y-4 rounded-lg bg-white p-6 shadow">
                 <ShamsiDateInput label={t('fields.date')} value={data.expense_date} onChange={(v) => setData('expense_date', v)} error={errors.expense_date} required />

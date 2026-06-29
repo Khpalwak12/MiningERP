@@ -27,6 +27,7 @@ class RouteSmokeTest extends TestCase
             'payments.index',
             'sankari.index',
             'expenses.index',
+            'expense-categories.index',
             'employees.index',
             'payroll.index',
             'inventory.index',

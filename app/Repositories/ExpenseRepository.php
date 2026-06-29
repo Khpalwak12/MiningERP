@@ -44,13 +44,15 @@ class ExpenseRepository extends BaseRepository implements ExpenseRepositoryInter
                         $builder->orWhere('amount', $search);
                     }
 
-                    $categoryIds = ExpenseCategory::parentIdsMatchingSearch($search);
+                    $categoryIds = ExpenseCategory::idsMatchingSearch($search);
 
                     if ($categoryIds !== []) {
                         $builder->orWhereIn('expense_category_id', $categoryIds);
                     } else {
                         $builder->orWhereHas('category', function (Builder $categoryQuery) use ($search) {
-                            $categoryQuery->where('name', 'like', "%{$search}%");
+                            $categoryQuery->where('name_en', 'like', "%{$search}%")
+                                ->orWhere('name_ps', 'like', "%{$search}%")
+                                ->orWhere('description', 'like', "%{$search}%");
                         });
                     }
                 });

@@ -50,27 +50,52 @@ class DatabaseSeeder extends Seeder
     private function seedExpenseCategories(): void
     {
         $categories = [
-            'vehicle_parts' => ['Truck Parts', 'Excavator Parts', 'Generator Parts'],
-            'fuel_oil' => ['Diesel', 'Engine Oil', 'Hydraulic Oil'],
-            'maintenance' => ['Mechanic Charges', 'Repair Costs'],
-            'kitchen' => ['Food', 'Tea', 'Water', 'Cooking Materials'],
-            'utilities' => ['Electricity', 'Internet', 'Generator Running Cost'],
-            'other' => ['Miscellaneous'],
+            [
+                'slug' => 'vehicle_parts',
+                'name_en' => 'Vehicle Parts',
+                'name_ps' => 'د وسایطو پرزې',
+                'description' => 'Truck, excavator and generator parts',
+            ],
+            [
+                'slug' => 'fuel_oil',
+                'name_en' => 'Fuel & Oil',
+                'name_ps' => 'روغنیات او تیل',
+                'description' => 'Diesel, engine oil and hydraulic oil',
+            ],
+            [
+                'slug' => 'maintenance',
+                'name_en' => 'Maintenance',
+                'name_ps' => 'ترمیم او مستري',
+                'description' => 'Mechanic and repair costs',
+            ],
+            [
+                'slug' => 'kitchen',
+                'name_en' => 'Kitchen',
+                'name_ps' => 'اشپزخانه',
+                'description' => 'Food, tea, water and cooking supplies',
+            ],
+            [
+                'slug' => 'utilities',
+                'name_en' => 'Utilities',
+                'name_ps' => 'خدمات',
+                'description' => 'Electricity, internet and generator running costs',
+            ],
+            [
+                'slug' => 'other',
+                'name_en' => 'Other',
+                'name_ps' => 'نور',
+                'description' => 'Miscellaneous expenses',
+            ],
         ];
 
-        foreach ($categories as $slug => $children) {
-            $parent = ExpenseCategory::firstOrCreate(
-                ['slug' => $slug],
-                ['name' => ucwords(str_replace('_', ' ', $slug))]
+        foreach ($categories as $data) {
+            ExpenseCategory::updateOrCreate(
+                ['slug' => $data['slug']],
+                array_merge($data, ['name' => $data['name_en']])
             );
-
-            foreach ($children as $child) {
-                ExpenseCategory::firstOrCreate(
-                    ['slug' => $slug.'_'.str($child)->slug()],
-                    ['name' => $child, 'parent_id' => $parent->id]
-                );
-            }
         }
+
+        ExpenseCategory::query()->whereNotNull('parent_id')->delete();
     }
 
     private function seedMarbleTypes(): void

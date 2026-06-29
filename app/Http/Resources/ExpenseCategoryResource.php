@@ -12,9 +12,11 @@ class ExpenseCategoryResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->localized_name,
+            'name_en' => $this->name_en,
+            'name_ps' => $this->name_ps,
+            'description' => $this->description,
             'slug' => $this->slug,
-            'parent_id' => $this->parent_id,
-            'children' => ExpenseCategoryResource::collection($this->whenLoaded('children')),
+            'expenses_count' => $this->whenCounted('expenses'),
         ];
     }
 }

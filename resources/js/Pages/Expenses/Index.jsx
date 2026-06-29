@@ -1,4 +1,5 @@
 import ActionButtons from '@/Components/Erp/ActionButtons';
+import ExpensesNav from '@/Components/Erp/ExpensesNav';
 import ErpLayout from '@/Layouts/ErpLayout';
 import FlashMessage from '@/Components/Erp/FlashMessage';
 import PageHeader from '@/Components/Erp/PageHeader';
@@ -39,6 +40,8 @@ export default function Index({ expenses, filters, categories }) {
         <ErpLayout>
             <Head title={t('expenses.title')} />
             <FlashMessage />
+            <h1 className="mb-2 text-2xl font-bold">{t('expenses.title')}</h1>
+            <ExpensesNav active="expenses.index" />
             <PageHeader title={t('expenses.title')} createRoute={canCreateTransactions && can('expenses.create') ? route('expenses.create') : null} createLabel={t('expenses.create')} />
 
             <form onSubmit={handleSearch} className="mb-4 flex flex-wrap items-end gap-4 rounded-lg bg-white p-4 shadow">

@@ -10,6 +10,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\FinancialYearController;
 use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\ExpenseCategoryController;
 use App\Http\Controllers\InventoryItemController;
 use App\Http\Controllers\InventoryMovementController;
 use App\Http\Controllers\LocaleController;
@@ -52,6 +53,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->parameters(['sankari' => 'sankari']);
 
     Route::resource('expenses', ExpenseController::class);
+    Route::resource('expense-categories', ExpenseCategoryController::class)
+        ->parameters(['expense-categories' => 'expenseCategory'])
+        ->except(['show']);
 
     Route::resource('employees', EmployeeController::class);
 

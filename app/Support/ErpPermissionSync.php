@@ -33,7 +33,7 @@ class ErpPermissionSync
 
         $modules = [
             'dashboard', 'users', 'roles', 'customers', 'shipments', 'payments',
-            'sankari', 'expenses', 'employees', 'payroll',             'inventory', 'mine-assets', 'personal-accounts',
+            'sankari', 'expenses', 'expense-categories', 'employees', 'payroll',             'inventory', 'mine-assets', 'personal-accounts',
             'accounting', 'reports', 'financial-year', 'contractor-royalty',
         ];
 
@@ -57,6 +57,7 @@ class ErpPermissionSync
                 'dashboard.view', 'customers.view', 'customers.create', 'customers.edit',
                 'shipments.view', 'payments.view', 'payments.create', 'payments.edit',
                 'sankari.view', 'sankari.create', 'expenses.view', 'expenses.create', 'expenses.edit',
+                'expense-categories.view', 'expense-categories.create', 'expense-categories.edit',
                 'employees.view', 'payroll.view', 'payroll.create', 'payroll.edit',
                 'accounting.view', 'accounting.create', 'reports.view', 'reports.export',
                 'contractor-royalty.view', 'contractor-royalty.create', 'contractor-royalty.edit', 'contractor-royalty.reports',
@@ -66,7 +67,7 @@ class ErpPermissionSync
             ],
             'Manager' => [
                 'dashboard.view', 'customers.view', 'shipments.view', 'shipments.create', 'shipments.edit',
-                'payments.view', 'sankari.view', 'expenses.view', 'employees.view', 'payroll.view',
+                'payments.view', 'sankari.view', 'expenses.view', 'expense-categories.view', 'employees.view', 'payroll.view',
                 'inventory.view', 'reports.view', 'reports.export', 'financial-year.view',
                 'mine-assets.view',
                 'mine-assets.view',
@@ -75,6 +76,7 @@ class ErpPermissionSync
             'Data Entry Operator' => [
                 'dashboard.view', 'customers.view', 'customers.create', 'shipments.view', 'shipments.create',
                 'sankari.view', 'sankari.create', 'expenses.view', 'expenses.create',
+                'expense-categories.view',
                 'inventory.view', 'inventory.create',
                 'mine-assets.view', 'mine-assets.create',
             ],

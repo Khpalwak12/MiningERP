@@ -31,18 +31,14 @@ class ExpenseController extends Controller
         return Inertia::render('Expenses/Index', [
             'expenses' => ExpenseResource::collection($expenses),
             'filters' => $request->only(['search', 'date_from', 'date_to', 'expense_category_id', 'subcategory']),
-            'categories' => ExpenseCategoryResource::collection(
-                ExpenseCategory::query()->whereNull('parent_id')->orderBy('name')->get()
-            ),
+            'categories' => ExpenseCategoryResource::collection(ExpenseCategory::listForSelect()),
         ]);
     }
 
     public function create(): Response
     {
         return Inertia::render('Expenses/Create', [
-            'categories' => ExpenseCategoryResource::collection(
-                ExpenseCategory::query()->whereNull('parent_id')->orderBy('name')->get()
-            ),
+            'categories' => ExpenseCategoryResource::collection(ExpenseCategory::listForSelect()),
         ]);
     }
 
@@ -68,9 +64,7 @@ class ExpenseController extends Controller
 
         return Inertia::render('Expenses/Edit', [
             'expense' => new ExpenseResource($expense),
-            'categories' => ExpenseCategoryResource::collection(
-                ExpenseCategory::query()->whereNull('parent_id')->orderBy('name')->get()
-            ),
+            'categories' => ExpenseCategoryResource::collection(ExpenseCategory::listForSelect()),
         ]);
     }
 

@@ -12,11 +12,14 @@ class ExpenseCategoryFactory extends Factory
 
     public function definition(): array
     {
-        $name = fake()->unique()->words(2, true);
+        $nameEn = fake()->unique()->words(2, true);
 
         return [
-            'name' => $name,
-            'slug' => Str::slug($name),
+            'name' => $nameEn,
+            'name_en' => $nameEn,
+            'name_ps' => 'ازموینه '.$nameEn,
+            'description' => fake()->optional()->sentence(),
+            'slug' => Str::slug($nameEn),
             'parent_id' => null,
         ];
     }
