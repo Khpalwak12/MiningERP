@@ -4,6 +4,7 @@ import ErpLayout from '@/Layouts/ErpLayout';
 import FlashMessage from '@/Components/Erp/FlashMessage';
 import ShamsiDateInput from '@/Components/Erp/ShamsiDateInput';
 import useTranslation from '@/hooks/useTranslation';
+import useTodayShamsi from '@/hooks/useTodayShamsi';
 import { Head, Link, useForm } from '@inertiajs/react';
 import TextInput from '@/Components/TextInput';
 import InputLabel from '@/Components/InputLabel';
@@ -14,8 +15,9 @@ import { resourceItems } from '@/utils/resource';
 
 export default function Create({ categories }) {
     const { t } = useTranslation();
+    const today = useTodayShamsi();
     const { data, setData, post, processing, errors } = useForm({
-        expense_date: '',
+        expense_date: today,
         expense_category_id: '',
         subcategory: '',
         bill_number: '',

@@ -3,6 +3,7 @@ import FlashMessage from '@/Components/Erp/FlashMessage';
 import ShamsiDateInput from '@/Components/Erp/ShamsiDateInput';
 import CustomerSelect from '@/Components/Erp/CustomerSelect';
 import useTranslation from '@/hooks/useTranslation';
+import useTodayShamsi from '@/hooks/useTodayShamsi';
 import { formatCurrency } from '@/utils/format';
 import { Head, Link, useForm } from '@inertiajs/react';
 import TextInput from '@/Components/TextInput';
@@ -26,8 +27,9 @@ function calcShipmentTotal(quantityTon, pricePerTon) {
 
 export default function Create({ customers }) {
     const { t } = useTranslation();
+    const today = useTodayShamsi();
     const { data, setData, post, processing, errors } = useForm({
-        shipment_date: '', customer_id: '', driver_name: '',
+        shipment_date: today, customer_id: '', driver_name: '',
         quantity_ton: '', price_per_ton: '', notes: '',
     });
 

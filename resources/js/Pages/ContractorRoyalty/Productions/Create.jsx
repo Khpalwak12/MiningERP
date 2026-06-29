@@ -3,6 +3,7 @@ import ErpLayout from '@/Layouts/ErpLayout';
 import FlashMessage from '@/Components/Erp/FlashMessage';
 import ShamsiDateInput from '@/Components/Erp/ShamsiDateInput';
 import useTranslation from '@/hooks/useTranslation';
+import useTodayShamsi from '@/hooks/useTodayShamsi';
 import { formatCurrency } from '@/utils/format';
 import { Head, Link, useForm } from '@inertiajs/react';
 import TextInput from '@/Components/TextInput';
@@ -14,8 +15,9 @@ import { useMemo } from 'react';
 
 export default function Create({ defaultRatePerTon }) {
     const { t } = useTranslation();
+    const today = useTodayShamsi();
     const { data, setData, post, processing, errors } = useForm({
-        production_date: '',
+        production_date: today,
         quantity_ton: '',
         rate_per_ton: String(defaultRatePerTon ?? 150),
         remarks: '',

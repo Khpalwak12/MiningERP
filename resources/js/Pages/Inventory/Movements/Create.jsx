@@ -2,6 +2,7 @@ import ErpLayout from '@/Layouts/ErpLayout';
 import FlashMessage from '@/Components/Erp/FlashMessage';
 import ShamsiDateInput from '@/Components/Erp/ShamsiDateInput';
 import useTranslation from '@/hooks/useTranslation';
+import useTodayShamsi from '@/hooks/useTodayShamsi';
 import { Head, Link, useForm } from '@inertiajs/react';
 import TextInput from '@/Components/TextInput';
 import InputLabel from '@/Components/InputLabel';
@@ -12,9 +13,10 @@ import { resourceData } from '@/utils/resource';
 
 export default function Create({ item }) {
     const { t } = useTranslation();
+    const today = useTodayShamsi();
     const i = resourceData(item);
     const { data, setData, post, processing, errors } = useForm({
-        inventory_item_id: i.id, movement_date: '', movement_type: 'in', quantity: '', reference: '', notes: '',
+        inventory_item_id: i.id, movement_date: today, movement_type: 'in', quantity: '', reference: '', notes: '',
     });
 
     return (

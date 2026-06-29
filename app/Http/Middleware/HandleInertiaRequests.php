@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Http\Resources\FinancialYearResource;
 use App\Services\FinancialYearService;
+use App\Support\JalaliDate;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
@@ -50,6 +51,7 @@ class HandleInertiaRequests extends Middleware
                 app(FinancialYearService::class)->activeYear()
             ),
             'isAllYearsMode' => fn () => app(FinancialYearService::class)->isAllYearsMode(),
+            'todayShamsi' => fn () => JalaliDate::today(),
         ];
     }
 }

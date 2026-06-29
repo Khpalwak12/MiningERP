@@ -2,6 +2,7 @@ import ErpLayout from '@/Layouts/ErpLayout';
 import FlashMessage from '@/Components/Erp/FlashMessage';
 import ShamsiDateInput from '@/Components/Erp/ShamsiDateInput';
 import useTranslation from '@/hooks/useTranslation';
+import useTodayShamsi from '@/hooks/useTodayShamsi';
 import { PERSONAL_CURRENCIES } from '@/config/personalAccountConfig';
 import { Head, Link, useForm } from '@inertiajs/react';
 import TextInput from '@/Components/TextInput';
@@ -12,8 +13,9 @@ import SecondaryButton from '@/Components/SecondaryButton';
 
 export default function Create() {
     const { t } = useTranslation();
+    const today = useTodayShamsi();
     const { data, setData, post, processing, errors } = useForm({
-        purchase_date: '', item_name: '', bill_number: '', currency: 'AFN', amount: '', description: '',
+        purchase_date: today, item_name: '', bill_number: '', currency: 'AFN', amount: '', description: '',
     });
 
     return (

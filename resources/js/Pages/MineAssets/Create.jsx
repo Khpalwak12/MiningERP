@@ -2,6 +2,7 @@ import ErpLayout from '@/Layouts/ErpLayout';
 import FlashMessage from '@/Components/Erp/FlashMessage';
 import ShamsiDateInput from '@/Components/Erp/ShamsiDateInput';
 import useTranslation from '@/hooks/useTranslation';
+import useTodayShamsi from '@/hooks/useTodayShamsi';
 import { MINE_ASSET_STATUSES, MINE_ASSET_UNITS } from '@/config/mineAssetConfig';
 import { Head, Link, useForm } from '@inertiajs/react';
 import TextInput from '@/Components/TextInput';
@@ -12,13 +13,14 @@ import SecondaryButton from '@/Components/SecondaryButton';
 
 export default function Create() {
     const { t } = useTranslation();
+    const today = useTodayShamsi();
     const { data, setData, post, processing, errors } = useForm({
         name: '',
         related_to: '',
         quantity: '1',
         unit: 'piece',
         status: 'usable',
-        registration_date: '',
+        registration_date: today,
         remarks: '',
     });
 

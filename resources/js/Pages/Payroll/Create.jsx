@@ -4,6 +4,7 @@ import EmployeeSalarySummary from '@/Components/Erp/EmployeeSalarySummary';
 import ShamsiDateInput from '@/Components/Erp/ShamsiDateInput';
 import useTranslation from '@/hooks/useTranslation';
 import useFinancialYearMode from '@/hooks/useFinancialYearMode';
+import useTodayShamsi from '@/hooks/useTodayShamsi';
 import { Head, Link, useForm } from '@inertiajs/react';
 import TextInput from '@/Components/TextInput';
 import InputLabel from '@/Components/InputLabel';
@@ -15,9 +16,10 @@ import { resourceItems } from '@/utils/resource';
 export default function Create({ employees }) {
     const { t } = useTranslation();
     const { canCreateTransactions } = useFinancialYearMode();
+    const today = useTodayShamsi();
     const employeeList = resourceItems(employees);
     const { data, setData, post, processing, errors } = useForm({
-        employee_id: '', payment_date: '', amount: '', payment_type: 'partial', period_month: '', notes: '',
+        employee_id: '', payment_date: today, amount: '', payment_type: 'partial', period_month: '', notes: '',
     });
 
     const selectedEmployee = employeeList.find((emp) => String(emp.id) === String(data.employee_id));

@@ -2,6 +2,7 @@ import ErpLayout from '@/Layouts/ErpLayout';
 import FlashMessage from '@/Components/Erp/FlashMessage';
 import ShamsiDateInput from '@/Components/Erp/ShamsiDateInput';
 import useTranslation from '@/hooks/useTranslation';
+import useTodayShamsi from '@/hooks/useTodayShamsi';
 import { formatCurrency } from '@/utils/format';
 import { resourceItems } from '@/utils/resource';
 import { Head, Link, useForm } from '@inertiajs/react';
@@ -16,8 +17,9 @@ const emptyLine = () => ({ account_id: '', debit: '', credit: '', description: '
 
 export default function Create({ accounts }) {
     const { t } = useTranslation();
+    const today = useTodayShamsi();
     const { data, setData, post, processing, errors } = useForm({
-        entry_date: '', reference: '', description: '', lines: [emptyLine(), emptyLine()],
+        entry_date: today, reference: '', description: '', lines: [emptyLine(), emptyLine()],
     });
 
     const accountList = resourceItems(accounts);

@@ -2,6 +2,7 @@ import ErpLayout from '@/Layouts/ErpLayout';
 import FlashMessage from '@/Components/Erp/FlashMessage';
 import ShamsiDateInput from '@/Components/Erp/ShamsiDateInput';
 import useTranslation from '@/hooks/useTranslation';
+import useTodayShamsi from '@/hooks/useTodayShamsi';
 import { formatCurrency } from '@/utils/format';
 import { Head, Link, useForm } from '@inertiajs/react';
 import TextInput from '@/Components/TextInput';
@@ -12,8 +13,9 @@ import SecondaryButton from '@/Components/SecondaryButton';
 
 export default function Create() {
     const { t } = useTranslation();
+    const today = useTodayShamsi();
     const { data, setData, post, processing, errors } = useForm({
-        sale_date: '', truck_count: '', price_per_truck: '', payment_type: 'cash', cash_received: '', notes: '',
+        sale_date: today, truck_count: '', price_per_truck: '', payment_type: 'cash', cash_received: '', notes: '',
     });
 
     const total = (parseInt(data.truck_count, 10) || 0) * (parseFloat(data.price_per_truck) || 0);
