@@ -68,6 +68,14 @@ export const REPORT_FILTER_OPTIONS = {
         { value: 'amount', type: 'number', labelKey: 'fields.amount' },
         { value: 'description', type: 'text', labelKey: 'fields.description' },
     ],
+    'mine-assets': [
+        { value: 'name', type: 'text', labelKey: 'fields.name' },
+        { value: 'related_to', type: 'text', labelKey: 'fields.related_to' },
+        { value: 'quantity', type: 'number', labelKey: 'fields.quantity' },
+        { value: 'unit', type: 'text', labelKey: 'fields.unit' },
+        { value: 'status', type: 'text', labelKey: 'fields.status' },
+        { value: 'remarks', type: 'text', labelKey: 'fields.notes' },
+    ],
 };
 
 export function getFilterOptions(reportType) {

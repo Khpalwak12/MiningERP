@@ -46,4 +46,44 @@ class MineAssetTest extends TestCase
             ->get(route('mine-assets.index'))
             ->assertOk();
     }
+
+    public function test_mine_assets_report_lists_only_matching_assets(): void
+    {
+        $this->seed();
+
+        $year = FinancialYear::query()->active()->where('is_all_years', false)->firstOrFail();
+        $user = User::where('email', 'admin@marbleerp.local')->firstOrFail();
+        $service = app(MineAssetService::class);
+        $reportService = app(\App\Services\ReportService::class);
+
+        $service->create([
+            'financial_year_id' => $year->id,
+            'name' => 'کراچي',
+            'related_to' => 'کارگاه',
+            'quantity' => 10,
+            'unit' => 'piece',
+            'status' => MineAsset::STATUS_USABLE,
+            'registration_date' => now(),
+            'created_by' => $user->id,
+        ]);
+
+        $service->create([
+            'financial_year_id' => $year->id,
+            'name' => 'زاړه الماری',
+            'quantity' => 2,
+            'unit' => 'piece',
+            'status' => MineAsset::STATUS_UNUSABLE,
+            'registration_date' => now(),
+            'created_by' => $user->id,
+        ]);
+
+        $usableOnly = $reportService->mineAssetsReport(['status' => MineAsset::STATUS_USABLE]);
+
+        $this->assertCount(1, $usableOnly);
+        $this->assertSame('کراچي', $usableOnly->first()->name);
+
+        $this->actingAs($user)
+            ->get(route('reports.mine-assets'))
+            ->assertOk();
+    }
 }

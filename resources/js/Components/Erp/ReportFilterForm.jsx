@@ -5,6 +5,7 @@ import ShamsiDateInput from '@/Components/Erp/ShamsiDateInput';
 import PrimaryButton from '@/Components/PrimaryButton';
 import useTranslation from '@/hooks/useTranslation';
 import { SHIPMENT_STATUS_OPTIONS } from '@/config/reportFilterConfig';
+import { MINE_ASSET_STATUSES } from '@/config/mineAssetConfig';
 import { buildExportQuery } from '@/utils/reportExport';
 import { resourceData } from '@/utils/resource';
 import { router } from '@inertiajs/react';
@@ -18,6 +19,7 @@ export default function ReportFilterForm({
     lookups = {},
     showCustomer = false,
     showStatus = false,
+    showMineAssetStatus = false,
     children,
 }) {
     const { t } = useTranslation();
@@ -38,7 +40,7 @@ export default function ReportFilterForm({
             params.customer_id = customerId;
         }
 
-        if (showStatus) {
+        if (showStatus || showMineAssetStatus) {
             params.status = status;
         }
 
@@ -93,6 +95,22 @@ export default function ReportFilterForm({
                             <option value="">{t('actions.filter')} — {t('fields.status')}</option>
                             {SHIPMENT_STATUS_OPTIONS.map((option) => (
                                 <option key={option} value={option}>{t(`shipments.statuses.${option}`)}</option>
+                            ))}
+                        </select>
+                    </div>
+                )}
+
+                {showMineAssetStatus && (
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">{t('fields.status')}</label>
+                        <select
+                            className="mt-1 rounded-md border-gray-300 text-sm"
+                            value={status}
+                            onChange={(e) => setStatus(e.target.value)}
+                        >
+                            <option value="">{t('mine_assets.all_statuses')}</option>
+                            {MINE_ASSET_STATUSES.map((option) => (
+                                <option key={option} value={option}>{t(`mine_asset_statuses.${option}`)}</option>
                             ))}
                         </select>
                     </div>

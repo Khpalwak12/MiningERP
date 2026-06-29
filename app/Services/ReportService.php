@@ -13,6 +13,7 @@ use App\Models\ExpenseCategory;
 use App\Models\InventoryMovement;
 use App\Models\InventoryItem;
 use App\Models\MarbleShipment;
+use App\Models\MineAsset;
 use App\Models\PayrollPayment;
 use App\Models\SankariStoneSale;
 use App\Support\ActiveFinancialYear;
@@ -228,6 +229,21 @@ class ReportService
         $this->applyDateFilters($query, $filters, 'payment_date');
 
         return $query->orderBy('payment_date')->get();
+    }
+
+    public function mineAssetsReport(array $filters = []): Collection
+    {
+        $query = MineAsset::query()->with('creator');
+        $this->applyFinancialYearFilter($query, $filters);
+        $this->applyDateFilters($query, $filters, 'registration_date');
+
+        if (! empty($filters['status']) && in_array($filters['status'], [MineAsset::STATUS_USABLE, MineAsset::STATUS_UNUSABLE], true)) {
+            $query->where('status', $filters['status']);
+        }
+
+        $this->advancedFilter->apply($query, 'mine-assets', $filters['filter_by'] ?? null, $filters['filter_value'] ?? null);
+
+        return $query->orderBy('registration_date')->orderByDesc('id')->get();
     }
 
     public function contractorLedgerReport(array $filters = []): array

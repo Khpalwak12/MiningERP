@@ -20,6 +20,7 @@ class ReportAdvancedFilterService
             'payroll' => $this->applyPayroll($query, $filterBy, $filterValue),
             'inventory' => $this->applyInventory($query, $filterBy, $filterValue),
             'daily-production' => $this->applyDailyProduction($query, $filterBy, $filterValue),
+            'mine-assets' => $this->applyMineAssets($query, $filterBy, $filterValue),
             default => null,
         };
     }
@@ -108,6 +109,19 @@ class ReportAdvancedFilterService
             'total_tons' => $this->exactNumeric($query, 'quantity_ton', $value),
             'created_by' => $this->creatorNameLike($query, $value),
             'notes' => $this->like($query, 'notes', $value),
+            default => null,
+        };
+    }
+
+    private function applyMineAssets(Builder $query, string $filterBy, mixed $value): void
+    {
+        match ($filterBy) {
+            'name' => $this->like($query, 'name', $value),
+            'related_to' => $this->like($query, 'related_to', $value),
+            'quantity' => $this->exactNumeric($query, 'quantity', $value),
+            'unit' => $query->where('unit', $value),
+            'status' => $query->where('status', $value),
+            'remarks' => $this->like($query, 'remarks', $value),
             default => null,
         };
     }

@@ -12,6 +12,7 @@ use App\Http\Resources\ExpenseCategoryResource;
 use App\Http\Resources\ExpenseResource;
 use App\Http\Resources\InventoryMovementResource;
 use App\Http\Resources\MarbleShipmentResource;
+use App\Http\Resources\MineAssetResource;
 use App\Models\Customer;
 use App\Models\Employee;
 use App\Models\ExpenseCategory;
@@ -130,6 +131,18 @@ class ReportController extends Controller
         ]);
     }
 
+    public function mineAssets(Request $request): Response
+    {
+        $filters = $this->reportFilters($request, ['status']);
+        $data = $this->service->mineAssetsReport($filters);
+
+        return Inertia::render('Reports/MineAssets', [
+            'rows' => MineAssetResource::collection($data),
+            'filters' => $filters,
+            'total' => (float) $data->sum('quantity'),
+        ]);
+    }
+
     public function dailyProduction(Request $request): Response
     {
         $filters = $this->reportFilters($request);
@@ -240,6 +253,7 @@ class ReportController extends Controller
             'employees' => $this->employeesExportData($filters),
             'payroll' => abort(404),
             'inventory' => $this->inventoryExportData($filters),
+            'mine-assets' => $this->mineAssetsExportData($filters),
             'daily-production' => $this->dailyProductionExportData($filters),
             'monthly-production' => $this->monthlyProductionExportData($filters),
             'customer-balances' => $this->customerBalancesExportData($filters),
@@ -268,6 +282,7 @@ class ReportController extends Controller
                 'summaries' => $this->service->employeePayrollSummaries($this->employeeIdFromFilters($filters)),
             ]],
             'inventory' => ['reports.pdf.inventory', ['rows' => $this->service->inventoryReport($filters)]],
+            'mine-assets' => ['reports.pdf.mine-assets', ['rows' => $this->service->mineAssetsReport($filters)]],
             'daily-production' => ['reports.pdf.daily-production', ['rows' => $this->service->dailyProductionReport($filters)]],
             'monthly-production' => ['reports.pdf.monthly-production', ['rows' => $this->service->monthlyProductionReport($filters)]],
             'customer-balances' => ['reports.pdf.customer-balances', ['rows' => $this->service->customerBalancesReport($filters)]],
@@ -306,6 +321,7 @@ class ReportController extends Controller
     {
         $extra = match ($type) {
             'sales' => ['customer_id', 'status'],
+            'mine-assets' => ['status'],
             default => [],
         };
 
@@ -470,6 +486,40 @@ class ReportController extends Controller
             __('erp.fields.category'),
             __('erp.fields.movement_type'),
             __('erp.fields.quantity'),
+        ], $rows];
+    }
+
+    private function mineAssetsExportData(array $filters): array
+    {
+        $data = $this->service->mineAssetsReport($filters);
+        $rows = $data->map(fn ($row) => [
+            JalaliDate::fromGregorian($row->registration_date),
+            $row->name,
+            $row->related_to ?? '—',
+            $row->quantity,
+            __('erp.mine_asset_units.'.$row->unit),
+            __('erp.mine_asset_statuses.'.$row->status),
+            $row->remarks ?? '—',
+        ]);
+
+        $rows->push([
+            __('erp.fields.total_amount'),
+            '',
+            '',
+            $data->sum('quantity'),
+            '',
+            '',
+            '',
+        ]);
+
+        return [[
+            __('erp.fields.registration_date'),
+            __('erp.fields.name'),
+            __('erp.fields.related_to'),
+            __('erp.fields.quantity'),
+            __('erp.fields.unit'),
+            __('erp.fields.status'),
+            __('erp.fields.notes'),
         ], $rows];
     }
 
