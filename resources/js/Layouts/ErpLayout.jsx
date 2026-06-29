@@ -18,6 +18,7 @@ const navItems = [
     { route: 'employees.index', permission: 'employees.view', key: 'nav.employees' },
     { route: 'payroll.index', permission: 'payroll.view', key: 'nav.payroll' },
     { route: 'inventory.index', permission: 'inventory.view', key: 'nav.inventory' },
+    { route: 'mine-assets.index', permission: 'mine-assets.view', key: 'nav.mine_assets' },
     { route: 'contractor-royalty.ledger', permission: 'contractor-royalty.view', key: 'nav.contractor_royalty' },
     { route: 'journal-entries.index', permission: 'accounting.view', key: 'nav.accounting' },
     { route: 'financial-years.index', permission: 'financial-year.view', key: 'nav.financial_years' },

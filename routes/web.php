@@ -14,6 +14,7 @@ use App\Http\Controllers\InventoryItemController;
 use App\Http\Controllers\InventoryMovementController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\MarbleShipmentController;
+use App\Http\Controllers\MineAssetController;
 use App\Http\Controllers\PayrollPaymentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
@@ -56,6 +57,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::resource('inventory', InventoryItemController::class)
         ->parameters(['inventory' => 'inventoryItem']);
+
+    Route::resource('mine-assets', MineAssetController::class)
+        ->parameters(['mine-assets' => 'mineAsset']);
 
     Route::prefix('inventory/{inventoryItem}/movements')->name('inventory.movements.')->group(function () {
         Route::get('/', [InventoryMovementController::class, 'index'])->name('index');

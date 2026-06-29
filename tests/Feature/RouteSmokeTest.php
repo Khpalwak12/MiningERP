@@ -30,6 +30,7 @@ class RouteSmokeTest extends TestCase
             'employees.index',
             'payroll.index',
             'inventory.index',
+            'mine-assets.index',
             'journal-entries.index',
             'accounting.trial-balance',
             'reports.index',

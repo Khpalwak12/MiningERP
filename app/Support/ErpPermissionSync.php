@@ -33,7 +33,7 @@ class ErpPermissionSync
 
         $modules = [
             'dashboard', 'users', 'roles', 'customers', 'shipments', 'payments',
-            'sankari', 'expenses', 'employees', 'payroll', 'inventory',
+            'sankari', 'expenses', 'employees', 'payroll', 'inventory', 'mine-assets',
             'accounting', 'reports', 'financial-year', 'contractor-royalty',
         ];
 
@@ -66,12 +66,14 @@ class ErpPermissionSync
                 'dashboard.view', 'customers.view', 'shipments.view', 'shipments.create', 'shipments.edit',
                 'payments.view', 'sankari.view', 'expenses.view', 'employees.view', 'payroll.view',
                 'inventory.view', 'reports.view', 'reports.export', 'financial-year.view',
+                'mine-assets.view',
                 'contractor-royalty.view', 'contractor-royalty.reports',
             ],
             'Data Entry Operator' => [
                 'dashboard.view', 'customers.view', 'customers.create', 'shipments.view', 'shipments.create',
                 'sankari.view', 'sankari.create', 'expenses.view', 'expenses.create',
                 'inventory.view', 'inventory.create',
+                'mine-assets.view', 'mine-assets.create',
             ],
         ];
     }
