@@ -33,7 +33,7 @@ class ErpPermissionSync
 
         $modules = [
             'dashboard', 'users', 'roles', 'customers', 'shipments', 'payments',
-            'sankari', 'expenses', 'employees', 'payroll', 'inventory', 'mine-assets',
+            'sankari', 'expenses', 'employees', 'payroll',             'inventory', 'mine-assets', 'personal-accounts',
             'accounting', 'reports', 'financial-year', 'contractor-royalty',
         ];
 
@@ -61,6 +61,7 @@ class ErpPermissionSync
                 'accounting.view', 'accounting.create', 'reports.view', 'reports.export',
                 'contractor-royalty.view', 'contractor-royalty.create', 'contractor-royalty.edit', 'contractor-royalty.reports',
                 'mine-assets.view', 'mine-assets.create', 'mine-assets.edit',
+                'personal-accounts.view', 'personal-accounts.create', 'personal-accounts.edit',
                 'financial-year.view', 'financial-year.create', 'financial-year.edit', 'financial-year.close', 'financial-year.activate',
             ],
             'Manager' => [

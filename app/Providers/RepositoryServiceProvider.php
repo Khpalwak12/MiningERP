@@ -21,6 +21,9 @@ class RepositoryServiceProvider extends ServiceProvider
             \App\Contracts\Repositories\ContractorProductionRepositoryInterface::class => \App\Repositories\ContractorProductionRepository::class,
             \App\Contracts\Repositories\ContractorPaymentRepositoryInterface::class => \App\Repositories\ContractorPaymentRepository::class,
             \App\Contracts\Repositories\MineAssetRepositoryInterface::class => \App\Repositories\MineAssetRepository::class,
+            \App\Contracts\Repositories\PersonalContactRepositoryInterface::class => \App\Repositories\PersonalContactRepository::class,
+            \App\Contracts\Repositories\PersonalLedgerTransactionRepositoryInterface::class => \App\Repositories\PersonalLedgerTransactionRepository::class,
+            \App\Contracts\Repositories\PersonalHomeExpenseRepositoryInterface::class => \App\Repositories\PersonalHomeExpenseRepository::class,
         ];
 
         foreach ($bindings as $abstract => $concrete) {

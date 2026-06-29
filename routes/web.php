@@ -16,6 +16,9 @@ use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\MarbleShipmentController;
 use App\Http\Controllers\MineAssetController;
 use App\Http\Controllers\PayrollPaymentController;
+use App\Http\Controllers\PersonalContactController;
+use App\Http\Controllers\PersonalHomeExpenseController;
+use App\Http\Controllers\PersonalLedgerTransactionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RoleController;
@@ -72,6 +75,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('accounting/trial-balance', [AccountingController::class, 'trialBalance'])
         ->name('accounting.trial-balance');
+
+    Route::prefix('personal-accounts')->name('personal-accounts.')->group(function () {
+        Route::resource('contacts', PersonalContactController::class);
+        Route::get('contacts/{contact}/transactions/create', [PersonalLedgerTransactionController::class, 'create'])->name('contacts.transactions.create');
+        Route::post('contacts/{contact}/transactions', [PersonalLedgerTransactionController::class, 'store'])->name('contacts.transactions.store');
+        Route::get('transactions/{transaction}/edit', [PersonalLedgerTransactionController::class, 'edit'])->name('transactions.edit');
+        Route::put('transactions/{transaction}', [PersonalLedgerTransactionController::class, 'update'])->name('transactions.update');
+        Route::delete('transactions/{transaction}', [PersonalLedgerTransactionController::class, 'destroy'])->name('transactions.destroy');
+        Route::resource('home-expenses', PersonalHomeExpenseController::class)
+            ->parameters(['home-expenses' => 'homeExpense'])
+            ->except(['show']);
+    });
 
     Route::prefix('contractor-royalty')->name('contractor-royalty.')->group(function () {
         Route::get('/ledger', [ContractorRoyaltyLedgerController::class, 'index'])->name('ledger');
