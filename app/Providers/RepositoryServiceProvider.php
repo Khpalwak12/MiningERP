@@ -15,6 +15,7 @@ class RepositoryServiceProvider extends ServiceProvider
             \App\Contracts\Repositories\SankariStoneSaleRepositoryInterface::class => \App\Repositories\SankariStoneSaleRepository::class,
             \App\Contracts\Repositories\ExpenseRepositoryInterface::class => \App\Repositories\ExpenseRepository::class,
             \App\Contracts\Repositories\ExpenseCategoryRepositoryInterface::class => \App\Repositories\ExpenseCategoryRepository::class,
+            \App\Contracts\Repositories\MineTypeRepositoryInterface::class => \App\Repositories\MineTypeRepository::class,
             \App\Contracts\Repositories\EmployeeRepositoryInterface::class => \App\Repositories\EmployeeRepository::class,
             \App\Contracts\Repositories\PayrollPaymentRepositoryInterface::class => \App\Repositories\PayrollPaymentRepository::class,
             \App\Contracts\Repositories\InventoryItemRepositoryInterface::class => \App\Repositories\InventoryItemRepository::class,

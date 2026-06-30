@@ -7,7 +7,7 @@ use App\Models\Customer;
 use App\Models\Employee;
 use App\Models\ExpenseCategory;
 use App\Models\InventoryItem;
-use App\Models\MarbleType;
+use App\Models\MineType;
 use App\Models\User;
 use App\Support\ErpPermissionSync;
 use Illuminate\Database\Seeder;
@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
         $this->seedRoles();
         $this->seedUsers();
         $this->seedExpenseCategories();
-        $this->seedMarbleTypes();
+        $this->seedMineTypes();
         $this->seedAccounts();
         $this->seedSampleData();
     }
@@ -98,10 +98,34 @@ class DatabaseSeeder extends Seeder
         ExpenseCategory::query()->whereNotNull('parent_id')->delete();
     }
 
-    private function seedMarbleTypes(): void
+    private function seedMineTypes(): void
     {
-        foreach (['White Marble', 'Cream Marble', 'Gray Marble'] as $type) {
-            MarbleType::firstOrCreate(['name' => $type]);
+        $types = [
+            [
+                'slug' => 'white-marble',
+                'name_en' => 'White Marble',
+                'name_ps' => 'سپین مرمر',
+                'description' => 'White marble from the quarry',
+            ],
+            [
+                'slug' => 'cream-marble',
+                'name_en' => 'Cream Marble',
+                'name_ps' => 'کریم مرمر',
+                'description' => 'Cream colored marble',
+            ],
+            [
+                'slug' => 'gray-marble',
+                'name_en' => 'Gray Marble',
+                'name_ps' => 'خړ مرمر',
+                'description' => 'Gray marble variety',
+            ],
+        ];
+
+        foreach ($types as $data) {
+            MineType::query()->updateOrCreate(
+                ['slug' => $data['slug']],
+                array_merge($data, ['name' => $data['name_en']]),
+            );
         }
     }
 

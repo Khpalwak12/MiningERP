@@ -32,7 +32,7 @@ class ErpPermissionSync
         $defaultActions = ['view', 'create', 'edit', 'delete', 'export'];
 
         $modules = [
-            'dashboard', 'users', 'roles', 'customers', 'shipments', 'payments',
+            'dashboard', 'users', 'roles', 'customers', 'shipments', 'mine-types', 'payments',
             'sankari', 'expenses', 'expense-categories', 'employees', 'payroll',             'inventory', 'mine-assets', 'machinery', 'personal-accounts',
             'accounting', 'reports', 'financial-year', 'contractor-royalty',
         ];
@@ -68,6 +68,7 @@ class ErpPermissionSync
             ],
             'Manager' => [
                 'dashboard.view', 'customers.view', 'shipments.view', 'shipments.create', 'shipments.edit',
+                'mine-types.view',
                 'payments.view', 'sankari.view', 'expenses.view', 'expense-categories.view', 'employees.view', 'payroll.view',
                 'inventory.view', 'reports.view', 'reports.export', 'financial-year.view',
                 'mine-assets.view',
@@ -76,6 +77,7 @@ class ErpPermissionSync
             ],
             'Data Entry Operator' => [
                 'dashboard.view', 'customers.view', 'customers.create', 'shipments.view', 'shipments.create',
+                'mine-types.view',
                 'sankari.view', 'sankari.create', 'expenses.view', 'expenses.create',
                 'expense-categories.view',
                 'inventory.view', 'inventory.create',

@@ -21,7 +21,7 @@ class MarbleShipment extends AuditableModel
     public const STATUS_COMPLETED = 'completed';
 
     protected $fillable = [
-        'financial_year_id', 'customer_id', 'shipment_date',
+        'financial_year_id', 'customer_id', 'mine_type_id', 'shipment_date',
         'driver_name', 'quantity_ton', 'price_per_ton', 'total_amount', 'notes', 'created_by',
     ];
 
@@ -93,6 +93,11 @@ class MarbleShipment extends AuditableModel
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    public function mineType(): BelongsTo
+    {
+        return $this->belongsTo(MineType::class);
     }
 
     public function creator(): BelongsTo

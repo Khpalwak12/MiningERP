@@ -1,10 +1,11 @@
 import ErpLayout from '@/Layouts/ErpLayout';
 import FlashMessage from '@/Components/Erp/FlashMessage';
+import ShipmentsNav from '@/Components/Erp/ShipmentsNav';
 import ShamsiDateInput from '@/Components/Erp/ShamsiDateInput';
 import CustomerSelect from '@/Components/Erp/CustomerSelect';
 import useTranslation from '@/hooks/useTranslation';
 import { formatCurrency } from '@/utils/format';
-import { resourceData } from '@/utils/resource';
+import { resourceData, resourceItems } from '@/utils/resource';
 import { shipmentStatusBadgeClass } from '@/utils/shipmentStatus';
 import { Head, Link, useForm } from '@inertiajs/react';
 import TextInput from '@/Components/TextInput';
@@ -26,12 +27,13 @@ function calcShipmentTotal(quantityTon, pricePerTon) {
     return null;
 }
 
-export default function Edit({ shipment, customers }) {
+export default function Edit({ shipment, customers, mineTypes }) {
     const { t } = useTranslation();
     const s = resourceData(shipment);
+    const mineTypeList = resourceItems(mineTypes);
     const { data, setData, put, processing, errors } = useForm({
-        shipment_date: s.shipment_date_shamsi || '', customer_id: s.customer_id || '', driver_name: s.driver_name || '',
-        quantity_ton: s.quantity_ton ?? '', price_per_ton: s.price_per_ton ?? '', notes: s.notes || '',
+        shipment_date: s.shipment_date_shamsi || '', customer_id: s.customer_id || '', mine_type_id: s.mine_type_id || '',
+        driver_name: s.driver_name || '', quantity_ton: s.quantity_ton ?? '', price_per_ton: s.price_per_ton ?? '', notes: s.notes || '',
     });
     const total = calcShipmentTotal(data.quantity_ton, data.price_per_ton);
 
@@ -39,7 +41,8 @@ export default function Edit({ shipment, customers }) {
         <ErpLayout>
             <Head title={t('shipments.edit')} />
             <FlashMessage />
-            <h1 className="mb-6 text-2xl font-bold">{t('shipments.edit')}</h1>
+            <h1 className="mb-2 text-2xl font-bold">{t('shipments.edit')}</h1>
+            <ShipmentsNav active="shipments.index" />
 
             <form onSubmit={(e) => { e.preventDefault(); put(route('shipments.update', s.id)); }} className="max-w-2xl space-y-4 rounded-lg bg-white p-6 shadow">
                 {s.status && (
@@ -60,6 +63,20 @@ export default function Edit({ shipment, customers }) {
                         selectedCustomer={resourceData(s.customer)}
                     />
                     <InputError message={errors.customer_id} />
+                </div>
+                <div>
+                    <InputLabel value={t('fields.mine_type')} required />
+                    <select
+                        className="mt-1 block w-full rounded-md border-gray-300"
+                        value={data.mine_type_id}
+                        onChange={(e) => setData('mine_type_id', e.target.value)}
+                    >
+                        <option value="">--</option>
+                        {mineTypeList.map((type) => (
+                            <option key={type.id} value={type.id}>{type.name}</option>
+                        ))}
+                    </select>
+                    <InputError message={errors.mine_type_id} />
                 </div>
                 <div>
                     <InputLabel value={t('fields.driver_name')} />

@@ -1,5 +1,6 @@
 import ErpLayout from '@/Layouts/ErpLayout';
 import FlashMessage from '@/Components/Erp/FlashMessage';
+import ShipmentsNav from '@/Components/Erp/ShipmentsNav';
 import ShamsiDateInput from '@/Components/Erp/ShamsiDateInput';
 import CustomerSelect from '@/Components/Erp/CustomerSelect';
 import useTranslation from '@/hooks/useTranslation';
@@ -25,11 +26,12 @@ function calcShipmentTotal(quantityTon, pricePerTon) {
     return null;
 }
 
-export default function Create({ customers }) {
+export default function Create({ customers, mineTypes }) {
     const { t } = useTranslation();
     const today = useTodayShamsi();
+    const mineTypeList = resourceItems(mineTypes);
     const { data, setData, post, processing, errors } = useForm({
-        shipment_date: today, customer_id: '', driver_name: '',
+        shipment_date: today, customer_id: '', mine_type_id: '', driver_name: '',
         quantity_ton: '', price_per_ton: '', notes: '',
     });
 
@@ -39,7 +41,8 @@ export default function Create({ customers }) {
         <ErpLayout>
             <Head title={t('shipments.create')} />
             <FlashMessage />
-            <h1 className="mb-6 text-2xl font-bold">{t('shipments.create')}</h1>
+            <h1 className="mb-2 text-2xl font-bold">{t('shipments.create')}</h1>
+            <ShipmentsNav active="shipments.index" />
 
             <form onSubmit={(e) => { e.preventDefault(); post(route('shipments.store')); }} className="max-w-2xl space-y-4 rounded-lg bg-white p-6 shadow">
                 <p className="text-sm text-gray-600">{t('shipments.optional_weight_price')}</p>
@@ -54,6 +57,20 @@ export default function Create({ customers }) {
                         error={errors.customer_id}
                     />
                     <InputError message={errors.customer_id} />
+                </div>
+                <div>
+                    <InputLabel value={t('fields.mine_type')} required />
+                    <select
+                        className="mt-1 block w-full rounded-md border-gray-300"
+                        value={data.mine_type_id}
+                        onChange={(e) => setData('mine_type_id', e.target.value)}
+                    >
+                        <option value="">--</option>
+                        {mineTypeList.map((type) => (
+                            <option key={type.id} value={type.id}>{type.name}</option>
+                        ))}
+                    </select>
+                    <InputError message={errors.mine_type_id} />
                 </div>
                 <div>
                     <InputLabel value={t('fields.driver_name')} />

@@ -46,7 +46,7 @@ class MarbleShipmentRepository extends BaseRepository implements MarbleShipmentR
             });
         }
 
-        return $query->with(['customer', 'financialYear']);
+        return $query->with(['customer', 'mineType', 'financialYear']);
     }
 
     public function todayStats(?int $financialYearId = null): array

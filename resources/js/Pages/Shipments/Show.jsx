@@ -28,6 +28,7 @@ export default function Show({ shipment }) {
                 <dl className="grid gap-3 sm:grid-cols-2">
                     <div><dt className="text-gray-500">{t('fields.date')}</dt><dd>{s.shipment_date_shamsi}</dd></div>
                     <div><dt className="text-gray-500">{t('fields.customer')}</dt><dd>{s.customer?.name}</dd></div>
+                    <div><dt className="text-gray-500">{t('fields.mine_type')}</dt><dd>{s.mine_type?.name || '—'}</dd></div>
                     <div><dt className="text-gray-500">{t('fields.driver_name')}</dt><dd>{s.driver_name || '—'}</dd></div>
                     <div><dt className="text-gray-500">{t('fields.quantity_ton')}</dt><dd>{s.quantity_ton ?? '—'}</dd></div>
                     <div><dt className="text-gray-500">{t('fields.price_per_ton')}</dt><dd>{formatShipmentAmount(s.price_per_ton, formatCurrency)}</dd></div>

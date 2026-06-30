@@ -7,8 +7,10 @@ use App\Http\Requests\MarbleShipment\StoreMarbleShipmentRequest;
 use App\Http\Requests\MarbleShipment\UpdateMarbleShipmentRequest;
 use App\Http\Resources\CustomerResource;
 use App\Http\Resources\MarbleShipmentResource;
+use App\Http\Resources\MineTypeResource;
 use App\Models\Customer;
 use App\Models\MarbleShipment;
+use App\Models\MineType;
 use App\Services\MarbleShipmentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -39,6 +41,7 @@ class MarbleShipmentController extends Controller
     {
         return Inertia::render('Shipments/Create', [
             'customers' => CustomerResource::collection(Customer::query()->where('status', 'active')->orderBy('name')->get()),
+            'mineTypes' => MineTypeResource::collection(MineType::listForSelect()),
         ]);
     }
 
@@ -51,7 +54,7 @@ class MarbleShipmentController extends Controller
 
     public function show(MarbleShipment $shipment): Response
     {
-        $shipment->load(['customer', 'creator']);
+        $shipment->load(['customer', 'creator', 'mineType']);
 
         return Inertia::render('Shipments/Show', [
             'shipment' => new MarbleShipmentResource($shipment),
@@ -60,11 +63,12 @@ class MarbleShipmentController extends Controller
 
     public function edit(MarbleShipment $shipment): Response
     {
-        $shipment->load(['customer']);
+        $shipment->load(['customer', 'mineType']);
 
         return Inertia::render('Shipments/Edit', [
             'shipment' => new MarbleShipmentResource($shipment),
             'customers' => CustomerResource::collection(Customer::query()->where('status', 'active')->orderBy('name')->get()),
+            'mineTypes' => MineTypeResource::collection(MineType::listForSelect()),
         ]);
     }
 
