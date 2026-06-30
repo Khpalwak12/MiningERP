@@ -1,4 +1,5 @@
 import '../css/app.css';
+import '../css/rtl.css';
 import './route';
 import './bootstrap';
 
