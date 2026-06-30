@@ -32,7 +32,7 @@ class JalaliDate
 
     public static function parseParts(string $shamsiDate): array
     {
-        $normalized = str_replace('-', '/', trim($shamsiDate));
+        $normalized = DigitNormalizer::toWestern(str_replace('-', '/', trim($shamsiDate)));
         $parts = array_map('intval', explode('/', $normalized));
 
         if (count($parts) !== 3) {

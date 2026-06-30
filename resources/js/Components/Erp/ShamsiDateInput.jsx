@@ -17,6 +17,7 @@ export default function ShamsiDateInput({ label, value, onChange, error, require
                 value={value || ''}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder="1404/01/01"
+                inputMode="numeric"
                 className={inputClass}
             />
             {error && <InputError message={error} className="mt-1" />}
