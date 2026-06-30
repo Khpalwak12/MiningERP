@@ -57,7 +57,7 @@ class ReportController extends Controller
 
     public function sales(Request $request): Response
     {
-        $filters = $this->reportFilters($request, ['customer_id', 'mine_type_id', 'status']);
+        $filters = $this->reportFilters($request, ['customer_id', 'status']);
         $data = $this->service->salesReport($filters);
 
         return Inertia::render('Reports/Sales', array_merge(
@@ -382,7 +382,7 @@ class ReportController extends Controller
     private function exportFilters(Request $request, string $type): array
     {
         $extra = match ($type) {
-            'sales' => ['customer_id', 'mine_type_id', 'status'],
+            'sales' => ['customer_id', 'status'],
             'mine-assets' => ['status'],
             'personal-ledger' => ['personal_contact_id', 'currency'],
             'machinery' => ['currency'],

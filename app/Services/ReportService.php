@@ -42,10 +42,6 @@ class ReportService
             $query->where('customer_id', $filters['customer_id']);
         }
 
-        if (! empty($filters['mine_type_id'])) {
-            $query->where('mine_type_id', $filters['mine_type_id']);
-        }
-
         if (! empty($filters['status'])) {
             if ($filters['status'] === 'pending') {
                 $query->pending();

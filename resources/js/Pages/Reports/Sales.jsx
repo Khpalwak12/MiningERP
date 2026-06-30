@@ -26,7 +26,6 @@ export default function Sales({ rows, filters, customers, selectedCustomer, mine
                 filters={filters}
                 exportType="sales"
                 showCustomer
-                showMineType
                 showStatus
                 lookups={{ customers, selectedCustomer, mineTypes }}
             />

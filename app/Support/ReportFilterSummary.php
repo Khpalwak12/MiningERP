@@ -28,13 +28,6 @@ class ReportFilterSummary
             }
         }
 
-        if (! empty($filters['mine_type_id'])) {
-            $mineType = MineType::query()->find($filters['mine_type_id']);
-            if ($mineType) {
-                $summary[__('erp.fields.mine_type')] = $mineType->localized_name;
-            }
-        }
-
         if (! empty($filters['status'])) {
             $statusKey = 'erp.shipments.statuses.'.$filters['status'];
             $summary[__('erp.fields.status')] = __($statusKey) !== $statusKey
