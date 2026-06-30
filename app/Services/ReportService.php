@@ -34,12 +34,16 @@ class ReportService
 
     public function salesReport(array $filters = []): Collection
     {
-        $query = MarbleShipment::query()->with(['customer', 'creator']);
+        $query = MarbleShipment::query()->with(['customer', 'creator', 'mineType']);
         $this->applyFinancialYearFilter($query, $filters);
         $this->applyDateFilters($query, $filters, 'shipment_date');
 
         if (! empty($filters['customer_id'])) {
             $query->where('customer_id', $filters['customer_id']);
+        }
+
+        if (! empty($filters['mine_type_id'])) {
+            $query->where('mine_type_id', $filters['mine_type_id']);
         }
 
         if (! empty($filters['status'])) {

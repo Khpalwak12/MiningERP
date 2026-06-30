@@ -19,6 +19,7 @@ export default function ReportFilterForm({
     exportType,
     lookups = {},
     showCustomer = false,
+    showMineType = false,
     showStatus = false,
     showMineAssetStatus = false,
     showPersonalContact = false,
@@ -29,6 +30,7 @@ export default function ReportFilterForm({
     const [dateFrom, setDateFrom] = useState(filters?.date_from || '');
     const [dateTo, setDateTo] = useState(filters?.date_to || '');
     const [customerId, setCustomerId] = useState(filters?.customer_id || '');
+    const [mineTypeId, setMineTypeId] = useState(filters?.mine_type_id || '');
     const [status, setStatus] = useState(filters?.status || '');
     const [personalContactId, setPersonalContactId] = useState(filters?.personal_contact_id || '');
     const [personalCurrency, setPersonalCurrency] = useState(filters?.currency || '');
@@ -43,6 +45,10 @@ export default function ReportFilterForm({
 
         if (showCustomer) {
             params.customer_id = customerId;
+        }
+
+        if (showMineType) {
+            params.mine_type_id = mineTypeId;
         }
 
         if (showStatus || showMineAssetStatus) {
@@ -94,6 +100,22 @@ export default function ReportFilterForm({
                             onChange={setCustomerId}
                             selectedCustomer={resourceData(lookups.selectedCustomer)}
                         />
+                    </div>
+                )}
+
+                {showMineType && (
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">{t('fields.mine_type')}</label>
+                        <select
+                            className="mt-1 min-w-[200px] rounded-md border-gray-300 text-sm"
+                            value={mineTypeId}
+                            onChange={(e) => setMineTypeId(e.target.value)}
+                        >
+                            <option value="">{t('actions.filter')} — {t('fields.mine_type')}</option>
+                            {resourceItems(lookups.mineTypes).map((type) => (
+                                <option key={type.id} value={type.id}>{type.name}</option>
+                            ))}
+                        </select>
                     </div>
                 )}
 

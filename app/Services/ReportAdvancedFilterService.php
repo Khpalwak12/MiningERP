@@ -31,6 +31,7 @@ class ReportAdvancedFilterService
     private function applySales(Builder $query, string $filterBy, mixed $value): void
     {
         match ($filterBy) {
+            'mine_type' => $query->where('mine_type_id', (int) $value),
             'shipment_number' => is_numeric($value)
                 ? $query->where('id', (int) $value)
                 : $this->like($query, 'id', $value),

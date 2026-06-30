@@ -16,7 +16,9 @@ use App\Http\Resources\MachineryItemResource;
 use App\Http\Resources\MineAssetResource;
 use App\Http\Resources\PersonalContactResource;
 use App\Http\Resources\PersonalHomeExpenseResource;
+use App\Http\Resources\MineTypeResource;
 use App\Models\Customer;
+use App\Models\MineType;
 use App\Models\Employee;
 use App\Models\ExpenseCategory;
 use App\Models\PersonalContact;
@@ -55,7 +57,7 @@ class ReportController extends Controller
 
     public function sales(Request $request): Response
     {
-        $filters = $this->reportFilters($request, ['customer_id', 'status']);
+        $filters = $this->reportFilters($request, ['customer_id', 'mine_type_id', 'status']);
         $data = $this->service->salesReport($filters);
 
         return Inertia::render('Reports/Sales', array_merge(
@@ -380,7 +382,7 @@ class ReportController extends Controller
     private function exportFilters(Request $request, string $type): array
     {
         $extra = match ($type) {
-            'sales' => ['customer_id', 'status'],
+            'sales' => ['customer_id', 'mine_type_id', 'status'],
             'mine-assets' => ['status'],
             'personal-ledger' => ['personal_contact_id', 'currency'],
             'machinery' => ['currency'],
@@ -421,6 +423,7 @@ class ReportController extends Controller
                 Employee::query()->orderBy('name')->get()
             ),
             'expenseCategories' => ExpenseCategoryResource::collection(ExpenseCategory::listForSelect()),
+            'mineTypes' => MineTypeResource::collection(MineType::listForSelect()),
             'selectedCustomer' => $selectedCustomer ? new CustomerResource($selectedCustomer) : null,
             'selectedEmployee' => $selectedEmployee ? new EmployeeResource($selectedEmployee) : null,
         ];
@@ -447,6 +450,7 @@ class ReportController extends Controller
         $rows = $data->map(fn ($row) => [
             JalaliDate::fromGregorian($row->shipment_date),
             $row->customer?->name,
+            $row->mineType?->localized_name ?? '—',
             $row->quantity_ton ?? '—',
             $row->price_per_ton ?? '—',
             $row->total_amount ?? '—',
@@ -456,6 +460,7 @@ class ReportController extends Controller
         return [[
             __('erp.fields.date'),
             __('erp.fields.customer'),
+            __('erp.fields.mine_type'),
             __('erp.fields.quantity_ton'),
             __('erp.fields.price_per_ton'),
             __('erp.fields.total_amount'),

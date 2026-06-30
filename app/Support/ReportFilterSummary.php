@@ -3,7 +3,7 @@
 namespace App\Support;
 
 use App\Models\Customer;
-use App\Models\Employee;
+use App\Models\MineType;
 use App\Models\ExpenseCategory;
 use App\Models\PersonalContact;
 
@@ -25,6 +25,13 @@ class ReportFilterSummary
             $customer = Customer::query()->find($filters['customer_id']);
             if ($customer) {
                 $summary[__('erp.fields.customer')] = $customer->name;
+            }
+        }
+
+        if (! empty($filters['mine_type_id'])) {
+            $mineType = MineType::query()->find($filters['mine_type_id']);
+            if ($mineType) {
+                $summary[__('erp.fields.mine_type')] = $mineType->localized_name;
             }
         }
 
@@ -69,6 +76,7 @@ class ReportFilterSummary
             'customer' => Customer::query()->find($value)?->name ?? (string) $value,
             'employee' => Employee::query()->find($value)?->name ?? (string) $value,
             'category' => ExpenseCategory::query()->find($value)?->localized_name ?? (string) $value,
+            'mine_type' => MineType::query()->find($value)?->localized_name ?? (string) $value,
             'status', 'employee_status' => __('erp.status.'.$value) !== 'erp.status.'.$value
                 ? __('erp.status.'.$value)
                 : (string) $value,

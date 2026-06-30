@@ -6,6 +6,7 @@
         <tr>
             <th>{{ __('erp.fields.date') }}</th>
             <th>{{ __('erp.fields.customer') }}</th>
+            <th>{{ __('erp.fields.mine_type') }}</th>
             <th>{{ __('erp.fields.quantity_ton') }}</th>
             <th>{{ __('erp.fields.price_per_ton') }}</th>
             <th>{{ __('erp.fields.total_amount') }}</th>
@@ -17,6 +18,7 @@
         <tr>
             <td class="numeric">{{ \App\Support\JalaliDate::fromGregorian($row->shipment_date) }}</td>
             <td>{{ $row->customer?->name }}</td>
+            <td>{{ $row->mineType?->localized_name ?? '—' }}</td>
             <td class="numeric">{{ $row->quantity_ton !== null ? number_format($row->quantity_ton, 3) : '—' }}</td>
             <td class="numeric">{{ $row->price_per_ton !== null ? number_format($row->price_per_ton, 2) : '—' }}</td>
             <td class="numeric">{{ $row->total_amount !== null ? number_format($row->total_amount, 2) : '—' }}</td>

@@ -1,5 +1,6 @@
 export const REPORT_FILTER_OPTIONS = {
     sales: [
+        { value: 'mine_type', type: 'mine_type', labelKey: 'fields.mine_type' },
         { value: 'shipment_number', type: 'text', labelKey: 'report_filters.shipment_number' },
         { value: 'quantity', type: 'number', labelKey: 'report_filters.quantity' },
         { value: 'price_per_ton', type: 'number', labelKey: 'report_filters.price_per_ton' },
