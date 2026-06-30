@@ -6,6 +6,7 @@ import CustomerSelect from '@/Components/Erp/CustomerSelect';
 import useTranslation from '@/hooks/useTranslation';
 import useTodayShamsi from '@/hooks/useTodayShamsi';
 import { formatCurrency } from '@/utils/format';
+import { resourceItems } from '@/utils/resource';
 import { Head, Link, useForm } from '@inertiajs/react';
 import TextInput from '@/Components/TextInput';
 import InputLabel from '@/Components/InputLabel';
