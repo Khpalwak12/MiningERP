@@ -142,6 +142,8 @@ return [
     'dashboard' => [
         'title' => 'ډشبورډ',
         'marble_sales' => 'د مرمر پلور',
+        'marble_trucks' => 'لارې',
+        'marble_tons' => 'ټن',
         'sankari_sales' => 'د سنکري پلور',
         'total_income' => 'ټول عاید',
         'payments_received' => 'ترلاسه شوي تادیات',

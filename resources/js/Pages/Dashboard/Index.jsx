@@ -21,7 +21,7 @@ export default function Index({ stats, recentShipments, recentPayments }) {
                 <StatCard
                     title={t('dashboard.marble_sales')}
                     value={formatCurrency(stats?.marble_sales?.sales)}
-                    subtitle={`${stats?.marble_sales?.trucks || 0} trucks / ${formatNumber(stats?.marble_sales?.tons, 1)} tons`}
+                    subtitle={`${stats?.marble_sales?.trucks || 0} ${t('dashboard.marble_trucks')} / ${formatNumber(stats?.marble_sales?.tons, 1)} ${t('dashboard.marble_tons')}`}
                     color="indigo"
                 />
                 <StatCard

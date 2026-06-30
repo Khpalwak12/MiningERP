@@ -142,6 +142,8 @@ return [
     'dashboard' => [
         'title' => 'Dashboard',
         'marble_sales' => 'Marble Sales',
+        'marble_trucks' => 'Trucks',
+        'marble_tons' => 'Tons',
         'sankari_sales' => 'Sankari Sales',
         'total_income' => 'Total Income',
         'payments_received' => 'Payments Received',
