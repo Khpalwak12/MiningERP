@@ -44,7 +44,7 @@ export default function Index({ stats, recentShipments, recentPayments }) {
             <div className="mb-6 grid gap-4 sm:grid-cols-3">
                 <StatCard title={t('dashboard.active_employees')} value={stats?.employee_count} color="blue" />
                 <StatCard title={t('dashboard.payments_received')} value={formatCurrency(stats?.cash_flow?.income)} color="green" />
-                <StatCard title={t('dashboard.net_profit')} value={formatCurrency(stats?.cash_flow?.net)} color="indigo" />
+                <StatCard title={t('dashboard.net_profit')} value={formatCurrency(stats?.net_profit)} color="indigo" />
             </div>
 
             {can('contractor-royalty.view') && (

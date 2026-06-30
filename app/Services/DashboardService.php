@@ -21,7 +21,10 @@ use Carbon\Carbon;
 
 class DashboardService
 {
-    public function __construct(private MarbleShipmentRepository $shipmentRepository) {}
+    public function __construct(
+        private MarbleShipmentRepository $shipmentRepository,
+        private ReportService $reportService,
+    ) {}
 
     public function stats(): array
     {
@@ -58,6 +61,7 @@ class DashboardService
             + (float) (clone $sankariQuery)->sum('total_amount')
             + $contractorRoyalties;
         $totalExpenses = (float) (clone $expenseQuery)->sum('amount') + (float) (clone $payrollQuery)->sum('amount');
+        $netProfit = $this->reportService->profitLossReport([])['net_profit'];
 
         $marbleSales = [
             'trucks' => (clone $shipmentQuery)->count(),
@@ -80,6 +84,7 @@ class DashboardService
             'monthly_production' => $this->shipmentRepository->monthlyStats($shamsiMonth, $yearId),
             'total_revenue' => $totalRevenue,
             'total_expenses' => $totalExpenses,
+            'net_profit' => $netProfit,
             'employee_count' => Employee::where('status', 'active')->count(),
             'outstanding_balances' => $outstanding,
             'cash_flow' => [
