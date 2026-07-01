@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccountingController;
+use App\Http\Controllers\BackupController;
 use App\Http\Controllers\ContractorPaymentController;
 use App\Http\Controllers\ContractorProductionController;
 use App\Http\Controllers\ContractorRoyaltyLedgerController;
@@ -135,6 +136,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('users', UserController::class);
 
     Route::resource('roles', RoleController::class);
+
+    Route::prefix('backups')->name('backups.')->group(function () {
+        Route::get('/', [BackupController::class, 'index'])->name('index');
+        Route::post('/', [BackupController::class, 'store'])->name('store');
+        Route::get('/{backup}/download', [BackupController::class, 'download'])->name('download');
+        Route::post('/restore', [BackupController::class, 'restore'])->name('restore');
+        Route::delete('/{backup}', [BackupController::class, 'destroy'])->name('destroy');
+    });
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

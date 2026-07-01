@@ -27,6 +27,7 @@ const navItems = [
     { route: 'reports.index', permission: 'reports.view', key: 'nav.reports' },
     { route: 'users.index', permission: 'users.view', key: 'nav.users' },
     { route: 'roles.index', permission: 'roles.view', key: 'nav.roles' },
+    { route: 'backups.index', permission: 'backup.view', key: 'nav.backups' },
 ];
 
 export default function ErpLayout({ children }) {

@@ -64,6 +64,7 @@ class RouteSmokeTest extends TestCase
             'financial-years.index',
             'users.index',
             'roles.index',
+            'backups.index',
         ];
 
         foreach ($routes as $name) {

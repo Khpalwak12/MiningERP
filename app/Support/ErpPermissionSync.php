@@ -34,7 +34,7 @@ class ErpPermissionSync
         $modules = [
             'dashboard', 'users', 'roles', 'customers', 'shipments', 'mine-types', 'payments',
             'sankari', 'expenses', 'expense-categories', 'employees', 'payroll',             'inventory', 'mine-assets', 'machinery', 'personal-accounts',
-            'accounting', 'reports', 'financial-year', 'contractor-royalty',
+            'accounting', 'reports', 'financial-year', 'contractor-royalty', 'backup',
         ];
 
         $actions = [];
@@ -43,6 +43,7 @@ class ErpPermissionSync
             $actions[$module] = match ($module) {
                 'financial-year' => ['view', 'create', 'edit', 'close', 'activate'],
                 'contractor-royalty' => ['view', 'create', 'edit', 'delete', 'reports'],
+                'backup' => ['view', 'create', 'restore', 'delete'],
                 default => $defaultActions,
             };
         }
