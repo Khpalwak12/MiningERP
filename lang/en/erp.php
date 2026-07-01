@@ -165,6 +165,7 @@ return [
         'contractor_tons' => 'Tons',
         'machinery_total_afn' => 'Total Machinery (AFN)',
         'machinery_total_usd' => 'Total Machinery (USD)',
+        'income_expense_chart' => 'Income vs Expenses Trend',
     ],
     'customers' => [
         'title' => 'Customers',

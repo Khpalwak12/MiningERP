@@ -2,15 +2,16 @@
 
 namespace App\Services;
 
+use App\Models\ContractorProduction;
+use App\Models\ContractorSalaryCharge;
 use App\Models\Customer;
 use App\Models\ContractorExpenseCharge;
 use App\Models\ContractorPayment;
-use App\Models\ContractorProduction;
-use App\Models\ContractorSalaryCharge;
 use App\Models\CustomerPayment;
 use App\Models\Employee;
 use App\Models\Expense;
 use App\Support\ActiveFinancialYear;
+use App\Models\FinancialYear;
 use App\Models\MachineryItem;
 use App\Models\MarbleShipment;
 use App\Models\PayrollPayment;
@@ -103,6 +104,7 @@ class DashboardService
                 'outstanding_balance' => $contractorReceivable - $contractorPaymentsReceived,
             ],
             'machinery' => $machineryTotals,
+            'income_expense_trend' => $this->incomeExpenseTrend($yearId, $activeYear),
             'recent_transactions' => $this->recentTransactions($yearId),
         ];
     }
@@ -128,5 +130,96 @@ class DashboardService
             ]);
 
         return $shipments->concat($payments)->sortByDesc('date')->take(10)->values()->all();
+    }
+
+    public function incomeExpenseTrend(?int $yearId, ?FinancialYear $activeYear = null): array
+    {
+        $incomeByMonth = [];
+        $expenseByMonth = [];
+
+        $applyYear = fn ($query) => $query->when($yearId, fn ($q) => $q->where('financial_year_id', $yearId));
+
+        foreach ($applyYear(MarbleShipment::query())->completed()->whereNotNull('total_amount')->get(['shipment_date', 'total_amount']) as $row) {
+            $this->addToMonthBucket($incomeByMonth, $row->shipment_date, (float) $row->total_amount);
+        }
+
+        foreach ($applyYear(SankariStoneSale::query())->get(['sale_date', 'total_amount']) as $row) {
+            $this->addToMonthBucket($incomeByMonth, $row->sale_date, (float) $row->total_amount);
+        }
+
+        foreach ($applyYear(ContractorProduction::query())->get(['production_date', 'total_royalty']) as $row) {
+            $this->addToMonthBucket($incomeByMonth, $row->production_date, (float) $row->total_royalty);
+        }
+
+        foreach ($applyYear(Expense::query()->forCompany())->get(['expense_date', 'amount']) as $row) {
+            $this->addToMonthBucket($expenseByMonth, $row->expense_date, (float) $row->amount);
+        }
+
+        foreach ($applyYear(PayrollPayment::query())->get(['payment_date', 'amount']) as $row) {
+            $this->addToMonthBucket($expenseByMonth, $row->payment_date, (float) $row->amount);
+        }
+
+        $months = $this->trendMonthKeys($activeYear, $incomeByMonth, $expenseByMonth);
+
+        return array_map(fn (string $month) => [
+            'month' => $month,
+            'income' => round($incomeByMonth[$month] ?? 0, 2),
+            'expenses' => round($expenseByMonth[$month] ?? 0, 2),
+        ], $months);
+    }
+
+    private function addToMonthBucket(array &$buckets, Carbon|string|null $date, float $amount): void
+    {
+        if ($date === null || $amount === 0.0) {
+            return;
+        }
+
+        $month = JalaliDate::fromGregorian($date, 'Y/m');
+        $buckets[$month] = ($buckets[$month] ?? 0) + $amount;
+    }
+
+    /**
+     * @param  array<string, float>  $incomeByMonth
+     * @param  array<string, float>  $expenseByMonth
+     * @return array<int, string>
+     */
+    private function trendMonthKeys(?FinancialYear $activeYear, array $incomeByMonth, array $expenseByMonth): array
+    {
+        if ($activeYear?->start_date && $activeYear?->end_date) {
+            $start = JalaliDate::fromGregorian($activeYear->start_date, 'Y/m');
+            $end = JalaliDate::fromGregorian($activeYear->end_date, 'Y/m');
+
+            return $this->shamsiMonthsBetween($start, $end);
+        }
+
+        $keys = array_unique(array_merge(array_keys($incomeByMonth), array_keys($expenseByMonth)));
+        sort($keys);
+
+        return $keys;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function shamsiMonthsBetween(string $startYm, string $endYm): array
+    {
+        [$startYear, $startMonth] = array_map('intval', explode('/', $startYm));
+        [$endYear, $endMonth] = array_map('intval', explode('/', $endYm));
+
+        $months = [];
+        $year = $startYear;
+        $month = $startMonth;
+
+        while ($year < $endYear || ($year === $endYear && $month <= $endMonth)) {
+            $months[] = sprintf('%04d/%02d', $year, $month);
+            $month++;
+
+            if ($month > 12) {
+                $month = 1;
+                $year++;
+            }
+        }
+
+        return $months;
     }
 }

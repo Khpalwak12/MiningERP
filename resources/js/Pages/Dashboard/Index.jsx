@@ -1,6 +1,7 @@
 import ErpLayout from '@/Layouts/ErpLayout';
 import FlashMessage from '@/Components/Erp/FlashMessage';
 import StatCard from '@/Components/Erp/StatCard';
+import IncomeExpenseChart from '@/Components/Erp/IncomeExpenseChart';
 import useTranslation from '@/hooks/useTranslation';
 import usePermission from '@/hooks/usePermission';
 import { formatCurrency, formatMoney, formatNumber } from '@/utils/format';
@@ -45,6 +46,10 @@ export default function Index({ stats, recentShipments, recentPayments }) {
                 <StatCard title={t('dashboard.active_employees')} value={stats?.employee_count} color="blue" />
                 <StatCard title={t('dashboard.payments_received')} value={formatCurrency(stats?.cash_flow?.income)} color="green" />
                 <StatCard title={t('dashboard.net_profit')} value={formatCurrency(stats?.net_profit)} color="indigo" />
+            </div>
+
+            <div className="mb-6">
+                <IncomeExpenseChart data={stats?.income_expense_trend || []} />
             </div>
 
             {can('contractor-royalty.view') && (

@@ -165,6 +165,7 @@ return [
         'contractor_tons' => 'ټن',
         'machinery_total_afn' => 'ټوله ماشینري (افغانۍ)',
         'machinery_total_usd' => 'ټوله ماشینري (ډالر)',
+        'income_expense_chart' => 'د عاید او لګښتونو لین',
     ],
     'customers' => [
         'title' => 'پیرودونکي',
