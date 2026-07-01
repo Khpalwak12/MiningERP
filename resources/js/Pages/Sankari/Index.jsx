@@ -27,8 +27,8 @@ export default function Index({ sales, filters }) {
                             <th className="px-4 py-3 text-left">{t('fields.date')}</th>
                             <th className="px-4 py-3 text-left">{t('fields.truck_count')}</th>
                             <th className="px-4 py-3 text-left">{t('fields.price_per_truck')}</th>
+                            <th className="px-4 py-3 text-left">{t('fields.discount')}</th>
                             <th className="px-4 py-3 text-left">{t('fields.total_amount')}</th>
-                            <th className="px-4 py-3 text-left">{t('fields.payment_type')}</th>
                             <th className="px-4 py-3 text-right">{t('actions.column')}</th>
                         </tr>
                     </thead>
@@ -41,8 +41,8 @@ export default function Index({ sales, filters }) {
                                 <td className="px-4 py-3">{s.sale_date_shamsi}</td>
                                 <td className="px-4 py-3">{s.truck_count}</td>
                                 <td className="px-4 py-3">{formatCurrency(s.price_per_truck)}</td>
+                                <td className="px-4 py-3">{formatCurrency(s.discount)}</td>
                                 <td className="px-4 py-3 font-medium">{formatCurrency(s.total_amount)}</td>
-                                <td className="px-4 py-3">{t(`payment_types.${s.payment_type}`)}</td>
                                 <td className="px-4 py-3 text-right">
                                     <ActionButtons
                                         viewHref={route('sankari.show', s.id)}

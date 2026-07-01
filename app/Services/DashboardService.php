@@ -89,9 +89,9 @@ class DashboardService
             'employee_count' => Employee::where('status', 'active')->count(),
             'outstanding_balances' => $outstanding,
             'cash_flow' => [
-                'income' => (float) (clone $paymentQuery)->sum('amount') + (float) (clone $sankariQuery)->sum('cash_received'),
+                'income' => (float) (clone $paymentQuery)->sum('amount') + (float) (clone $sankariQuery)->sum('total_amount'),
                 'expenses' => $totalExpenses,
-                'net' => (float) (clone $paymentQuery)->sum('amount') + (float) (clone $sankariQuery)->sum('cash_received') - $totalExpenses,
+                'net' => (float) (clone $paymentQuery)->sum('amount') + (float) (clone $sankariQuery)->sum('total_amount') - $totalExpenses,
             ],
             'contractor_royalty' => [
                 'total_royalties' => $contractorRoyalties,

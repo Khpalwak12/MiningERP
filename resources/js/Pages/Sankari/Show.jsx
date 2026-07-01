@@ -4,10 +4,11 @@ import FlashMessage from '@/Components/Erp/FlashMessage';
 import useTranslation from '@/hooks/useTranslation';
 import { formatCurrency } from '@/utils/format';
 import { Head } from '@inertiajs/react';
+import { resourceData } from '@/utils/resource';
 
 export default function Show({ sale }) {
     const { t } = useTranslation();
-    const s = sale.data;
+    const s = resourceData(sale);
 
     return (
         <ErpLayout>
@@ -22,9 +23,9 @@ export default function Show({ sale }) {
                     <div><dt className="text-gray-500">{t('fields.date')}</dt><dd>{s.sale_date_shamsi}</dd></div>
                     <div><dt className="text-gray-500">{t('fields.truck_count')}</dt><dd>{s.truck_count}</dd></div>
                     <div><dt className="text-gray-500">{t('fields.price_per_truck')}</dt><dd>{formatCurrency(s.price_per_truck)}</dd></div>
+                    <div><dt className="text-gray-500">{t('fields.subtotal')}</dt><dd>{formatCurrency(s.subtotal)}</dd></div>
+                    <div><dt className="text-gray-500">{t('fields.discount')}</dt><dd>{formatCurrency(s.discount)}</dd></div>
                     <div><dt className="text-gray-500">{t('fields.total_amount')}</dt><dd className="font-bold">{formatCurrency(s.total_amount)}</dd></div>
-                    <div><dt className="text-gray-500">{t('fields.payment_type')}</dt><dd>{t(`payment_types.${s.payment_type}`)}</dd></div>
-                    <div><dt className="text-gray-500">{t('fields.cash_received')}</dt><dd>{formatCurrency(s.cash_received)}</dd></div>
                     {s.notes && <div className="sm:col-span-2"><dt className="text-gray-500">{t('fields.notes')}</dt><dd>{s.notes}</dd></div>}
                 </dl>
             </div>

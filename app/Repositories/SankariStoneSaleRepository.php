@@ -31,10 +31,6 @@ class SankariStoneSaleRepository extends BaseRepository implements SankariStoneS
         $this->applyFinancialYearFilter($query, $filters);
         $query = $this->applySearch($query, $filters, ['notes']);
 
-        if (! empty($filters['payment_type'])) {
-            $query->where('payment_type', $filters['payment_type']);
-        }
-
         return $this->applyDateRange($query, $filters, 'sale_date');
     }
 }

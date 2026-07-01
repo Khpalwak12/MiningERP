@@ -24,11 +24,11 @@ class SankariStoneSaleController extends Controller
 
     public function index(Request $request): Response
     {
-        $sales = $this->service->paginate($request->only(['search', 'date_from', 'date_to', 'payment_type']));
+        $sales = $this->service->paginate($request->only(['search', 'date_from', 'date_to']));
 
         return Inertia::render('Sankari/Index', [
             'sales' => SankariStoneSaleResource::collection($sales),
-            'filters' => $request->only(['search', 'date_from', 'date_to', 'payment_type']),
+            'filters' => $request->only(['search', 'date_from', 'date_to']),
         ]);
     }
 

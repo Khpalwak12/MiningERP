@@ -78,9 +78,8 @@ class CrudPagesTest extends TestCase
             'sale_date' => now(),
             'truck_count' => 2,
             'price_per_truck' => 5000,
+            'discount' => 0,
             'total_amount' => 10000,
-            'payment_type' => 'cash',
-            'cash_received' => 10000,
             'created_by' => $this->admin->id,
         ]);
         $category = \App\Models\ExpenseCategory::query()->whereNull('parent_id')->firstOrFail();

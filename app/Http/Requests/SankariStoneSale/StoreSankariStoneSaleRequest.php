@@ -3,12 +3,13 @@
 namespace App\Http\Requests\SankariStoneSale;
 
 use App\Http\Requests\Concerns\ConvertsShamsiDates;
+use App\Http\Requests\SankariStoneSale\Concerns\ValidatesSankariDiscount;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class StoreSankariStoneSaleRequest extends FormRequest
 {
     use ConvertsShamsiDates;
+    use ValidatesSankariDiscount;
 
     public function authorize(): bool
     {
@@ -18,6 +19,12 @@ class StoreSankariStoneSaleRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->convertShamsiDates(['sale_date']);
+        $this->prepareSankariDiscount();
+    }
+
+    public function withValidator($validator): void
+    {
+        $this->validateSankariDiscount($validator);
     }
 
     public function rules(): array
@@ -25,8 +32,7 @@ class StoreSankariStoneSaleRequest extends FormRequest
         return array_merge($this->shamsiDateRules(['sale_date']), [
             'truck_count' => ['required', 'integer', 'min:1'],
             'price_per_truck' => ['required', 'numeric', 'min:0'],
-            'payment_type' => ['required', Rule::in(['cash', 'credit'])],
-            'cash_received' => ['nullable', 'numeric', 'min:0'],
+            'discount' => ['nullable', 'numeric', 'min:0'],
             'notes' => ['nullable', 'string'],
         ]);
     }

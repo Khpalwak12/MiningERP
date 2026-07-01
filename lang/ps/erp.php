@@ -73,6 +73,8 @@ return [
         'price_per_ton' => 'قیمت په ټن',
         'price_per_truck' => 'قیمت په لارۍ',
         'truck_count' => 'د لارو شمیر',
+        'subtotal' => 'فرعي مجموعه',
+        'discount' => 'تخفیف',
         'total_amount' => 'ټول مقدار',
         'payment_method' => 'د تادیې طریقه',
         'receipt_number' => 'د رسید نمبر',
@@ -214,6 +216,7 @@ return [
         'created' => 'د سنکري پلور په بریالیتوب سره ثبت شو.',
         'updated' => 'د سنکري پلور په بریالیتوب سره تازه شو.',
         'deleted' => 'د سنکري پلور په بریالیتوب سره حذف شو.',
+        'discount_exceeds_subtotal' => 'تخفیف نشي کولی د فرعي مجموعې څخه زیات وي.',
     ],
     'expenses' => [
         'title' => 'لګښتونه',

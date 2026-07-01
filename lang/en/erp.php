@@ -73,6 +73,8 @@ return [
         'price_per_ton' => 'Price per Ton',
         'price_per_truck' => 'Price per Truck',
         'truck_count' => 'Truck Count',
+        'subtotal' => 'Subtotal',
+        'discount' => 'Discount',
         'total_amount' => 'Total Amount',
         'payment_method' => 'Payment Method',
         'receipt_number' => 'Receipt Number',
@@ -214,6 +216,7 @@ return [
         'created' => 'Sankari sale recorded successfully.',
         'updated' => 'Sankari sale updated successfully.',
         'deleted' => 'Sankari sale deleted successfully.',
+        'discount_exceeds_subtotal' => 'Discount cannot exceed the subtotal.',
     ],
     'expenses' => [
         'title' => 'Expenses',
