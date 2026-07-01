@@ -413,6 +413,7 @@ return [
     'reports' => [
         'title' => 'Reports',
         'sales' => 'Sales Report',
+        'sankari' => 'Sankari Stone Sales Report',
         'payments' => 'Payments Report',
         'expenses' => 'Expenses Report',
         'payroll' => 'Payroll Report',
@@ -435,6 +436,7 @@ return [
         'applied_filters' => 'Applied Filters',
         'low_stock_only' => 'Low Stock Only',
         'total_records' => 'Total Records',
+        'totals' => 'Totals',
         'employee_salary_summary' => 'Employee Salary Summary',
         'payment_transactions' => 'Payment Transactions',
         'employees' => 'Employee Report',

@@ -15,6 +15,14 @@ export const REPORT_FILTER_OPTIONS = {
         { value: 'amount', type: 'number', labelKey: 'fields.amount' },
         { value: 'notes', type: 'text', labelKey: 'fields.notes' },
     ],
+    sankari: [
+        { value: 'truck_count', type: 'number', labelKey: 'fields.truck_count' },
+        { value: 'price_per_truck', type: 'number', labelKey: 'fields.price_per_truck' },
+        { value: 'discount', type: 'number', labelKey: 'fields.discount' },
+        { value: 'total_amount', type: 'number', labelKey: 'fields.total_amount' },
+        { value: 'created_by', type: 'text', labelKey: 'report_filters.created_by' },
+        { value: 'notes', type: 'text', labelKey: 'fields.notes' },
+    ],
     expenses: [
         { value: 'category', type: 'category', labelKey: 'fields.category' },
         { value: 'sub_category', type: 'text', labelKey: 'report_filters.sub_category' },

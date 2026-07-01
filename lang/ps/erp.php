@@ -413,6 +413,7 @@ return [
     'reports' => [
         'title' => 'راپورونه',
         'sales' => 'د پلور راپور',
+        'sankari' => 'د سنکري ډبرې پلور راپور',
         'payments' => 'د تادیاتو راپور',
         'expenses' => 'د لګښتونو راپور',
         'payroll' => 'د معاش راپور',
@@ -435,6 +436,7 @@ return [
         'applied_filters' => 'کارول شوي فلټرونه',
         'low_stock_only' => 'یوازې لږ ذخیره',
         'total_records' => 'ټول ریکارډونه',
+        'totals' => 'ټول',
         'employee_salary_summary' => 'د کارکوونکو معاش لنډیز',
         'payment_transactions' => 'د تادیاتو معاملات',
         'employees' => 'د کارکوونکو راپور',

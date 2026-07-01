@@ -15,6 +15,7 @@ class ReportAdvancedFilterService
         match ($reportType) {
             'sales' => $this->applySales($query, $filterBy, $filterValue),
             'payments' => $this->applyPayments($query, $filterBy, $filterValue),
+            'sankari' => $this->applySankari($query, $filterBy, $filterValue),
             'expenses' => $this->applyExpenses($query, $filterBy, $filterValue),
             'employees' => $this->applyEmployees($query, $filterBy, $filterValue),
             'payroll' => $this->applyPayroll($query, $filterBy, $filterValue),
@@ -51,6 +52,19 @@ class ReportAdvancedFilterService
             'receipt_number' => $this->like($query, 'receipt_number', $value),
             'received_by' => $this->like($query, 'received_by', $value),
             'amount' => $this->exactNumeric($query, 'amount', $value),
+            'notes' => $this->like($query, 'notes', $value),
+            default => null,
+        };
+    }
+
+    private function applySankari(Builder $query, string $filterBy, mixed $value): void
+    {
+        match ($filterBy) {
+            'truck_count' => $this->exactNumeric($query, 'truck_count', $value),
+            'price_per_truck' => $this->exactNumeric($query, 'price_per_truck', $value),
+            'discount' => $this->exactNumeric($query, 'discount', $value),
+            'total_amount' => $this->exactNumeric($query, 'total_amount', $value),
+            'created_by' => $this->creatorNameLike($query, $value),
             'notes' => $this->like($query, 'notes', $value),
             default => null,
         };

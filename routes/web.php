@@ -111,6 +111,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [ReportController::class, 'index'])->name('index');
         Route::get('/sales', [ReportController::class, 'sales'])->name('sales');
         Route::get('/payments', [ReportController::class, 'payments'])->name('payments');
+        Route::get('/sankari', [ReportController::class, 'sankari'])->name('sankari');
         Route::get('/expenses', [ReportController::class, 'expenses'])->name('expenses');
         Route::get('/employees', [ReportController::class, 'employees'])->name('employees');
         Route::get('/payroll', [ReportController::class, 'payroll'])->name('payroll');

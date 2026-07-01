@@ -16,6 +16,7 @@ use App\Http\Resources\MachineryItemResource;
 use App\Http\Resources\MineAssetResource;
 use App\Http\Resources\PersonalContactResource;
 use App\Http\Resources\PersonalHomeExpenseResource;
+use App\Http\Resources\SankariStoneSaleResource;
 use App\Http\Resources\MineTypeResource;
 use App\Models\Customer;
 use App\Models\MineType;
@@ -81,6 +82,18 @@ class ReportController extends Controller
                 'filters' => $filters,
             ]
         ));
+    }
+
+    public function sankari(Request $request): Response
+    {
+        $filters = $this->reportFilters($request);
+        $data = $this->service->sankariReport($filters);
+
+        return Inertia::render('Reports/Sankari', [
+            'rows' => SankariStoneSaleResource::collection($data),
+            'summary' => $this->service->sankariReportSummary($data),
+            'filters' => $filters,
+        ]);
     }
 
     public function expenses(Request $request): Response
@@ -298,6 +311,7 @@ class ReportController extends Controller
         [$headings, $rows] = match ($type) {
             'sales' => $this->salesExportData($filters),
             'payments' => $this->paymentsExportData($filters),
+            'sankari' => $this->sankariExportData($filters),
             'expenses' => $this->expensesExportData($filters),
             'employees' => $this->employeesExportData($filters),
             'payroll' => abort(404),
@@ -327,6 +341,14 @@ class ReportController extends Controller
         [$view, $data] = match ($type) {
             'sales' => ['reports.pdf.sales', ['rows' => $this->service->salesReport($filters)]],
             'payments' => ['reports.pdf.payments', ['rows' => $this->service->paymentsReport($filters)]],
+            'sankari' => (function () use ($filters) {
+                $rows = $this->service->sankariReport($filters);
+
+                return ['reports.pdf.sankari', [
+                    'rows' => $rows,
+                    'summary' => $this->service->sankariReportSummary($rows),
+                ]];
+            })(),
             'expenses' => ['reports.pdf.expenses', ['rows' => $this->service->expensesReport($filters)]],
             'employees' => ['reports.pdf.employees', ['rows' => $this->service->employeesReport($filters)]],
             'payroll' => ['reports.pdf.payroll', [
@@ -493,6 +515,41 @@ class ReportController extends Controller
             __('erp.fields.amount'),
             __('erp.fields.receipt_number'),
             __('erp.fields.received_by'),
+        ], $rows];
+    }
+
+    private function sankariExportData(array $filters): array
+    {
+        $data = $this->service->sankariReport($filters);
+        $rows = $data->map(fn ($row) => [
+            JalaliDate::fromGregorian($row->sale_date),
+            $row->truck_count,
+            $row->price_per_truck,
+            $row->subtotal(),
+            $row->discount,
+            $row->total_amount,
+            $row->notes ?? '—',
+        ]);
+
+        $summary = $this->service->sankariReportSummary($data);
+        $rows->push([
+            __('erp.reports.totals'),
+            $summary['truck_count'],
+            '—',
+            $summary['subtotal'],
+            $summary['discount'],
+            $summary['total_amount'],
+            '—',
+        ]);
+
+        return [[
+            __('erp.fields.date'),
+            __('erp.fields.truck_count'),
+            __('erp.fields.price_per_truck'),
+            __('erp.fields.subtotal'),
+            __('erp.fields.discount'),
+            __('erp.fields.total_amount'),
+            __('erp.fields.notes'),
         ], $rows];
     }
 

@@ -6,6 +6,7 @@ import { Head, Link } from '@inertiajs/react';
 
 const reportLinks = [
     { route: 'reports.sales', key: 'reports.sales' },
+    { route: 'reports.sankari', key: 'reports.sankari', permission: 'sankari.view' },
     { route: 'reports.payments', key: 'reports.payments' },
     { route: 'reports.expenses', key: 'reports.expenses' },
     { route: 'reports.employees', key: 'reports.employees' },

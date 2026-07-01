@@ -40,6 +40,7 @@ class RouteSmokeTest extends TestCase
             'accounting.trial-balance',
             'reports.index',
             'reports.sales',
+            'reports.sankari',
             'reports.payments',
             'reports.expenses',
             'reports.employees',

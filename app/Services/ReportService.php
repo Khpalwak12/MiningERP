@@ -65,6 +65,26 @@ class ReportService
         return $query->orderBy('payment_date')->get();
     }
 
+    public function sankariReport(array $filters = []): Collection
+    {
+        $query = SankariStoneSale::query()->with('creator');
+        $this->applyFinancialYearFilter($query, $filters);
+        $this->applyDateFilters($query, $filters, 'sale_date');
+        $this->advancedFilter->apply($query, 'sankari', $filters['filter_by'] ?? null, $filters['filter_value'] ?? null);
+
+        return $query->orderBy('sale_date')->orderBy('id')->get();
+    }
+
+    public function sankariReportSummary(Collection $rows): array
+    {
+        return [
+            'truck_count' => (int) $rows->sum('truck_count'),
+            'subtotal' => round($rows->sum(fn (SankariStoneSale $sale) => $sale->subtotal()), 2),
+            'discount' => round($rows->sum(fn (SankariStoneSale $sale) => (float) $sale->discount), 2),
+            'total_amount' => round($rows->sum(fn (SankariStoneSale $sale) => (float) $sale->total_amount), 2),
+        ];
+    }
+
     public function expensesReport(array $filters = []): Collection
     {
         $query = Expense::query()->forCompany()->with(['category']);
