@@ -2,11 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\Models\User;
 use App\Support\DesktopApplication;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Schema;
 
 class InitializeDesktopCommand extends Command
 {
@@ -36,14 +37,22 @@ class InitializeDesktopCommand extends Command
         $this->ensureDatabaseFile($dataPath);
         $this->ensurePublicStorageLink();
 
-        Artisan::call('migrate', ['--force' => true]);
-        $this->line(trim(Artisan::output()));
-
-        $this->clearDesktopBootstrapCache($dataPath);
-
-        if (User::query()->count() === 0) {
-            Artisan::call('db:seed', ['--force' => true]);
+        if ($this->isFreshInstall($dataPath)) {
+            Artisan::call('migrate:fresh', ['--force' => true]);
             $this->line(trim(Artisan::output()));
+
+            $this->clearDesktopBootstrapCache($dataPath);
+
+            Artisan::call('db:seed', [
+                '--class' => 'Database\\Seeders\\DesktopDatabaseSeeder',
+                '--force' => true,
+            ]);
+            $this->line(trim(Artisan::output()));
+        } else {
+            Artisan::call('migrate', ['--force' => true]);
+            $this->line(trim(Artisan::output()));
+
+            $this->clearDesktopBootstrapCache($dataPath);
         }
 
         $this->info('Desktop application initialized.');
@@ -132,6 +141,25 @@ class InitializeDesktopCommand extends Command
             'database.default' => 'sqlite',
             'database.connections.sqlite.database' => env('DB_DATABASE'),
         ]);
+    }
+
+    private function isFreshInstall(string $dataPath): bool
+    {
+        $database = $dataPath.'/database.sqlite';
+
+        if (! File::exists($database) || File::size($database) < 100) {
+            return true;
+        }
+
+        try {
+            if (! Schema::hasTable('migrations')) {
+                return true;
+            }
+
+            return DB::table('migrations')->count() === 0;
+        } catch (\Throwable) {
+            return true;
+        }
     }
 
     private function clearDesktopBootstrapCache(string $dataPath): void

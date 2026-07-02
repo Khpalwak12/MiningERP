@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\FinancialYear;
 use App\Models\User;
 use Illuminate\Support\Facades\File;
 use Tests\TestCase;
@@ -28,6 +29,7 @@ class DesktopInitializeTest extends TestCase
             $this->assertFileExists($dataPath.'/.env');
             $this->assertFileExists($dataPath.'/database.sqlite');
             $this->assertTrue(User::query()->where('email', 'admin@marbleerp.local')->exists());
+            $this->assertSame(0, FinancialYear::query()->realYears()->count());
         } finally {
             File::deleteDirectory($dataPath);
         }

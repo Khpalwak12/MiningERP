@@ -1,6 +1,7 @@
 <?php
 
 use App\Support\JalaliDate;
+use App\Support\MigrationEnvironment;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
@@ -32,6 +33,16 @@ return new class extends Migration
             $table->unique('name');
         });
 
+        foreach ($this->transactionTables as $table) {
+            Schema::table($table, function (Blueprint $table) {
+                $table->foreignId('financial_year_id')->nullable()->after('id')->constrained('financial_years');
+            });
+        }
+
+        if (MigrationEnvironment::isDesktopInstall()) {
+            return;
+        }
+
         $closedYearId = DB::table('financial_years')->insertGetId([
             'name' => '1404',
             'start_date' => JalaliDate::toGregorian('1404/01/01')->format('Y-m-d'),
@@ -51,10 +62,6 @@ return new class extends Migration
         ]);
 
         foreach ($this->transactionTables as $table) {
-            Schema::table($table, function (Blueprint $table) {
-                $table->foreignId('financial_year_id')->nullable()->after('id')->constrained('financial_years');
-            });
-
             DB::table($table)->whereNull('financial_year_id')->update([
                 'financial_year_id' => $activeYearId,
             ]);
