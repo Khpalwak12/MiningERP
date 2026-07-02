@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mining ERP</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Segoe UI", Tahoma, sans-serif;
+            background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%);
+            color: #f8fafc;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .card {
+            text-align: center;
+            padding: 2rem;
+        }
+        .logo {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 1rem;
+            border-radius: 16px;
+            background: #f59e0b;
+            display: grid;
+            place-items: center;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #111827;
+        }
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        p {
+            color: #cbd5e1;
+            margin-bottom: 1.5rem;
+        }
+        .spinner {
+            width: 42px;
+            height: 42px;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #f59e0b;
+            border-radius: 50%;
+            margin: 0 auto;
+            animation: spin 0.9s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="logo">M</div>
+        <h1>Mining ERP</h1>
+        <p>Starting application...</p>
+        <div class="spinner" aria-label="Loading"></div>
+    </div>
+</body>
+</html>

@@ -9,9 +9,14 @@ define('LARAVEL_START', microtime(true));
 // Register the Composer autoloader...
 require __DIR__.'/vendor/autoload.php';
 
+require __DIR__.'/bootstrap/desktop-env.php';
+require __DIR__.'/bootstrap/desktop-application.php';
+
 // Bootstrap Laravel and handle the command...
 /** @var Application $app */
 $app = require_once __DIR__.'/bootstrap/app.php';
+
+mining_apply_desktop_storage_path($app);
 
 $status = $app->handleCommand(new ArgvInput);
 

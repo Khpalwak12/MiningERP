@@ -3,6 +3,7 @@
 .env
 .env.*
 !.env.example
+!.env.desktop
 .phpactor.json
 .phpunit.result.cache
 /.codex
@@ -38,3 +39,9 @@ yarn-error.log*
 pnpm-debug.log*
 /dist
 /build
+/dist-desktop
+/desktop/node_modules
+/desktop/build-resources/php/*
+!/desktop/build-resources/php/.gitkeep
+/desktop/build-resources/laravel/*
+!/desktop/build-resources/laravel/.gitkeep

@@ -1,0 +1,84 @@
+{
+    "name": "miningerp-desktop",
+    "version": "1.0.0",
+    "private": true,
+    "description": "Mining ERP standalone Windows desktop application",
+    "main": "main.js",
+    "author": "Mining ERP",
+    "scripts": {
+        "start": "electron .",
+        "dist": "electron-builder --win nsis",
+        "pack": "electron-builder --dir"
+    },
+    "devDependencies": {
+        "electron": "^33.2.1",
+        "electron-builder": "^25.1.8",
+        "png-to-ico": "^3.0.1"
+    },
+    "build": {
+        "appId": "com.miningerp.desktop",
+        "productName": "Mining ERP",
+        "copyright": "Copyright © Mining ERP",
+        "directories": {
+            "output": "../dist-desktop",
+            "buildResources": "build-resources"
+        },
+        "files": [
+            "main.js",
+            "preload.js",
+            "splash.html",
+            "package.json"
+        ],
+        "extraResources": [
+            {
+                "from": "build-resources/php",
+                "to": "php",
+                "filter": [
+                    "**/*"
+                ]
+            },
+            {
+                "from": "build-resources/laravel",
+                "to": "laravel",
+                "filter": [
+                    "**/*"
+                ]
+            },
+            {
+                "from": "build-resources/icon.png",
+                "to": "icon.png"
+            }
+        ],
+        "win": {
+            "target": [
+                {
+                    "target": "nsis",
+                    "arch": [
+                        "x64"
+                    ]
+                }
+            ],
+            "icon": "build-resources/icon.ico",
+            "artifactName": "MiningERP Setup.${ext}",
+            "signAndEditExecutable": false
+        },
+        "nsis": {
+            "oneClick": false,
+            "perMachine": true,
+            "allowElevation": true,
+            "allowToChangeInstallationDirectory": true,
+            "createDesktopShortcut": true,
+            "createStartMenuShortcut": true,
+            "shortcutName": "Mining ERP",
+            "uninstallDisplayName": "Mining ERP",
+            "installerIcon": "build-resources/icon.ico",
+            "uninstallerIcon": "build-resources/icon.ico",
+            "installerHeaderIcon": "build-resources/icon.ico",
+            "installerLanguages": [
+                "en_US"
+            ],
+            "language": "1033",
+            "menuCategory": "Mining ERP"
+        }
+    }
+}

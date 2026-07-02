@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Support\DesktopApplication;
 use App\Support\JalaliDate;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -54,6 +55,7 @@ class DatabaseBackupService
 
             $this->exportDatabase($tempDir);
             $this->exportPublicFiles($tempDir);
+            $this->exportDesktopConfiguration($tempDir);
             File::put($tempDir.'/manifest.json', json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
             $this->createZip($tempDir, $fullPath);
         } finally {
@@ -99,6 +101,7 @@ class DatabaseBackupService
             $this->assertCompatibleDriver($manifest);
             $this->importDatabase($tempDir, $manifest['database_driver']);
             $this->importPublicFiles($tempDir);
+            $this->importDesktopConfiguration($tempDir);
 
             Artisan::call('cache:clear');
             Artisan::call('config:clear');
@@ -338,6 +341,38 @@ class DatabaseBackupService
 
         File::makeDirectory(dirname($target), 0755, true);
         File::copyDirectory($source, $target);
+    }
+
+    private function exportDesktopConfiguration(string $tempDir): void
+    {
+        if (! DesktopApplication::isDesktop()) {
+            return;
+        }
+
+        $envPath = DesktopApplication::envFilePath();
+
+        if (! $envPath || ! File::exists($envPath)) {
+            return;
+        }
+
+        File::makeDirectory($tempDir.'/config', 0755, true);
+        File::copy($envPath, $tempDir.'/config/.env');
+    }
+
+    private function importDesktopConfiguration(string $tempDir): void
+    {
+        if (! DesktopApplication::isDesktop()) {
+            return;
+        }
+
+        $source = $tempDir.'/config/.env';
+        $target = DesktopApplication::envFilePath();
+
+        if (! File::exists($source) || ! $target) {
+            return;
+        }
+
+        File::copy($source, $target);
     }
 
     private function createZip(string $sourceDir, string $destination): void
