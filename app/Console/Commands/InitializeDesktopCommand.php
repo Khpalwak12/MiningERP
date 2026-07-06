@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Support\DesktopApplication;
+use App\Support\DesktopAssets;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -11,6 +12,10 @@ use Illuminate\Support\Facades\Schema;
 
 class InitializeDesktopCommand extends Command
 {
+    private const INITIALIZED_MARKER = '.desktop-initialized';
+
+    private const FINANCIAL_YEARS_MIGRATION = '2026_06_21_100000_create_financial_years_and_assign_transactions';
+
     protected $signature = 'desktop:initialize';
 
     protected $description = 'Prepare the standalone desktop application (database, storage, seed data)';
@@ -34,30 +39,123 @@ class InitializeDesktopCommand extends Command
         $this->ensureDirectories($dataPath);
         $this->ensureEnvironmentFile($dataPath);
         $this->reloadDesktopEnvironment($dataPath);
-        $this->ensureDatabaseFile($dataPath);
         $this->ensurePublicStorageLink();
 
-        if ($this->isFreshInstall($dataPath)) {
-            Artisan::call('migrate:fresh', ['--force' => true]);
-            $this->line(trim(Artisan::output()));
-
-            $this->clearDesktopBootstrapCache($dataPath);
-
-            Artisan::call('db:seed', [
-                '--class' => 'Database\\Seeders\\DesktopDatabaseSeeder',
-                '--force' => true,
-            ]);
-            $this->line(trim(Artisan::output()));
+        if ($this->needsFreshDatabase($dataPath)) {
+            $this->runFreshInstall($dataPath);
         } else {
-            Artisan::call('migrate', ['--force' => true]);
-            $this->line(trim(Artisan::output()));
+            $exitCode = Artisan::call('migrate', ['--force' => true]);
+            $output = trim(Artisan::output());
+            $this->line($output);
 
-            $this->clearDesktopBootstrapCache($dataPath);
+            if ($exitCode !== 0 || $this->isMigrationConflictOutput($output)) {
+                $this->warn('Repairing inconsistent desktop database...');
+                $this->runFreshInstall($dataPath);
+            } else {
+                $this->clearDesktopBootstrapCache($dataPath);
+                $this->writeInitializedMarker($dataPath);
+            }
         }
+
+        DesktopAssets::ensurePdfAssets();
 
         $this->info('Desktop application initialized.');
 
         return self::SUCCESS;
+    }
+
+    private function needsFreshDatabase(string $dataPath): bool
+    {
+        $database = $dataPath.'/database.sqlite';
+
+        if (! File::exists($database) || File::size($database) < 100) {
+            return true;
+        }
+
+        if ($this->databaseIsCorrupt()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private function databaseIsCorrupt(): bool
+    {
+        try {
+            $hasFinancialYearsTable = Schema::hasTable('financial_years');
+            $hasMigrationsTable = Schema::hasTable('migrations');
+
+            if ($hasFinancialYearsTable && ! $this->migrationWasApplied(self::FINANCIAL_YEARS_MIGRATION)) {
+                return true;
+            }
+
+            if (! $hasMigrationsTable) {
+                return $hasFinancialYearsTable
+                    || Schema::hasTable('users')
+                    || Schema::hasTable('accounts');
+            }
+
+            $migrationCount = (int) DB::table('migrations')->count();
+
+            if ($migrationCount === 0 && ($hasFinancialYearsTable || Schema::hasTable('users'))) {
+                return true;
+            }
+
+            return false;
+        } catch (\Throwable) {
+            return true;
+        }
+    }
+
+    private function migrationWasApplied(string $migration): bool
+    {
+        if (! Schema::hasTable('migrations')) {
+            return false;
+        }
+
+        return DB::table('migrations')->where('migration', $migration)->exists();
+    }
+
+    private function runFreshInstall(string $dataPath): void
+    {
+        $database = $dataPath.'/database.sqlite';
+
+        if (File::exists($database)) {
+            File::delete($database);
+        }
+
+        File::delete($this->initializedMarkerPath($dataPath));
+
+        Artisan::call('migrate:fresh', ['--force' => true]);
+        $this->line(trim(Artisan::output()));
+
+        $this->clearDesktopBootstrapCache($dataPath);
+
+        Artisan::call('db:seed', [
+            '--class' => 'Database\\Seeders\\DesktopDatabaseSeeder',
+            '--force' => true,
+        ]);
+        $this->line(trim(Artisan::output()));
+
+        $this->writeInitializedMarker($dataPath);
+    }
+
+    private function isMigrationConflictOutput(string $output): bool
+    {
+        return str_contains(strtolower($output), 'already exists');
+    }
+
+    private function initializedMarkerPath(string $dataPath): string
+    {
+        return $dataPath.DIRECTORY_SEPARATOR.self::INITIALIZED_MARKER;
+    }
+
+    private function writeInitializedMarker(string $dataPath): void
+    {
+        File::put($this->initializedMarkerPath($dataPath), json_encode([
+            'initialized_at' => now()->toIso8601String(),
+            'app_version' => config('app.version', '1.0.0'),
+        ], JSON_PRETTY_PRINT));
     }
 
     private function ensureDirectories(string $dataPath): void
@@ -72,6 +170,8 @@ class InitializeDesktopCommand extends Command
             $dataPath.'/bootstrap/cache',
             $dataPath.'/storage/app/public',
             $dataPath.'/storage/app/private',
+            $dataPath.'/storage/app/mpdf-tmp',
+            $dataPath.'/storage/fonts',
             $dataPath.'/storage/framework/cache',
             $dataPath.'/storage/framework/sessions',
             $dataPath.'/storage/framework/views',
@@ -108,15 +208,6 @@ class InitializeDesktopCommand extends Command
         File::put($envPath, $contents);
     }
 
-    private function ensureDatabaseFile(string $dataPath): void
-    {
-        $database = $dataPath.'/database.sqlite';
-
-        if (! File::exists($database)) {
-            File::put($database, '');
-        }
-    }
-
     private function reloadDesktopEnvironment(string $dataPath): void
     {
         $envPath = $dataPath.'/.env';
@@ -141,25 +232,6 @@ class InitializeDesktopCommand extends Command
             'database.default' => 'sqlite',
             'database.connections.sqlite.database' => env('DB_DATABASE'),
         ]);
-    }
-
-    private function isFreshInstall(string $dataPath): bool
-    {
-        $database = $dataPath.'/database.sqlite';
-
-        if (! File::exists($database) || File::size($database) < 100) {
-            return true;
-        }
-
-        try {
-            if (! Schema::hasTable('migrations')) {
-                return true;
-            }
-
-            return DB::table('migrations')->count() === 0;
-        } catch (\Throwable) {
-            return true;
-        }
     }
 
     private function clearDesktopBootstrapCache(string $dataPath): void

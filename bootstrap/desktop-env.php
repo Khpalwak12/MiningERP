@@ -19,6 +19,8 @@ if (filter_var(getenv('MININGERP_DESKTOP') ?: ($_ENV['MININGERP_DESKTOP'] ?? fal
             $dataPath.'/bootstrap/cache',
             $dataPath.'/storage/app/public',
             $dataPath.'/storage/app/private',
+            $dataPath.'/storage/app/mpdf-tmp',
+            $dataPath.'/storage/fonts',
             $dataPath.'/storage/framework/cache',
             $dataPath.'/storage/framework/sessions',
             $dataPath.'/storage/framework/views',

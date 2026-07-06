@@ -39,7 +39,9 @@ function Copy-LaravelBundle {
     $requiredFiles = @(
         "vendor\autoload.php",
         "public\build\manifest.json",
-        ".env.desktop"
+        ".env.desktop",
+        "storage\fonts\NotoSansArabic-Regular.ttf",
+        "storage\fonts\NotoSansArabic-Bold.ttf"
     )
 
     foreach ($file in $requiredFiles) {

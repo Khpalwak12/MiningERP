@@ -59,6 +59,8 @@ function ensureDataDirectories(dataPath) {
         path.join(dataPath, 'bootstrap', 'cache'),
         path.join(dataPath, 'storage', 'app', 'public'),
         path.join(dataPath, 'storage', 'app', 'private'),
+        path.join(dataPath, 'storage', 'app', 'mpdf-tmp'),
+        path.join(dataPath, 'storage', 'fonts'),
         path.join(dataPath, 'storage', 'framework', 'cache'),
         path.join(dataPath, 'storage', 'framework', 'sessions'),
         path.join(dataPath, 'storage', 'framework', 'views'),
