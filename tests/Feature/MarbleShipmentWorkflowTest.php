@@ -23,11 +23,13 @@ class MarbleShipmentWorkflowTest extends TestCase
         $user = User::where('email', 'admin@marbleerp.local')->firstOrFail();
         $customer = Customer::query()->firstOrFail();
         $mineType = \App\Models\MineType::query()->firstOrFail();
+        $stoneType = \App\Models\StoneType::query()->firstOrFail();
 
         $response = $this->actingAs($user)->post(route('shipments.store'), [
             'shipment_date' => '1404/01/15',
             'customer_id' => $customer->id,
             'mine_type_id' => $mineType->id,
+            'stone_type_id' => $stoneType->id,
             'driver_name' => 'Test Driver',
         ]);
 

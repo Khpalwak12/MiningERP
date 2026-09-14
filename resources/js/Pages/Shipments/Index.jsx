@@ -63,6 +63,7 @@ export default function Index({ shipments, filters, customers }) {
                             <th className="px-4 py-3 text-left">{t('fields.date')}</th>
                             <th className="px-4 py-3 text-left">{t('fields.customer')}</th>
                             <th className="px-4 py-3 text-left">{t('fields.mine_type')}</th>
+                            <th className="px-4 py-3 text-left">{t('fields.stone_type')}</th>
                             <th className="px-4 py-3 text-left">{t('fields.quantity_ton')}</th>
                             <th className="px-4 py-3 text-left">{t('fields.price_per_ton')}</th>
                             <th className="px-4 py-3 text-left">{t('fields.total_amount')}</th>
@@ -72,13 +73,14 @@ export default function Index({ shipments, filters, customers }) {
                     </thead>
                     <tbody className="divide-y">
                         {list.length === 0 && (
-                            <tr><td colSpan={8} className="px-4 py-6 text-center text-gray-500">{t('messages.no_records')}</td></tr>
+                            <tr><td colSpan={9} className="px-4 py-6 text-center text-gray-500">{t('messages.no_records')}</td></tr>
                         )}
                         {list.map((s) => (
                             <tr key={s.id} className={s.status !== 'completed' ? 'bg-amber-50/40' : ''}>
                                 <td className="px-4 py-3">{s.shipment_date_shamsi}</td>
                                 <td className="px-4 py-3">{s.customer?.name}</td>
                                 <td className="px-4 py-3">{s.mine_type?.name || '—'}</td>
+                                <td className="px-4 py-3">{s.stone_type?.name || '—'}</td>
                                 <td className="px-4 py-3">{s.quantity_ton ?? '—'}</td>
                                 <td className="px-4 py-3">{formatShipmentAmount(s.price_per_ton, formatCurrency)}</td>
                                 <td className="px-4 py-3 font-medium">{formatShipmentAmount(s.total_amount, formatCurrency)}</td>

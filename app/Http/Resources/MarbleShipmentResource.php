@@ -14,6 +14,7 @@ class MarbleShipmentResource extends JsonResource
             'id' => $this->id,
             'customer_id' => $this->customer_id,
             'mine_type_id' => $this->mine_type_id,
+            'stone_type_id' => $this->stone_type_id,
             'shipment_date' => $this->shipment_date?->format('Y-m-d'),
             'shipment_date_shamsi' => JalaliDate::fromGregorian($this->shipment_date),
             'driver_name' => $this->driver_name,
@@ -25,6 +26,7 @@ class MarbleShipmentResource extends JsonResource
             'is_locked' => $this->isInClosedFinancialYear(),
             'customer' => new CustomerResource($this->whenLoaded('customer')),
             'mine_type' => new MineTypeResource($this->whenLoaded('mineType')),
+            'stone_type' => new StoneTypeResource($this->whenLoaded('stoneType')),
             'creator' => new UserResource($this->whenLoaded('creator')),
             'created_at' => $this->created_at?->toISOString(),
         ];

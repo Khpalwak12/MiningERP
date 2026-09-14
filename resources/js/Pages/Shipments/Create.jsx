@@ -27,12 +27,13 @@ function calcShipmentTotal(quantityTon, pricePerTon) {
     return null;
 }
 
-export default function Create({ customers, mineTypes }) {
+export default function Create({ customers, mineTypes, stoneTypes }) {
     const { t } = useTranslation();
     const today = useTodayShamsi();
     const mineTypeList = resourceItems(mineTypes);
+    const stoneTypeList = resourceItems(stoneTypes);
     const { data, setData, post, processing, errors } = useForm({
-        shipment_date: today, customer_id: '', mine_type_id: '', driver_name: '',
+        shipment_date: today, customer_id: '', mine_type_id: '', stone_type_id: '', driver_name: '',
         quantity_ton: '', price_per_ton: '', notes: '',
     });
 
@@ -72,6 +73,20 @@ export default function Create({ customers, mineTypes }) {
                         ))}
                     </select>
                     <InputError message={errors.mine_type_id} />
+                </div>
+                <div>
+                    <InputLabel value={t('fields.stone_type')} required />
+                    <select
+                        className="mt-1 block w-full rounded-md border-gray-300"
+                        value={data.stone_type_id}
+                        onChange={(e) => setData('stone_type_id', e.target.value)}
+                    >
+                        <option value="">--</option>
+                        {stoneTypeList.map((type) => (
+                            <option key={type.id} value={type.id}>{type.name}</option>
+                        ))}
+                    </select>
+                    <InputError message={errors.stone_type_id} />
                 </div>
                 <div>
                     <InputLabel value={t('fields.driver_name')} />

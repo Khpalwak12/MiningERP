@@ -25,6 +25,7 @@ class RouteSmokeTest extends TestCase
             'customers.index',
             'shipments.index',
             'mine-types.index',
+            'stone-types.index',
             'payments.index',
             'sankari.index',
             'expenses.index',

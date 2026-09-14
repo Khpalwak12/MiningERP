@@ -27,12 +27,13 @@ function calcShipmentTotal(quantityTon, pricePerTon) {
     return null;
 }
 
-export default function Edit({ shipment, customers, mineTypes }) {
+export default function Edit({ shipment, customers, mineTypes, stoneTypes }) {
     const { t } = useTranslation();
     const s = resourceData(shipment);
     const mineTypeList = resourceItems(mineTypes);
+    const stoneTypeList = resourceItems(stoneTypes);
     const { data, setData, put, processing, errors } = useForm({
-        shipment_date: s.shipment_date_shamsi || '', customer_id: s.customer_id || '', mine_type_id: s.mine_type_id || '',
+        shipment_date: s.shipment_date_shamsi || '', customer_id: s.customer_id || '', mine_type_id: s.mine_type_id || '', stone_type_id: s.stone_type_id || '',
         driver_name: s.driver_name || '', quantity_ton: s.quantity_ton ?? '', price_per_ton: s.price_per_ton ?? '', notes: s.notes || '',
     });
     const total = calcShipmentTotal(data.quantity_ton, data.price_per_ton);
@@ -77,6 +78,20 @@ export default function Edit({ shipment, customers, mineTypes }) {
                         ))}
                     </select>
                     <InputError message={errors.mine_type_id} />
+                </div>
+                <div>
+                    <InputLabel value={t('fields.stone_type')} required />
+                    <select
+                        className="mt-1 block w-full rounded-md border-gray-300"
+                        value={data.stone_type_id}
+                        onChange={(e) => setData('stone_type_id', e.target.value)}
+                    >
+                        <option value="">--</option>
+                        {stoneTypeList.map((type) => (
+                            <option key={type.id} value={type.id}>{type.name}</option>
+                        ))}
+                    </select>
+                    <InputError message={errors.stone_type_id} />
                 </div>
                 <div>
                     <InputLabel value={t('fields.driver_name')} />

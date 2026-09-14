@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Models\Customer;
 use App\Models\MarbleShipment;
 use App\Models\MineType;
+use App\Models\StoneType;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -20,6 +21,7 @@ class MarbleShipmentFactory extends Factory
         return [
             'customer_id' => Customer::factory(),
             'mine_type_id' => MineType::factory(),
+            'stone_type_id' => StoneType::factory(),
             'shipment_date' => fake()->dateTimeBetween('-3 months'),
             'driver_name' => fake()->name(),
             'quantity_ton' => $quantity,

@@ -30,6 +30,7 @@ class UpdateMarbleShipmentRequest extends FormRequest
         return [
             'customer_id' => ['sometimes', 'required', 'exists:customers,id'],
             'mine_type_id' => ['sometimes', 'required', 'exists:mine_types,id'],
+            'stone_type_id' => ['sometimes', 'required', 'exists:stone_types,id'],
             'shipment_date' => ['sometimes', 'required', 'date'],
             'driver_name' => ['nullable', 'string', 'max:255'],
             'quantity_ton' => ['nullable', 'numeric', 'min:0.001'],

@@ -27,6 +27,7 @@ class StoreMarbleShipmentRequest extends FormRequest
         return array_merge($this->shamsiDateRules(['shipment_date']), [
             'customer_id' => ['required', 'exists:customers,id'],
             'mine_type_id' => ['required', 'exists:mine_types,id'],
+            'stone_type_id' => ['required', 'exists:stone_types,id'],
             'driver_name' => ['nullable', 'string', 'max:255'],
             'quantity_ton' => ['nullable', 'numeric', 'min:0.001'],
             'price_per_ton' => ['nullable', 'numeric', 'min:0'],

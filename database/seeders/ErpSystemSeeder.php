@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Account;
 use App\Models\ExpenseCategory;
 use App\Models\MineType;
+use App\Models\StoneType;
 use App\Models\User;
 use App\Support\ErpPermissionSync;
 use Illuminate\Database\Seeder;
@@ -20,6 +21,7 @@ class ErpSystemSeeder extends Seeder
         $this->seedUsers();
         $this->seedExpenseCategories();
         $this->seedMineTypes();
+        $this->seedStoneTypes();
         $this->seedAccounts();
     }
 
@@ -118,6 +120,37 @@ class ErpSystemSeeder extends Seeder
 
         foreach ($types as $data) {
             MineType::query()->updateOrCreate(
+                ['slug' => $data['slug']],
+                array_merge($data, ['name' => $data['name_en']]),
+            );
+        }
+    }
+
+    private function seedStoneTypes(): void
+    {
+        $types = [
+            [
+                'slug' => 'block',
+                'name_en' => 'Block',
+                'name_ps' => 'بلاک',
+                'description' => 'Stone block',
+            ],
+            [
+                'slug' => 'slab',
+                'name_en' => 'Slab',
+                'name_ps' => 'سلیب',
+                'description' => 'Stone slab',
+            ],
+            [
+                'slug' => 'crushed',
+                'name_en' => 'Crushed',
+                'name_ps' => 'ماته تیږه',
+                'description' => 'Crushed stone',
+            ],
+        ];
+
+        foreach ($types as $data) {
+            StoneType::query()->updateOrCreate(
                 ['slug' => $data['slug']],
                 array_merge($data, ['name' => $data['name_en']]),
             );

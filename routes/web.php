@@ -17,6 +17,7 @@ use App\Http\Controllers\InventoryMovementController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\MineTypeController;
 use App\Http\Controllers\MarbleShipmentController;
+use App\Http\Controllers\StoneTypeController;
 use App\Http\Controllers\MachineryItemController;
 use App\Http\Controllers\MineAssetController;
 use App\Http\Controllers\PayrollPaymentController;
@@ -50,6 +51,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->parameters(['shipments' => 'shipment']);
     Route::resource('mine-types', MineTypeController::class)
         ->parameters(['mine-types' => 'mineType'])
+        ->except(['show']);
+    Route::resource('stone-types', StoneTypeController::class)
+        ->parameters(['stone-types' => 'stoneType'])
         ->except(['show']);
 
     Route::resource('payments', CustomerPaymentController::class)

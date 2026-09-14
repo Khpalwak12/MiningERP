@@ -5,6 +5,7 @@ import { Link } from '@inertiajs/react';
 const links = [
     { route: 'shipments.index', key: 'shipments.title' },
     { route: 'mine-types.index', key: 'mine_types.title', permission: 'mine-types.view' },
+    { route: 'stone-types.index', key: 'stone_types.title', permission: 'stone-types.view' },
 ];
 
 export default function ShipmentsNav({ active }) {
