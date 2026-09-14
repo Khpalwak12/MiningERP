@@ -2,6 +2,7 @@ export default function StatCard({ title, value, subtitle, color = 'indigo' }) {
     const colors = {
         indigo: 'bg-indigo-50 border-indigo-200 text-indigo-700',
         green: 'bg-green-50 border-green-200 text-green-700',
+        teal: 'bg-teal-50 border-teal-200 text-teal-700',
         red: 'bg-red-50 border-red-200 text-red-700',
         amber: 'bg-amber-50 border-amber-200 text-amber-700',
         blue: 'bg-blue-50 border-blue-200 text-blue-700',
