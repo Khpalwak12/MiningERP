@@ -2,10 +2,10 @@ import ReportFilterForm from '@/Components/Erp/ReportFilterForm';
 import ErpLayout from '@/Layouts/ErpLayout';
 import FlashMessage from '@/Components/Erp/FlashMessage';
 import useTranslation from '@/hooks/useTranslation';
-import { formatCurrency } from '@/utils/format';
+import { formatCurrency, formatNumber } from '@/utils/format';
 import { Head, Link } from '@inertiajs/react';
 
-export default function MonthlyProduction({ rows, filters }) {
+export default function MonthlyProduction({ rows, summary, filters }) {
     const { t } = useTranslation();
     const list = Array.isArray(rows) ? rows : [];
 
@@ -45,6 +45,14 @@ export default function MonthlyProduction({ rows, filters }) {
                                 <td className="px-4 py-3">{formatCurrency(row.total_sales)}</td>
                             </tr>
                         ))}
+                        {list.length > 0 && summary && (
+                            <tr className="bg-gray-50 font-semibold">
+                                <td className="px-4 py-3">{t('reports.totals')}</td>
+                                <td className="px-4 py-3">{summary.shipment_count}</td>
+                                <td className="px-4 py-3">{formatNumber(summary.total_tons, 3)}</td>
+                                <td className="px-4 py-3">{formatCurrency(summary.total_sales)}</td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
             </div>

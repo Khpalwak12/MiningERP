@@ -6,7 +6,7 @@ import { formatCurrency } from '@/utils/format';
 import { resourceItems } from '@/utils/resource';
 import { Head, Link } from '@inertiajs/react';
 
-export default function CustomerBalances({ customers, filters }) {
+export default function CustomerBalances({ customers, summary, filters }) {
     const { t } = useTranslation();
     const list = resourceItems(customers);
 
@@ -37,6 +37,7 @@ export default function CustomerBalances({ customers, filters }) {
                         </tr>
                     </thead>
                     <tbody className="divide-y">
+                        {list.length === 0 && <tr><td colSpan={4} className="px-4 py-6 text-center text-gray-500">{t('messages.no_records')}</td></tr>}
                         {list.map((c) => (
                             <tr key={c.id}>
                                 <td className="px-4 py-3">{c.name}</td>
@@ -45,6 +46,14 @@ export default function CustomerBalances({ customers, filters }) {
                                 <td className="px-4 py-3 font-medium text-amber-700">{formatCurrency(c.outstanding_balance)}</td>
                             </tr>
                         ))}
+                        {list.length > 0 && summary && (
+                            <tr className="bg-gray-50 font-semibold">
+                                <td className="px-4 py-3">{t('reports.totals')}</td>
+                                <td className="px-4 py-3">{formatCurrency(summary.total_sales)}</td>
+                                <td className="px-4 py-3">{formatCurrency(summary.total_payments)}</td>
+                                <td className="px-4 py-3 text-amber-700">{formatCurrency(summary.outstanding_balance)}</td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
             </div>

@@ -3,10 +3,9 @@ import ErpLayout from '@/Layouts/ErpLayout';
 import FlashMessage from '@/Components/Erp/FlashMessage';
 import useTranslation from '@/hooks/useTranslation';
 import { formatCurrency } from '@/utils/format';
-import { resourceItems } from '@/utils/resource';
 import { Head, Link } from '@inertiajs/react';
 
-export default function Payroll({ rows, summaries, filters, employees, selectedEmployee }) {
+export default function Payroll({ rows, summaries, summary, filters, employees, selectedEmployee }) {
     const { t } = useTranslation();
     const list = Array.isArray(rows) ? rows : [];
     const summaryList = Array.isArray(summaries) ? summaries : [];
@@ -56,6 +55,18 @@ export default function Payroll({ rows, summaries, filters, employees, selectedE
                                 <td className="px-4 py-3">{t(`payroll_statuses.${row.payroll_status}`)}</td>
                             </tr>
                         ))}
+                        {summaryList.length > 0 && summary && (
+                            <tr className="bg-gray-50 font-semibold">
+                                <td className="px-4 py-3">{t('reports.totals')}</td>
+                                <td className="px-4 py-3">—</td>
+                                <td className="px-4 py-3">—</td>
+                                <td className="px-4 py-3">{formatCurrency(summary.total_earned_salary)}</td>
+                                <td className="px-4 py-3">{formatCurrency(summary.total_paid_salary)}</td>
+                                <td className="px-4 py-3">{formatCurrency(summary.remaining_balance)}</td>
+                                <td className="px-4 py-3">{formatCurrency(summary.overpaid_amount)}</td>
+                                <td className="px-4 py-3">—</td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
             </div>
@@ -81,6 +92,14 @@ export default function Payroll({ rows, summaries, filters, employees, selectedE
                                 <td className="px-4 py-3">{t(`payment_types.${r.payment_type}`)}</td>
                             </tr>
                         ))}
+                        {list.length > 0 && summary && (
+                            <tr className="bg-gray-50 font-semibold">
+                                <td className="px-4 py-3">{t('reports.totals')}</td>
+                                <td className="px-4 py-3">—</td>
+                                <td className="px-4 py-3">{formatCurrency(summary.payment_amount)}</td>
+                                <td className="px-4 py-3">—</td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
             </div>

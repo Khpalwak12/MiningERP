@@ -79,6 +79,19 @@ function FilterValueInput({
                     ))}
                 </select>
             );
+        case 'stone_type':
+            return (
+                <select
+                    className="mt-0 block w-full min-w-[180px] rounded-md border-gray-300 text-sm"
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                >
+                    <option value="">{t('actions.filter')} — {t('fields.stone_type')}</option>
+                    {resourceItems(lookups.stoneTypes).map((type) => (
+                        <option key={type.id} value={type.id}>{type.name}</option>
+                    ))}
+                </select>
+            );
         case 'employee_status':
             return (
                 <select

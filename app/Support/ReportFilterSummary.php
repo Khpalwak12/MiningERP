@@ -4,6 +4,7 @@ namespace App\Support;
 
 use App\Models\Customer;
 use App\Models\MineType;
+use App\Models\StoneType;
 use App\Models\ExpenseCategory;
 use App\Models\PersonalContact;
 
@@ -70,6 +71,7 @@ class ReportFilterSummary
             'employee' => Employee::query()->find($value)?->name ?? (string) $value,
             'category' => ExpenseCategory::query()->find($value)?->localized_name ?? (string) $value,
             'mine_type' => MineType::query()->find($value)?->localized_name ?? (string) $value,
+            'stone_type' => StoneType::query()->find($value)?->localized_name ?? (string) $value,
             'status', 'employee_status' => __('erp.status.'.$value) !== 'erp.status.'.$value
                 ? __('erp.status.'.$value)
                 : (string) $value,

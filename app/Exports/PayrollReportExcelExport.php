@@ -21,6 +21,9 @@ class PayrollReportExcelExport implements WithMultipleSheets
                 : null
         );
 
+        $payments = $this->service->payrollReport($this->filters);
+        $summary = $this->service->payrollReportSummary($summaries, $payments);
+
         $summaryRows = $summaries->map(fn ($row) => [
             $row['name'],
             $row['monthly_salary'],
@@ -32,13 +35,34 @@ class PayrollReportExcelExport implements WithMultipleSheets
             __('erp.payroll_statuses.'.$row['payroll_status']),
         ]);
 
-        $payments = $this->service->payrollReport($this->filters);
+        if ($summaries->isNotEmpty()) {
+            $summaryRows->push([
+                __('erp.reports.totals'),
+                '',
+                '',
+                $summary['total_earned_salary'],
+                $summary['total_paid_salary'],
+                $summary['remaining_balance'],
+                $summary['overpaid_amount'],
+                '',
+            ]);
+        }
+
         $paymentRows = $payments->map(fn ($row) => [
             JalaliDate::fromGregorian($row->payment_date),
             $row->employee?->name,
             $row->amount,
             $row->payment_type,
         ]);
+
+        if ($payments->isNotEmpty()) {
+            $paymentRows->push([
+                __('erp.reports.totals'),
+                '',
+                $summary['payment_amount'],
+                '',
+            ]);
+        }
 
         return [
             new ReportExcelExport([

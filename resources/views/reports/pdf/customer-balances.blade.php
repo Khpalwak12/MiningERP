@@ -19,6 +19,14 @@
             <td class="numeric">{{ number_format($row->outstanding_balance ?? 0, 2) }}</td>
         </tr>
         @endforeach
+        @if($rows->isNotEmpty())
+        <tr>
+            <th>{{ __('erp.reports.totals') }}</th>
+            <th class="numeric">{{ number_format($summary['total_sales'], 2) }}</th>
+            <th class="numeric">{{ number_format($summary['total_payments'], 2) }}</th>
+            <th class="numeric">{{ number_format($summary['outstanding_balance'], 2) }}</th>
+        </tr>
+        @endif
     </tbody>
 </table>
 @endsection

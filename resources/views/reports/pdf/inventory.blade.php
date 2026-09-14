@@ -23,6 +23,16 @@
             <td class="numeric">{{ number_format($row->quantity, 3) }}</td>
         </tr>
         @endforeach
+        @if($rows->isNotEmpty())
+        <tr>
+            <th>{{ __('erp.reports.totals') }}</th>
+            <th>—</th>
+            <th>—</th>
+            <th>—</th>
+            <th>—</th>
+            <th class="numeric">{{ number_format($summary['quantity'], 3) }}</th>
+        </tr>
+        @endif
     </tbody>
 </table>
 @endsection

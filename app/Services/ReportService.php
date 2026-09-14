@@ -34,7 +34,7 @@ class ReportService
 
     public function salesReport(array $filters = []): Collection
     {
-        $query = MarbleShipment::query()->with(['customer', 'creator', 'mineType']);
+        $query = MarbleShipment::query()->with(['customer', 'creator', 'mineType', 'stoneType']);
         $this->applyFinancialYearFilter($query, $filters);
         $this->applyDateFilters($query, $filters, 'shipment_date');
 
@@ -53,6 +53,90 @@ class ReportService
         $this->advancedFilter->apply($query, 'sales', $filters['filter_by'] ?? null, $filters['filter_value'] ?? null);
 
         return $query->orderBy('shipment_date')->get();
+    }
+
+    public function salesReportSummary(Collection $rows): array
+    {
+        return [
+            'quantity_ton' => round($rows->sum(fn ($row) => (float) ($row->quantity_ton ?? 0)), 3),
+            'total_amount' => round($rows->sum(fn ($row) => (float) ($row->total_amount ?? 0)), 2),
+        ];
+    }
+
+    public function paymentsReportSummary(Collection $rows): array
+    {
+        return ['amount' => $this->sumField($rows, 'amount')];
+    }
+
+    public function expensesReportSummary(Collection $rows): array
+    {
+        return ['amount' => $this->sumField($rows, 'amount')];
+    }
+
+    public function employeesReportSummary(Collection $rows): array
+    {
+        return ['salary' => $this->sumField($rows, 'salary')];
+    }
+
+    public function inventoryReportSummary(Collection $rows): array
+    {
+        return [
+            'quantity_in' => round($rows->where('movement_type', 'in')->sum(fn ($row) => (float) $row->quantity), 3),
+            'quantity_out' => round($rows->where('movement_type', 'out')->sum(fn ($row) => (float) $row->quantity), 3),
+            'quantity' => round($rows->sum(fn ($row) => (float) $row->quantity), 3),
+        ];
+    }
+
+    public function dailyProductionReportSummary(Collection $rows): array
+    {
+        return ['quantity_ton' => round($rows->sum(fn ($row) => (float) ($row->quantity_ton ?? 0)), 3)];
+    }
+
+    public function monthlyProductionReportSummary(Collection $rows): array
+    {
+        return [
+            'shipment_count' => (int) $rows->sum(fn ($row) => (int) data_get($row, 'shipment_count', 0)),
+            'total_tons' => round($rows->sum(fn ($row) => (float) data_get($row, 'total_tons', 0)), 3),
+            'total_sales' => round($rows->sum(fn ($row) => (float) data_get($row, 'total_sales', 0)), 2),
+        ];
+    }
+
+    public function customerBalancesReportSummary(Collection $rows): array
+    {
+        return [
+            'total_sales' => $this->sumField($rows, 'total_sales'),
+            'total_payments' => $this->sumField($rows, 'total_payments'),
+            'outstanding_balance' => $this->sumField($rows, 'outstanding_balance'),
+        ];
+    }
+
+    public function contractorProductionReportSummary(Collection $rows): array
+    {
+        return [
+            'quantity_ton' => round($rows->sum(fn ($row) => (float) ($row->quantity_ton ?? 0)), 3),
+            'total_royalty' => $this->sumField($rows, 'total_royalty'),
+        ];
+    }
+
+    public function contractorPaymentsReportSummary(Collection $rows): array
+    {
+        return ['amount' => $this->sumField($rows, 'amount')];
+    }
+
+    public function payrollReportSummary(Collection $summaries, Collection $payments): array
+    {
+        return [
+            'total_earned_salary' => round($summaries->sum(fn ($row) => (float) data_get($row, 'total_earned_salary', 0)), 2),
+            'total_paid_salary' => round($summaries->sum(fn ($row) => (float) data_get($row, 'total_paid_salary', 0)), 2),
+            'remaining_balance' => round($summaries->sum(fn ($row) => (float) data_get($row, 'remaining_balance', 0)), 2),
+            'overpaid_amount' => round($summaries->sum(fn ($row) => (float) data_get($row, 'overpaid_amount', 0)), 2),
+            'payment_amount' => $this->sumField($payments, 'amount'),
+        ];
+    }
+
+    private function sumField(Collection $rows, string $field, int $precision = 2): float
+    {
+        return round($rows->sum(fn ($row) => (float) (data_get($row, $field) ?? 0)), $precision);
     }
 
     public function paymentsReport(array $filters = []): Collection

@@ -19,6 +19,14 @@
             <td>{{ $row->notes ?? '—' }}</td>
         </tr>
         @endforeach
+        @if($rows->isNotEmpty())
+        <tr>
+            <th>{{ __('erp.reports.totals') }}</th>
+            <th class="numeric">{{ number_format($summary['quantity_ton'], 3) }}</th>
+            <th>—</th>
+            <th>—</th>
+        </tr>
+        @endif
     </tbody>
 </table>
 @endsection

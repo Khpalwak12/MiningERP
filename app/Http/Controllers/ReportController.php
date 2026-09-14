@@ -18,8 +18,10 @@ use App\Http\Resources\PersonalContactResource;
 use App\Http\Resources\PersonalHomeExpenseResource;
 use App\Http\Resources\SankariStoneSaleResource;
 use App\Http\Resources\MineTypeResource;
+use App\Http\Resources\StoneTypeResource;
 use App\Models\Customer;
 use App\Models\MineType;
+use App\Models\StoneType;
 use App\Models\Employee;
 use App\Models\ExpenseCategory;
 use App\Models\PersonalContact;
@@ -65,6 +67,7 @@ class ReportController extends Controller
             $this->filterLookups($filters),
             [
                 'rows' => MarbleShipmentResource::collection($data),
+                'summary' => $this->service->salesReportSummary($data),
                 'filters' => $filters,
             ]
         ));
@@ -79,6 +82,7 @@ class ReportController extends Controller
             $this->filterLookups($filters),
             [
                 'rows' => CustomerPaymentResource::collection($data),
+                'summary' => $this->service->paymentsReportSummary($data),
                 'filters' => $filters,
             ]
         ));
@@ -105,6 +109,7 @@ class ReportController extends Controller
             $this->filterLookups($filters),
             [
                 'rows' => ExpenseResource::collection($data),
+                'summary' => $this->service->expensesReportSummary($data),
                 'filters' => $filters,
             ]
         ));
@@ -119,6 +124,7 @@ class ReportController extends Controller
             $this->filterLookups($filters),
             [
                 'rows' => EmployeeResource::collection($data),
+                'summary' => $this->service->employeesReportSummary($data),
                 'filters' => $filters,
             ]
         ));
@@ -128,12 +134,14 @@ class ReportController extends Controller
     {
         $filters = $this->reportFilters($request);
         $data = $this->service->payrollReport($filters);
+        $summaries = $this->service->employeePayrollSummaries($this->employeeIdFromFilters($filters));
 
         return Inertia::render('Reports/Payroll', array_merge(
             $this->filterLookups($filters),
             [
                 'rows' => $data,
-                'summaries' => $this->service->employeePayrollSummaries($this->employeeIdFromFilters($filters)),
+                'summaries' => $summaries,
+                'summary' => $this->service->payrollReportSummary($summaries, $data),
                 'filters' => $filters,
             ]
         ));
@@ -146,6 +154,7 @@ class ReportController extends Controller
 
         return Inertia::render('Reports/Inventory', [
             'rows' => InventoryMovementResource::collection($data),
+            'summary' => $this->service->inventoryReportSummary($data),
             'filters' => $filters,
         ]);
     }
@@ -212,6 +221,7 @@ class ReportController extends Controller
 
         return Inertia::render('Reports/DailyProduction', [
             'rows' => MarbleShipmentResource::collection($data),
+            'summary' => $this->service->dailyProductionReportSummary($data),
             'filters' => $filters,
         ]);
     }
@@ -223,6 +233,7 @@ class ReportController extends Controller
 
         return Inertia::render('Reports/MonthlyProduction', [
             'rows' => $data,
+            'summary' => $this->service->monthlyProductionReportSummary($data),
             'filters' => $filters,
         ]);
     }
@@ -234,6 +245,7 @@ class ReportController extends Controller
 
         return Inertia::render('Reports/CustomerBalances', [
             'customers' => CustomerResource::collection($data),
+            'summary' => $this->service->customerBalancesReportSummary($data),
             'filters' => $filters,
         ]);
     }
@@ -254,9 +266,11 @@ class ReportController extends Controller
     public function contractorProduction(Request $request): Response
     {
         $filters = $this->reportFilters($request);
+        $data = $this->service->contractorProductionReport($filters);
 
         return Inertia::render('Reports/ContractorProduction', [
-            'rows' => ContractorProductionResource::collection($this->service->contractorProductionReport($filters)),
+            'rows' => ContractorProductionResource::collection($data),
+            'summary' => $this->service->contractorProductionReportSummary($data),
             'filters' => $filters,
         ]);
     }
@@ -264,9 +278,11 @@ class ReportController extends Controller
     public function contractorPayments(Request $request): Response
     {
         $filters = $this->reportFilters($request);
+        $data = $this->service->contractorPaymentsReport($filters);
 
         return Inertia::render('Reports/ContractorPayments', [
-            'rows' => ContractorPaymentResource::collection($this->service->contractorPaymentsReport($filters)),
+            'rows' => ContractorPaymentResource::collection($data),
+            'summary' => $this->service->contractorPaymentsReportSummary($data),
             'filters' => $filters,
         ]);
     }
@@ -339,8 +355,22 @@ class ReportController extends Controller
         $filters = $this->exportFilters($request, $type);
 
         [$view, $data] = match ($type) {
-            'sales' => ['reports.pdf.sales', ['rows' => $this->service->salesReport($filters)]],
-            'payments' => ['reports.pdf.payments', ['rows' => $this->service->paymentsReport($filters)]],
+            'sales' => (function () use ($filters) {
+                $rows = $this->service->salesReport($filters);
+
+                return ['reports.pdf.sales', [
+                    'rows' => $rows,
+                    'summary' => $this->service->salesReportSummary($rows),
+                ]];
+            })(),
+            'payments' => (function () use ($filters) {
+                $rows = $this->service->paymentsReport($filters);
+
+                return ['reports.pdf.payments', [
+                    'rows' => $rows,
+                    'summary' => $this->service->paymentsReportSummary($rows),
+                ]];
+            })(),
             'sankari' => (function () use ($filters) {
                 $rows = $this->service->sankariReport($filters);
 
@@ -349,13 +379,40 @@ class ReportController extends Controller
                     'summary' => $this->service->sankariReportSummary($rows),
                 ]];
             })(),
-            'expenses' => ['reports.pdf.expenses', ['rows' => $this->service->expensesReport($filters)]],
-            'employees' => ['reports.pdf.employees', ['rows' => $this->service->employeesReport($filters)]],
-            'payroll' => ['reports.pdf.payroll', [
-                'rows' => $this->service->payrollReport($filters),
-                'summaries' => $this->service->employeePayrollSummaries($this->employeeIdFromFilters($filters)),
-            ]],
-            'inventory' => ['reports.pdf.inventory', ['rows' => $this->service->inventoryReport($filters)]],
+            'expenses' => (function () use ($filters) {
+                $rows = $this->service->expensesReport($filters);
+
+                return ['reports.pdf.expenses', [
+                    'rows' => $rows,
+                    'summary' => $this->service->expensesReportSummary($rows),
+                ]];
+            })(),
+            'employees' => (function () use ($filters) {
+                $rows = $this->service->employeesReport($filters);
+
+                return ['reports.pdf.employees', [
+                    'rows' => $rows,
+                    'summary' => $this->service->employeesReportSummary($rows),
+                ]];
+            })(),
+            'payroll' => (function () use ($filters) {
+                $rows = $this->service->payrollReport($filters);
+                $summaries = $this->service->employeePayrollSummaries($this->employeeIdFromFilters($filters));
+
+                return ['reports.pdf.payroll', [
+                    'rows' => $rows,
+                    'summaries' => $summaries,
+                    'summary' => $this->service->payrollReportSummary($summaries, $rows),
+                ]];
+            })(),
+            'inventory' => (function () use ($filters) {
+                $rows = $this->service->inventoryReport($filters);
+
+                return ['reports.pdf.inventory', [
+                    'rows' => $rows,
+                    'summary' => $this->service->inventoryReportSummary($rows),
+                ]];
+            })(),
             'mine-assets' => ['reports.pdf.mine-assets', ['rows' => $this->service->mineAssetsReport($filters)]],
             'personal-ledger' => ['reports.pdf.personal-ledger', array_merge(
                 $this->service->personalLedgerReport($filters),
@@ -367,9 +424,30 @@ class ReportController extends Controller
             'machinery' => ['reports.pdf.machinery', [
                 'rows' => $this->service->machineryReport($filters),
             ]],
-            'daily-production' => ['reports.pdf.daily-production', ['rows' => $this->service->dailyProductionReport($filters)]],
-            'monthly-production' => ['reports.pdf.monthly-production', ['rows' => $this->service->monthlyProductionReport($filters)]],
-            'customer-balances' => ['reports.pdf.customer-balances', ['rows' => $this->service->customerBalancesReport($filters)]],
+            'daily-production' => (function () use ($filters) {
+                $rows = $this->service->dailyProductionReport($filters);
+
+                return ['reports.pdf.daily-production', [
+                    'rows' => $rows,
+                    'summary' => $this->service->dailyProductionReportSummary($rows),
+                ]];
+            })(),
+            'monthly-production' => (function () use ($filters) {
+                $rows = $this->service->monthlyProductionReport($filters);
+
+                return ['reports.pdf.monthly-production', [
+                    'rows' => $rows,
+                    'summary' => $this->service->monthlyProductionReportSummary($rows),
+                ]];
+            })(),
+            'customer-balances' => (function () use ($filters) {
+                $rows = $this->service->customerBalancesReport($filters);
+
+                return ['reports.pdf.customer-balances', [
+                    'rows' => $rows,
+                    'summary' => $this->service->customerBalancesReportSummary($rows),
+                ]];
+            })(),
             'profit-loss' => ['reports.pdf.profit-loss', [
                 'report' => $this->service->profitLossReport($filters),
                 'matchesFilter' => $this->service->profitLossMatchesFilter(
@@ -377,12 +455,22 @@ class ReportController extends Controller
                     $filters
                 ),
             ]],
-            'contractor-production' => ['reports.pdf.contractor-production', [
-                'rows' => $this->service->contractorProductionReport($filters),
-            ]],
-            'contractor-payments' => ['reports.pdf.contractor-payments', [
-                'rows' => $this->service->contractorPaymentsReport($filters),
-            ]],
+            'contractor-production' => (function () use ($filters) {
+                $rows = $this->service->contractorProductionReport($filters);
+
+                return ['reports.pdf.contractor-production', [
+                    'rows' => $rows,
+                    'summary' => $this->service->contractorProductionReportSummary($rows),
+                ]];
+            })(),
+            'contractor-payments' => (function () use ($filters) {
+                $rows = $this->service->contractorPaymentsReport($filters);
+
+                return ['reports.pdf.contractor-payments', [
+                    'rows' => $rows,
+                    'summary' => $this->service->contractorPaymentsReportSummary($rows),
+                ]];
+            })(),
             'contractor-expenses' => ['reports.pdf.contractor-expenses', [
                 'rows' => $this->service->contractorExpensesReport($filters),
             ]],
@@ -446,6 +534,7 @@ class ReportController extends Controller
             ),
             'expenseCategories' => ExpenseCategoryResource::collection(ExpenseCategory::listForSelect()),
             'mineTypes' => MineTypeResource::collection(MineType::listForSelect()),
+            'stoneTypes' => StoneTypeResource::collection(StoneType::listForSelect()),
             'selectedCustomer' => $selectedCustomer ? new CustomerResource($selectedCustomer) : null,
             'selectedEmployee' => $selectedEmployee ? new EmployeeResource($selectedEmployee) : null,
         ];
@@ -469,20 +558,36 @@ class ReportController extends Controller
     private function salesExportData(array $filters): array
     {
         $data = $this->service->salesReport($filters);
+        $summary = $this->service->salesReportSummary($data);
         $rows = $data->map(fn ($row) => [
             JalaliDate::fromGregorian($row->shipment_date),
             $row->customer?->name,
             $row->mineType?->localized_name ?? '—',
+            $row->stoneType?->localized_name ?? '—',
             $row->quantity_ton ?? '—',
             $row->price_per_ton ?? '—',
             $row->total_amount ?? '—',
             __('erp.shipments.statuses.'.$row->status),
         ]);
 
+        if ($data->isNotEmpty()) {
+            $rows->push([
+                __('erp.reports.totals'),
+                '',
+                '',
+                '',
+                $summary['quantity_ton'],
+                '',
+                $summary['total_amount'],
+                '',
+            ]);
+        }
+
         return [[
             __('erp.fields.date'),
             __('erp.fields.customer'),
             __('erp.fields.mine_type'),
+            __('erp.fields.stone_type'),
             __('erp.fields.quantity_ton'),
             __('erp.fields.price_per_ton'),
             __('erp.fields.total_amount'),
@@ -502,7 +607,7 @@ class ReportController extends Controller
         ]);
 
         $rows->push([
-            __('erp.fields.total_amount'),
+            __('erp.reports.totals'),
             '',
             $data->sum('amount'),
             '',
@@ -565,7 +670,7 @@ class ReportController extends Controller
         ]);
 
         $rows->push([
-            __('erp.fields.total_amount'),
+            __('erp.reports.totals'),
             '',
             '',
             '',
@@ -584,6 +689,7 @@ class ReportController extends Controller
     private function employeesExportData(array $filters): array
     {
         $data = $this->service->employeesReport($filters);
+        $summary = $this->service->employeesReportSummary($data);
         $rows = $data->map(fn ($row) => [
             $row->name,
             $row->father_name ?? '—',
@@ -593,6 +699,18 @@ class ReportController extends Controller
             $row->salary,
             JalaliDate::fromGregorian($row->joining_date),
         ]);
+
+        if ($data->isNotEmpty()) {
+            $rows->push([
+                __('erp.reports.totals'),
+                '',
+                '',
+                '',
+                '',
+                $summary['salary'],
+                '',
+            ]);
+        }
 
         return [[
             __('erp.report_filters.employee_name'),
@@ -607,7 +725,9 @@ class ReportController extends Controller
 
     private function inventoryExportData(array $filters): array
     {
-        $rows = $this->service->inventoryReport($filters)->map(fn ($row) => [
+        $data = $this->service->inventoryReport($filters);
+        $summary = $this->service->inventoryReportSummary($data);
+        $rows = $data->map(fn ($row) => [
             JalaliDate::fromGregorian($row->movement_date),
             $row->inventoryItem?->name,
             $row->inventoryItem?->sku,
@@ -615,6 +735,17 @@ class ReportController extends Controller
             __('erp.movement_types.'.$row->movement_type),
             $row->quantity,
         ]);
+
+        if ($data->isNotEmpty()) {
+            $rows->push([
+                __('erp.reports.totals'),
+                '',
+                '',
+                '',
+                '',
+                $summary['quantity'],
+            ]);
+        }
 
         return [[
             __('erp.fields.date'),
@@ -782,12 +913,22 @@ class ReportController extends Controller
     private function dailyProductionExportData(array $filters): array
     {
         $data = $this->service->dailyProductionReport($filters);
+        $summary = $this->service->dailyProductionReportSummary($data);
         $rows = $data->map(fn ($row) => [
             JalaliDate::fromGregorian($row->shipment_date),
             $row->quantity_ton ?? '—',
             $row->creator?->name ?? '—',
             $row->notes ?? '—',
         ]);
+
+        if ($data->isNotEmpty()) {
+            $rows->push([
+                __('erp.reports.totals'),
+                $summary['quantity_ton'],
+                '',
+                '',
+            ]);
+        }
 
         return [[
             __('erp.fields.date'),
@@ -800,12 +941,22 @@ class ReportController extends Controller
     private function monthlyProductionExportData(array $filters): array
     {
         $data = $this->service->monthlyProductionReport($filters);
+        $summary = $this->service->monthlyProductionReportSummary($data);
         $rows = $data->map(fn ($row) => [
             $row['month'],
             $row['shipment_count'],
             $row['total_tons'],
             $row['total_sales'],
         ]);
+
+        if ($data->isNotEmpty()) {
+            $rows->push([
+                __('erp.reports.totals'),
+                $summary['shipment_count'],
+                $summary['total_tons'],
+                $summary['total_sales'],
+            ]);
+        }
 
         return [[
             __('erp.report_filters.month'),
@@ -826,7 +977,7 @@ class ReportController extends Controller
         ]);
 
         $rows->push([
-            __('erp.fields.total_amount'),
+            __('erp.reports.totals'),
             $data->sum(fn ($row) => $row->total_sales ?? 0),
             $data->sum(fn ($row) => $row->total_payments ?? 0),
             $data->sum(fn ($row) => $row->outstanding_balance ?? 0),
@@ -873,7 +1024,7 @@ class ReportController extends Controller
         ]);
 
         $rows->push([
-            __('erp.fields.total_amount'),
+            __('erp.reports.totals'),
             $data->sum('quantity_ton'),
             '',
             $data->sum('total_royalty'),
@@ -898,7 +1049,7 @@ class ReportController extends Controller
         ]);
 
         $rows->push([
-            __('erp.fields.total_amount'),
+            __('erp.reports.totals'),
             $data->sum('amount'),
             '',
             '',

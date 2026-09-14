@@ -21,6 +21,15 @@
             <td>{{ $row->received_by }}</td>
         </tr>
         @endforeach
+        @if($rows->isNotEmpty())
+        <tr>
+            <th>{{ __('erp.reports.totals') }}</th>
+            <th>—</th>
+            <th class="numeric">{{ number_format($summary['amount'], 2) }}</th>
+            <th>—</th>
+            <th>—</th>
+        </tr>
+        @endif
     </tbody>
 </table>
 @endsection

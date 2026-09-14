@@ -2,10 +2,11 @@ import ReportFilterForm from '@/Components/Erp/ReportFilterForm';
 import ErpLayout from '@/Layouts/ErpLayout';
 import FlashMessage from '@/Components/Erp/FlashMessage';
 import useTranslation from '@/hooks/useTranslation';
+import { formatNumber } from '@/utils/format';
 import { resourceItems } from '@/utils/resource';
 import { Head, Link } from '@inertiajs/react';
 
-export default function Inventory({ rows, filters }) {
+export default function Inventory({ rows, summary, filters }) {
     const { t } = useTranslation();
     const list = resourceItems(rows);
 
@@ -49,6 +50,16 @@ export default function Inventory({ rows, filters }) {
                                 <td className="px-4 py-3">{r.quantity}</td>
                             </tr>
                         ))}
+                        {list.length > 0 && summary && (
+                            <tr className="bg-gray-50 font-semibold">
+                                <td className="px-4 py-3">{t('reports.totals')}</td>
+                                <td className="px-4 py-3">—</td>
+                                <td className="px-4 py-3">—</td>
+                                <td className="px-4 py-3">—</td>
+                                <td className="px-4 py-3">—</td>
+                                <td className="px-4 py-3">{formatNumber(summary.quantity, 3)}</td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
             </div>

@@ -25,6 +25,17 @@
             <td>{{ \App\Support\JalaliDate::fromGregorian($row->joining_date) }}</td>
         </tr>
         @endforeach
+        @if($rows->isNotEmpty())
+        <tr>
+            <th>{{ __('erp.reports.totals') }}</th>
+            <th>—</th>
+            <th>—</th>
+            <th>—</th>
+            <th>—</th>
+            <th class="numeric">{{ number_format($summary['salary'], 2) }}</th>
+            <th>—</th>
+        </tr>
+        @endif
     </tbody>
 </table>
 @endsection

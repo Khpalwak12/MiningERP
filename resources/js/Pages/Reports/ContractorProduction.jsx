@@ -6,7 +6,7 @@ import { formatCurrency, formatNumber } from '@/utils/format';
 import { resourceItems } from '@/utils/resource';
 import { Head, Link } from '@inertiajs/react';
 
-export default function ContractorProduction({ rows, filters }) {
+export default function ContractorProduction({ rows, summary, filters }) {
     const { t } = useTranslation();
     const list = resourceItems(rows);
 
@@ -30,6 +30,7 @@ export default function ContractorProduction({ rows, filters }) {
                         </tr>
                     </thead>
                     <tbody className="divide-y">
+                        {list.length === 0 && <tr><td colSpan={4} className="px-4 py-6 text-center text-gray-500">{t('messages.no_records')}</td></tr>}
                         {list.map((row) => (
                             <tr key={row.id}>
                                 <td className="px-4 py-3">{row.production_date_shamsi}</td>
@@ -38,6 +39,14 @@ export default function ContractorProduction({ rows, filters }) {
                                 <td className="px-4 py-3">{formatCurrency(row.total_royalty)}</td>
                             </tr>
                         ))}
+                        {list.length > 0 && summary && (
+                            <tr className="bg-gray-50 font-semibold">
+                                <td className="px-4 py-3">{t('reports.totals')}</td>
+                                <td className="px-4 py-3">{formatNumber(summary.quantity_ton, 3)}</td>
+                                <td className="px-4 py-3">—</td>
+                                <td className="px-4 py-3">{formatCurrency(summary.total_royalty)}</td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
             </div>

@@ -19,6 +19,14 @@
             <td class="numeric">{{ number_format($row['total_sales'], 2) }}</td>
         </tr>
         @endforeach
+        @if(count($rows) > 0)
+        <tr>
+            <th>{{ __('erp.reports.totals') }}</th>
+            <th class="numeric">{{ $summary['shipment_count'] }}</th>
+            <th class="numeric">{{ number_format($summary['total_tons'], 3) }}</th>
+            <th class="numeric">{{ number_format($summary['total_sales'], 2) }}</th>
+        </tr>
+        @endif
     </tbody>
 </table>
 @endsection

@@ -6,7 +6,7 @@ import { formatCurrency } from '@/utils/format';
 import { resourceItems } from '@/utils/resource';
 import { Head, Link } from '@inertiajs/react';
 
-export default function Expenses({ rows, filters, expenseCategories }) {
+export default function Expenses({ rows, summary, filters, expenseCategories }) {
     const { t } = useTranslation();
     const list = resourceItems(rows);
 
@@ -51,6 +51,15 @@ export default function Expenses({ rows, filters, expenseCategories }) {
                                 <td className="px-4 py-3">{formatCurrency(r.amount)}</td>
                             </tr>
                         ))}
+                        {list.length > 0 && summary && (
+                            <tr className="bg-gray-50 font-semibold">
+                                <td className="px-4 py-3">{t('reports.totals')}</td>
+                                <td className="px-4 py-3">—</td>
+                                <td className="px-4 py-3">—</td>
+                                <td className="px-4 py-3">—</td>
+                                <td className="px-4 py-3">{formatCurrency(summary.amount)}</td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
             </div>

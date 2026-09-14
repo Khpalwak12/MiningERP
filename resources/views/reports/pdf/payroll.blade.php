@@ -28,6 +28,18 @@
             <td>{{ __('erp.payroll_statuses.'.$row['payroll_status']) }}</td>
         </tr>
         @endforeach
+        @if(count($summaries) > 0)
+        <tr>
+            <th>{{ __('erp.reports.totals') }}</th>
+            <th>—</th>
+            <th>—</th>
+            <th class="numeric">{{ number_format($summary['total_earned_salary'], 2) }}</th>
+            <th class="numeric">{{ number_format($summary['total_paid_salary'], 2) }}</th>
+            <th class="numeric">{{ number_format($summary['remaining_balance'], 2) }}</th>
+            <th class="numeric">{{ number_format($summary['overpaid_amount'], 2) }}</th>
+            <th>—</th>
+        </tr>
+        @endif
     </tbody>
 </table>
 
@@ -50,6 +62,14 @@
             <td>{{ $row->payment_type }}</td>
         </tr>
         @endforeach
+        @if($rows->isNotEmpty())
+        <tr>
+            <th>{{ __('erp.reports.totals') }}</th>
+            <th>—</th>
+            <th class="numeric">{{ number_format($summary['payment_amount'], 2) }}</th>
+            <th>—</th>
+        </tr>
+        @endif
     </tbody>
 </table>
 @endsection
