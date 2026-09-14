@@ -21,11 +21,26 @@ class EmployeeSalaryAccrualServiceTest extends TestCase
         $this->service = app(EmployeeSalaryAccrualService::class);
     }
 
-    public function test_months_worked_matches_shamsi_month_difference(): void
+    public function test_months_worked_uses_days_divided_by_thirty(): void
     {
-        $this->assertSame(4, JalaliDate::monthsWorkedSince('1405/01/01', '1405/05/01'));
-        $this->assertSame(5, JalaliDate::monthsWorkedSince('1405/01/01', '1405/06/01'));
-        $this->assertSame(0, JalaliDate::monthsWorkedSince('1405/05/15', '1405/05/01'));
+        // 1405/03/01 → 1405/04/15 = 45 days = 1.5 months
+        $this->assertSame(1.5, JalaliDate::monthsWorkedSince('1405/03/01', '1405/04/15'));
+        $this->assertSame(0.0, JalaliDate::monthsWorkedSince('1405/05/15', '1405/05/01'));
+    }
+
+    public function test_partial_month_salary_for_one_and_half_months(): void
+    {
+        $employee = Employee::factory()->create([
+            'salary' => 20000,
+            'joining_date' => JalaliDate::toGregorian('1405/03/01'),
+            'end_date' => JalaliDate::toGregorian('1405/04/15'),
+        ]);
+
+        $summary = $this->service->summary($employee, totalPaid: 0);
+
+        $this->assertSame(1.5, $summary['months_worked']);
+        $this->assertSame(30000.0, $summary['total_earned_salary']);
+        $this->assertSame(30000.0, $summary['remaining_balance']);
     }
 
     public function test_accrued_salary_is_months_worked_times_monthly_salary(): void
@@ -37,38 +52,40 @@ class EmployeeSalaryAccrualServiceTest extends TestCase
 
         $asOf = JalaliDate::toGregorian('1405/05/01');
         $summary = $this->service->summary($employee, $asOf, 0);
+        $months = JalaliDate::monthsWorkedSince('1405/01/01', '1405/05/01');
 
-        $this->assertSame(4, $summary['months_worked']);
-        $this->assertSame(80000.0, $summary['total_earned_salary']);
-        $this->assertSame(80000.0, $summary['remaining_balance']);
+        $this->assertSame($months, $summary['months_worked']);
+        $this->assertEqualsWithDelta(round($months * 20000, 2), $summary['total_earned_salary'], 0.01);
         $this->assertSame('credit', $summary['payroll_status']);
     }
 
-    public function test_accrued_salary_increases_when_shamsi_month_advances(): void
+    public function test_accrued_salary_increases_when_end_date_advances(): void
     {
         $employee = Employee::factory()->create([
             'salary' => 20000,
             'joining_date' => JalaliDate::toGregorian('1405/01/01'),
         ]);
 
-        $summary = $this->service->summary($employee, JalaliDate::toGregorian('1405/06/01'), 0);
+        $earlier = $this->service->summary($employee, JalaliDate::toGregorian('1405/04/15'), 0);
+        $later = $this->service->summary($employee, JalaliDate::toGregorian('1405/06/01'), 0);
 
-        $this->assertSame(5, $summary['months_worked']);
-        $this->assertSame(100000.0, $summary['total_earned_salary']);
+        $this->assertGreaterThan($earlier['months_worked'], $later['months_worked']);
+        $this->assertGreaterThan($earlier['total_earned_salary'], $later['total_earned_salary']);
     }
 
     public function test_partial_payments_reduce_remaining_balance(): void
     {
         $employee = Employee::factory()->create([
             'salary' => 20000,
-            'joining_date' => JalaliDate::toGregorian('1405/01/01'),
+            'joining_date' => JalaliDate::toGregorian('1405/03/01'),
+            'end_date' => JalaliDate::toGregorian('1405/04/15'),
         ]);
 
-        $summary = $this->service->summary($employee, JalaliDate::toGregorian('1405/05/01'), 23000);
+        $summary = $this->service->summary($employee, totalPaid: 10000);
 
-        $this->assertSame(80000.0, $summary['total_earned_salary']);
-        $this->assertSame(23000.0, $summary['total_paid_salary']);
-        $this->assertSame(57000.0, $summary['remaining_balance']);
+        $this->assertSame(30000.0, $summary['total_earned_salary']);
+        $this->assertSame(10000.0, $summary['total_paid_salary']);
+        $this->assertSame(20000.0, $summary['remaining_balance']);
         $this->assertSame(0.0, $summary['overpaid_amount']);
         $this->assertSame('credit', $summary['payroll_status']);
     }
@@ -77,13 +94,14 @@ class EmployeeSalaryAccrualServiceTest extends TestCase
     {
         $employee = Employee::factory()->create([
             'salary' => 20000,
-            'joining_date' => JalaliDate::toGregorian('1405/01/01'),
+            'joining_date' => JalaliDate::toGregorian('1405/03/01'),
+            'end_date' => JalaliDate::toGregorian('1405/04/15'),
         ]);
 
-        $summary = $this->service->summary($employee, JalaliDate::toGregorian('1405/05/01'), 90000);
+        $summary = $this->service->summary($employee, totalPaid: 35000);
 
         $this->assertSame(0.0, $summary['remaining_balance']);
-        $this->assertSame(10000.0, $summary['overpaid_amount']);
+        $this->assertSame(5000.0, $summary['overpaid_amount']);
         $this->assertSame('overpaid', $summary['payroll_status']);
     }
 
@@ -91,14 +109,56 @@ class EmployeeSalaryAccrualServiceTest extends TestCase
     {
         $employee = Employee::factory()->create([
             'salary' => 20000,
-            'joining_date' => JalaliDate::toGregorian('1405/01/01'),
+            'joining_date' => JalaliDate::toGregorian('1405/03/01'),
+            'end_date' => JalaliDate::toGregorian('1405/04/15'),
         ]);
 
-        $summary = $this->service->summary($employee, JalaliDate::toGregorian('1405/05/01'), 80000);
+        $summary = $this->service->summary($employee, totalPaid: 30000);
 
         $this->assertSame(0.0, $summary['remaining_balance']);
         $this->assertSame(0.0, $summary['overpaid_amount']);
         $this->assertSame('settled', $summary['payroll_status']);
+    }
+
+    public function test_uses_employee_end_date_instead_of_today(): void
+    {
+        $employee = Employee::factory()->create([
+            'salary' => 20000,
+            'joining_date' => JalaliDate::toGregorian('1405/03/01'),
+            'end_date' => JalaliDate::toGregorian('1405/04/15'),
+        ]);
+
+        Carbon::setTestNow(JalaliDate::toGregorian('1405/08/01'));
+
+        $summary = $this->service->summary($employee, totalPaid: 0);
+
+        $this->assertSame(1.5, $summary['months_worked']);
+        $this->assertSame(30000.0, $summary['total_earned_salary']);
+        $this->assertTrue($summary['has_custom_end_date']);
+        $this->assertSame('1405/04/15', $summary['end_date_shamsi']);
+    }
+
+    public function test_absence_days_are_deducted_from_earned_salary(): void
+    {
+        $employee = Employee::factory()->create([
+            'salary' => 30000,
+            'joining_date' => JalaliDate::toGregorian('1405/03/01'),
+            'end_date' => JalaliDate::toGregorian('1405/04/15'),
+        ]);
+
+        $employee->absences()->create([
+            'absence_date' => JalaliDate::toGregorian('1405/03/10'),
+            'days' => 3,
+        ]);
+
+        $summary = $this->service->summary($employee, totalPaid: 0);
+
+        // 1.5 months * 30000 = 45000; daily = 1000; 3 days = 3000
+        $this->assertSame(3, $summary['absence_days']);
+        $this->assertSame(3000.0, $summary['absence_deduction']);
+        $this->assertSame(45000.0, $summary['gross_earned_salary']);
+        $this->assertSame(42000.0, $summary['total_earned_salary']);
+        $this->assertSame(42000.0, $summary['remaining_balance']);
     }
 
     protected function tearDown(): void

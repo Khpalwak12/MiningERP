@@ -21,6 +21,14 @@ class UpdateEmployeeRequest extends FormRequest
             $this->convertShamsiDates(['joining_date']);
         }
 
+        if ($this->has('end_date')) {
+            if ($this->filled('end_date')) {
+                $this->convertShamsiDates(['end_date']);
+            } else {
+                $this->merge(['end_date' => null]);
+            }
+        }
+
         if ($this->has('is_shared_with_contractor')) {
             $this->normalizeSharedContractorFields();
         }
@@ -35,6 +43,7 @@ class UpdateEmployeeRequest extends FormRequest
             'position' => ['nullable', 'string', 'max:255'],
             'salary' => ['sometimes', 'required', 'numeric', 'min:0'],
             'joining_date' => ['nullable', 'date'],
+            'end_date' => ['nullable', 'date'],
             'status' => ['sometimes', 'required', Rule::in(['active', 'inactive'])],
             'is_shared_with_contractor' => ['sometimes', 'boolean'],
             'contractor_salary_share_percent' => ['nullable', 'required_if:is_shared_with_contractor,1,true', 'numeric', 'min:0.01', 'max:100'],

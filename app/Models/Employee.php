@@ -11,7 +11,7 @@ class Employee extends AuditableModel
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'name', 'father_name', 'phone', 'position', 'salary', 'joining_date', 'status',
+        'name', 'father_name', 'phone', 'position', 'salary', 'joining_date', 'end_date', 'status',
         'is_shared_with_contractor', 'contractor_salary_share_percent',
     ];
 
@@ -20,6 +20,7 @@ class Employee extends AuditableModel
         return [
             'salary' => 'decimal:2',
             'joining_date' => 'date',
+            'end_date' => 'date',
             'is_shared_with_contractor' => 'boolean',
             'contractor_salary_share_percent' => 'decimal:2',
         ];
@@ -28,6 +29,11 @@ class Employee extends AuditableModel
     public function contractorSalaryCharges(): HasMany
     {
         return $this->hasMany(ContractorSalaryCharge::class);
+    }
+
+    public function absences(): HasMany
+    {
+        return $this->hasMany(EmployeeAbsence::class);
     }
 
     public function contractorSalaryShareForAmount(float $paymentAmount): float

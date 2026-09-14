@@ -21,12 +21,18 @@ class StoreEmployeeRequest extends FormRequest
             $this->convertShamsiDates(['joining_date']);
         }
 
+        if ($this->filled('end_date')) {
+            $this->convertShamsiDates(['end_date']);
+        } else {
+            $this->merge(['end_date' => null]);
+        }
+
         $this->normalizeSharedContractorFields();
     }
 
     public function rules(): array
     {
-        return array_merge($this->shamsiDateRules(['joining_date'], false), [
+        return array_merge($this->shamsiDateRules(['joining_date', 'end_date'], false), [
             'name' => ['required', 'string', 'max:255'],
             'father_name' => ['nullable', 'string', 'max:255'],
             'phone' => ['nullable', 'string', 'max:50'],

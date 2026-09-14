@@ -15,7 +15,7 @@ export default function Create() {
     const { t } = useTranslation();
     const today = useTodayShamsi();
     const { data, setData, post, processing, errors } = useForm({
-        name: '', father_name: '', phone: '', position: '', salary: '', joining_date: today, status: 'active',
+        name: '', father_name: '', phone: '', position: '', salary: '', joining_date: today, end_date: '', status: 'active',
         is_shared_with_contractor: false, contractor_salary_share_percent: 50,
     });
 
@@ -57,6 +57,10 @@ export default function Create() {
                     )}
                 </div>
                 <ShamsiDateInput label={t('fields.joining_date')} value={data.joining_date} onChange={(v) => setData('joining_date', v)} error={errors.joining_date} />
+                <div>
+                    <ShamsiDateInput label={t('fields.employee_end_date')} value={data.end_date} onChange={(v) => setData('end_date', v)} error={errors.end_date} />
+                    <p className="mt-1 text-sm text-gray-500">{t('employees.end_date_hint')}</p>
+                </div>
                 <div>
                     <InputLabel value={t('fields.status')} />
                     <select className="mt-1 block w-full rounded-md border-gray-300" value={data.status} onChange={(e) => setData('status', e.target.value)}>

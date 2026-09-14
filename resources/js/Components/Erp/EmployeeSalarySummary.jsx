@@ -16,12 +16,17 @@ export default function EmployeeSalarySummary({ employee, compact = false }) {
 
     const status = employee.payroll_status || 'settled';
     const statusClass = statusStyles[status] || 'text-gray-700';
+    const endDateValue = employee.end_date_effective_shamsi
+        || employee.current_shamsi_date
+        || '—';
 
     const items = [
         { label: t('fields.salary'), value: formatCurrency(employee.monthly_salary ?? employee.salary) },
         { label: t('fields.joining_date'), value: employee.joining_date_shamsi || '—' },
-        { label: t('fields.current_shamsi_date'), value: employee.current_shamsi_date || '—' },
+        { label: t('fields.employee_end_date'), value: endDateValue },
         { label: t('fields.months_worked'), value: employee.months_worked ?? 0 },
+        { label: t('fields.absence_days'), value: employee.absence_days ?? 0 },
+        { label: t('fields.absence_deduction'), value: formatCurrency(employee.absence_deduction ?? 0) },
         { label: t('fields.total_earned_salary'), value: formatCurrency(employee.total_earned_salary ?? 0) },
         { label: t('fields.total_paid_salary'), value: formatCurrency(employee.total_paid_salary ?? employee.total_paid ?? 0) },
         { label: t('fields.remaining_balance'), value: formatCurrency(employee.remaining_balance ?? employee.remaining_salary ?? 0), highlight: status === 'credit' },
@@ -33,6 +38,7 @@ export default function EmployeeSalarySummary({ employee, compact = false }) {
             { label: t('fields.employee'), value: employee.name },
             { label: t('fields.salary'), value: formatCurrency(employee.monthly_salary ?? employee.salary) },
             { label: t('fields.months_worked'), value: employee.months_worked ?? 0 },
+            { label: t('fields.absence_days'), value: employee.absence_days ?? 0 },
             { label: t('fields.total_earned_salary'), value: formatCurrency(employee.total_earned_salary ?? 0) },
             { label: t('fields.total_paid_salary'), value: formatCurrency(employee.total_paid_salary ?? employee.total_paid ?? 0) },
             { label: t('fields.remaining_balance'), value: formatCurrency(employee.remaining_balance ?? 0) },

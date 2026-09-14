@@ -9,6 +9,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomerPaymentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\EmployeeAbsenceController;
 use App\Http\Controllers\FinancialYearController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ExpenseCategoryController;
@@ -68,6 +69,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->except(['show']);
 
     Route::resource('employees', EmployeeController::class);
+    Route::post('employees/{employee}/absences', [EmployeeAbsenceController::class, 'store'])
+        ->name('employees.absences.store');
+    Route::delete('employees/{employee}/absences/{absence}', [EmployeeAbsenceController::class, 'destroy'])
+        ->name('employees.absences.destroy');
 
     Route::resource('payroll', PayrollPaymentController::class)
         ->parameters(['payroll' => 'payroll']);

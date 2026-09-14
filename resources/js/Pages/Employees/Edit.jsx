@@ -6,6 +6,7 @@ import useTranslation from '@/hooks/useTranslation';
 import { Head, Link, useForm } from '@inertiajs/react';
 import TextInput from '@/Components/TextInput';
 import InputLabel from '@/Components/InputLabel';
+import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import { resourceData } from '@/utils/resource';
@@ -15,7 +16,7 @@ export default function Edit({ employee }) {
     const e = resourceData(employee);
     const { data, setData, put, processing, errors } = useForm({
         name: e.name, father_name: e.father_name || '', phone: e.phone || '', position: e.position || '',
-        salary: e.salary, joining_date: e.joining_date_shamsi || '', status: e.status,
+        salary: e.salary, joining_date: e.joining_date_shamsi || '', end_date: e.end_date_shamsi || '', status: e.status,
         is_shared_with_contractor: e.is_shared_with_contractor || false,
         contractor_salary_share_percent: e.contractor_salary_share_percent ?? 50,
     });
@@ -58,6 +59,10 @@ export default function Edit({ employee }) {
                     )}
                 </div>
                 <ShamsiDateInput label={t('fields.joining_date')} value={data.joining_date} onChange={(v) => setData('joining_date', v)} error={errors.joining_date} />
+                <div>
+                    <ShamsiDateInput label={t('fields.employee_end_date')} value={data.end_date} onChange={(v) => setData('end_date', v)} error={errors.end_date} />
+                    <p className="mt-1 text-sm text-gray-500">{t('employees.end_date_hint')}</p>
+                </div>
                 <div>
                     <InputLabel value={t('fields.status')} />
                     <select className="mt-1 block w-full rounded-md border-gray-300" value={data.status} onChange={(ev) => setData('status', ev.target.value)}>
