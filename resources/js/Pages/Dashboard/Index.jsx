@@ -42,9 +42,10 @@ export default function Index({ stats, recentShipments, recentPayments }) {
                 />
             </div>
 
-            <div className="mb-6 grid gap-4 sm:grid-cols-3">
+            <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <StatCard title={t('dashboard.active_employees')} value={stats?.employee_count} color="blue" />
                 <StatCard title={t('dashboard.payments_received')} value={formatCurrency(stats?.cash_flow?.income)} color="green" />
+                <StatCard title={t('dashboard.factory_payments_received')} value={formatCurrency(stats?.factory_payments_received)} color="teal" />
                 <StatCard title={t('dashboard.net_profit')} value={formatCurrency(stats?.net_profit)} color="indigo" />
             </div>
 

@@ -88,6 +88,7 @@ class DashboardService
             'net_profit' => $netProfit,
             'employee_count' => Employee::where('status', 'active')->count(),
             'outstanding_balances' => $outstanding,
+            'factory_payments_received' => (float) (clone $paymentQuery)->sum('amount'),
             'cash_flow' => [
                 'income' => (float) (clone $paymentQuery)->sum('amount') + (float) (clone $sankariQuery)->sum('total_amount'),
                 'expenses' => $totalExpenses,

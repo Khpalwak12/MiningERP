@@ -157,6 +157,7 @@ return [
         'sankari_sales' => 'د سنکري پلور',
         'total_income' => 'ټول عاید',
         'payments_received' => 'ترلاسه شوي تادیات',
+        'factory_payments_received' => 'د کارخانو څخه ترلاسه شوي پیسې',
         'total_expenses' => 'ټول لګښتونه',
         'total_payroll' => 'ټول معاش',
         'net_profit' => 'خالص ګټه',

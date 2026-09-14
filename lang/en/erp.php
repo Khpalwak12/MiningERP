@@ -157,6 +157,7 @@ return [
         'sankari_sales' => 'Sankari Sales',
         'total_income' => 'Total Income',
         'payments_received' => 'Payments Received',
+        'factory_payments_received' => 'Factory Payments Received',
         'total_expenses' => 'Total Expenses',
         'total_payroll' => 'Total Payroll',
         'net_profit' => 'Net Profit',
