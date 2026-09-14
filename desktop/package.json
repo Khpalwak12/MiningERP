@@ -1,11 +1,13 @@
 {
     "name": "miningerp-desktop",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "private": true,
     "description": "Mining ERP standalone Windows desktop application",
     "main": "main.js",
     "author": "Mining ERP",
     "scripts": {
+        "prepack": "powershell -ExecutionPolicy Bypass -File ../scripts/prepare-laravel-bundle.ps1",
+        "predist": "powershell -ExecutionPolicy Bypass -File ../scripts/prepare-laravel-bundle.ps1",
         "start": "electron .",
         "dist": "electron-builder --win nsis",
         "pack": "electron-builder --dir"
@@ -47,6 +49,13 @@
             {
                 "from": "build-resources/icon.png",
                 "to": "icon.png"
+            },
+            {
+                "from": "build-resources/fonts",
+                "to": "pdf-fonts",
+                "filter": [
+                    "**/*"
+                ]
             }
         ],
         "win": {

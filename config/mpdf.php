@@ -7,7 +7,7 @@ return [
     | Custom font directory (Noto Sans Arabic for Pashto / Arabic script)
     |--------------------------------------------------------------------------
     */
-    'font_dir' => storage_path('fonts'),
+    'font_dir' => env('MPDF_FONT_DIR', storage_path('fonts')),
 
     'default_font' => 'notosansarabic',
 

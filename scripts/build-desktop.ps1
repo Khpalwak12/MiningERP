@@ -2,55 +2,6 @@ $ErrorActionPreference = "Stop"
 
 $Root = Resolve-Path (Join-Path $PSScriptRoot "..")
 $Desktop = Join-Path $Root "desktop"
-$LaravelBundle = Join-Path $Desktop "build-resources\laravel"
-
-function Copy-LaravelBundle {
-    param(
-        [string]$Source,
-        [string]$Destination
-    )
-
-    if (Test-Path $Destination) {
-        Remove-Item $Destination -Recurse -Force
-    }
-
-    New-Item -ItemType Directory -Path $Destination -Force | Out-Null
-
-    $excludeDirs = @(
-        "node_modules",
-        ".git",
-        "desktop",
-        "dist-desktop",
-        "tests",
-        "storage\logs",
-        "storage\framework\cache\data",
-        "storage\framework\sessions",
-        "storage\framework\views"
-    )
-
-  robocopy $Source $Destination /MIR /NFL /NDL /NJH /NJS /NC /NS /NP `
-        /XD $excludeDirs `
-        /XF ".env" "database\database.sqlite" "public\hot" | Out-Null
-
-    if ($LASTEXITCODE -ge 8) {
-        throw "Failed to copy Laravel application files."
-    }
-
-    $requiredFiles = @(
-        "vendor\autoload.php",
-        "public\build\manifest.json",
-        ".env.desktop",
-        "storage\fonts\NotoSansArabic-Regular.ttf",
-        "storage\fonts\NotoSansArabic-Bold.ttf"
-    )
-
-    foreach ($file in $requiredFiles) {
-        $path = Join-Path $Destination $file
-        if (-not (Test-Path $path)) {
-            throw "Missing required bundle file: $file"
-        }
-    }
-}
 
 Write-Host "=== Mining ERP Desktop Build ===" -ForegroundColor Cyan
 Set-Location $Root
@@ -68,7 +19,7 @@ Write-Host "Preparing PHP runtime..." -ForegroundColor Cyan
 & (Join-Path $PSScriptRoot "prepare-php-runtime.ps1")
 
 Write-Host "Preparing Laravel bundle..." -ForegroundColor Cyan
-Copy-LaravelBundle -Source $Root.Path -Destination $LaravelBundle
+& (Join-Path $PSScriptRoot "prepare-laravel-bundle.ps1")
 
 Write-Host "Creating installer icon..." -ForegroundColor Cyan
 & (Join-Path $PSScriptRoot "create-desktop-icon.ps1")

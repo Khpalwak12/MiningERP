@@ -2,8 +2,9 @@
 
 namespace App\Services;
 
+use App\Support\DesktopAssets;
+use App\Support\MpdfConfiguration;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\View;
 use Mpdf\Config\ConfigVariables;
 use Mpdf\Config\FontVariables;
@@ -21,17 +22,25 @@ class MpdfPdfService
 
     public function fromHtml(string $html, ?string $locale = null): string
     {
+        DesktopAssets::ensurePdfAssets();
+
         $locale = $locale ?? app()->getLocale();
         $isRtl = $locale === 'ps';
 
         $defaultConfig = (new ConfigVariables)->getDefaults();
         $fontVariables = (new FontVariables)->getDefaults();
 
-        $fontDir = config('mpdf.font_dir');
-        File::ensureDirectoryExists($fontDir);
-        File::ensureDirectoryExists(config('mpdf.temp_dir'));
+        $fontDirectories = MpdfConfiguration::fontDirectories();
+        $tempDirectory = MpdfConfiguration::tempDirectory();
 
-        $fontDirs = array_merge($defaultConfig['fontDir'], [$fontDir]);
+        $fontDirs = array_values(array_unique(array_merge(
+            $defaultConfig['fontDir'],
+            array_map(
+                static fn (string $directory) => MpdfConfiguration::normalizePathForMpdf($directory),
+                $fontDirectories
+            )
+        )));
+
         $fontData = array_merge($fontVariables['fontdata'], config('mpdf.font_data'));
 
         $mpdf = new Mpdf([
@@ -41,7 +50,7 @@ class MpdfPdfService
             'margin_right' => 15,
             'margin_top' => 16,
             'margin_bottom' => 16,
-            'tempDir' => config('mpdf.temp_dir'),
+            'tempDir' => $tempDirectory,
             'fontDir' => $fontDirs,
             'fontdata' => $fontData,
             'default_font' => config('mpdf.default_font'),
