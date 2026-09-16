@@ -6,12 +6,22 @@ class DesktopApplication
 {
     public static function isDesktop(): bool
     {
-        return filter_var(env('MININGERP_DESKTOP', false), FILTER_VALIDATE_BOOL);
+        $value = getenv('MININGERP_DESKTOP');
+
+        if ($value === false) {
+            $value = $_ENV['MININGERP_DESKTOP'] ?? $_SERVER['MININGERP_DESKTOP'] ?? false;
+        }
+
+        return filter_var($value, FILTER_VALIDATE_BOOL);
     }
 
     public static function dataPath(): ?string
     {
-        $path = env('MININGERP_DATA_PATH');
+        $path = getenv('MININGERP_DATA_PATH');
+
+        if ($path === false || $path === null || $path === '') {
+            $path = $_ENV['MININGERP_DATA_PATH'] ?? $_SERVER['MININGERP_DATA_PATH'] ?? null;
+        }
 
         if (! is_string($path) || $path === '') {
             return null;

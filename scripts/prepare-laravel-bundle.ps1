@@ -58,8 +58,41 @@ function Copy-LaravelBundle {
 
 Write-Host "Preparing Laravel bundle for desktop..." -ForegroundColor Cyan
 Copy-LaravelBundle -Source $Root.Path -Destination $LaravelBundle
-Write-Host "Preparing Laravel bundle for desktop..." -ForegroundColor Cyan
-Copy-LaravelBundle -Source $Root.Path -Destination $LaravelBundle
+
+# Patch Laravel Filesystem::replace() so Blade view compilation never depends on
+# Windows rename(), which commonly fails with Access is denied (code: 5).
+$filesystemPath = Join-Path $LaravelBundle "vendor\laravel\framework\src\Illuminate\Filesystem\Filesystem.php"
+if (-not (Test-Path $filesystemPath)) {
+    throw "Missing Laravel Filesystem.php in desktop bundle."
+}
+
+$filesystemContent = Get-Content -Raw -Path $filesystemPath
+if ($filesystemContent -notlike "*Desktop/Windows-safe write*") {
+    $marker = "rename(`$tempPath, `$path);"
+    if (-not $filesystemContent.Contains($marker)) {
+        throw "Could not locate Filesystem::replace() rename() call to patch."
+    }
+
+    $safeWrite = @"
+// Desktop/Windows-safe write: avoid bare rename() Access is denied failures.
+        if (is_file(`$path)) {
+            @unlink(`$path);
+        }
+
+        if (! @rename(`$tempPath, `$path)) {
+            if (! @copy(`$tempPath, `$path)) {
+                @unlink(`$tempPath);
+                throw new \RuntimeException("Unable to write file to [{`$path}].");
+            }
+
+            @unlink(`$tempPath);
+        }
+"@
+
+    $filesystemContent = $filesystemContent.Replace($marker, $safeWrite)
+    Set-Content -Path $filesystemPath -Value $filesystemContent -NoNewline
+    Write-Host "Patched Laravel Filesystem::replace() for Windows desktop." -ForegroundColor Green
+}
 
 $fontSources = @(
     (Join-Path $Root.Path "storage\fonts"),

@@ -8,8 +8,8 @@ use Illuminate\Filesystem\Filesystem;
  * Windows-safe filesystem helpers for desktop installs.
  *
  * Laravel's Filesystem::replace() uses rename() which often fails on Windows
- * with "Access is denied" when antivirus or another process briefly locks the
- * destination compiled view file.
+ * with "Access is denied" when antivirus locks compiled Blade view files.
+ * Direct writes avoid that rename race entirely.
  */
 class WindowsSafeFilesystem extends Filesystem
 {
@@ -18,42 +18,38 @@ class WindowsSafeFilesystem extends Filesystem
         clearstatcache(true, $path);
 
         $path = realpath($path) ?: $path;
-
         $directory = dirname($path);
 
         if (! is_dir($directory)) {
             mkdir($directory, 0755, true);
         }
 
-        $tempPath = tempnam($directory, basename($path));
+        $written = @file_put_contents($path, $content, LOCK_EX);
 
-        if ($tempPath === false) {
-            $tempPath = $directory.DIRECTORY_SEPARATOR.uniqid(basename($path), true).'.tmp';
+        if ($written === false) {
+            $tempPath = $directory.DIRECTORY_SEPARATOR.uniqid('view_', true).'.tmp';
+            $written = file_put_contents($tempPath, $content);
+
+            if ($written === false) {
+                throw new \RuntimeException("Unable to write file to [{$path}].");
+            }
+
+            if (is_file($path)) {
+                @unlink($path);
+            }
+
+            if (! @rename($tempPath, $path) && ! @copy($tempPath, $path)) {
+                @unlink($tempPath);
+
+                throw new \RuntimeException("Unable to write file to [{$path}].");
+            }
+
+            @unlink($tempPath);
         }
 
         if (! is_null($mode)) {
-            @chmod($tempPath, $mode);
-        } else {
-            @chmod($tempPath, 0777 - umask());
+            @chmod($path, $mode);
         }
-
-        file_put_contents($tempPath, $content);
-
-        if (is_file($path)) {
-            @unlink($path);
-        }
-
-        if (@rename($tempPath, $path)) {
-            return;
-        }
-
-        if (! @copy($tempPath, $path)) {
-            @unlink($tempPath);
-
-            throw new \RuntimeException("Unable to write file to [{$path}].");
-        }
-
-        @unlink($tempPath);
     }
 
     public function move($path, $target)
