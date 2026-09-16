@@ -42,10 +42,10 @@ export default function Edit({ shipment, customers, mineTypes, stoneTypes }) {
         <ErpLayout>
             <Head title={t('shipments.edit')} />
             <FlashMessage />
-            <h1 className="mb-2 text-2xl font-bold">{t('shipments.edit')}</h1>
+            <h1 className="mb-2 text-center text-2xl font-bold text-slate-800">{t('shipments.edit')}</h1>
             <ShipmentsNav active="shipments.index" />
 
-            <form onSubmit={(e) => { e.preventDefault(); put(route('shipments.update', s.id)); }} className="max-w-2xl space-y-4 rounded-lg bg-white p-6 shadow">
+            <form onSubmit={(e) => { e.preventDefault(); put(route('shipments.update', s.id)); }} className="mx-auto w-full max-w-2xl space-y-5 rounded-xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/80 p-6 shadow-md ring-1 ring-slate-900/5 sm:p-8">
                 {s.status && (
                     <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${shipmentStatusBadgeClass(s.status)}`}>
                         {t(`shipments.statuses.${s.status}`)}
@@ -68,7 +68,7 @@ export default function Edit({ shipment, customers, mineTypes, stoneTypes }) {
                 <div>
                     <InputLabel value={t('fields.mine_type')} required />
                     <select
-                        className="mt-1 block w-full rounded-md border-gray-300"
+                        className="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                         value={data.mine_type_id}
                         onChange={(e) => setData('mine_type_id', e.target.value)}
                     >
@@ -82,7 +82,7 @@ export default function Edit({ shipment, customers, mineTypes, stoneTypes }) {
                 <div>
                     <InputLabel value={t('fields.stone_type')} required />
                     <select
-                        className="mt-1 block w-full rounded-md border-gray-300"
+                        className="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                         value={data.stone_type_id}
                         onChange={(e) => setData('stone_type_id', e.target.value)}
                     >
@@ -104,8 +104,8 @@ export default function Edit({ shipment, customers, mineTypes, stoneTypes }) {
                 <div className={`rounded-md p-3 text-sm font-medium ${total !== null ? 'bg-indigo-50 text-indigo-800' : 'bg-amber-50 text-amber-800'}`}>
                     {t('fields.total_amount')}: {total !== null ? formatCurrency(total) : t('shipments.pending_total')}
                 </div>
-                <div><InputLabel value={t('fields.notes')} /><textarea className="mt-1 block w-full rounded-md border-gray-300" rows="2" value={data.notes} onChange={(e) => setData('notes', e.target.value)} /></div>
-                <div className="flex gap-2">
+                <div><InputLabel value={t('fields.notes')} /><textarea className="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" rows="2" value={data.notes} onChange={(e) => setData('notes', e.target.value)} /></div>
+                <div className="flex flex-wrap items-center justify-center gap-3 border-t border-slate-200/80 pt-5">
                     <PrimaryButton disabled={processing}>{t('actions.save')}</PrimaryButton>
                     <Link href={route('shipments.index')}><SecondaryButton type="button">{t('actions.cancel')}</SecondaryButton></Link>
                 </div>

@@ -28,9 +28,9 @@ export default function Edit({ asset }) {
         <ErpLayout>
             <Head title={t('mine_assets.edit')} />
             <FlashMessage />
-            <h1 className="mb-6 text-2xl font-bold">{t('mine_assets.edit')}</h1>
+            <h1 className="mb-6 text-center text-2xl font-bold text-slate-800">{t('mine_assets.edit')}</h1>
 
-            <form onSubmit={(e) => { e.preventDefault(); put(route('mine-assets.update', a.id)); }} className="max-w-2xl space-y-4 rounded-lg bg-white p-6 shadow">
+            <form onSubmit={(e) => { e.preventDefault(); put(route('mine-assets.update', a.id)); }} className="mx-auto w-full max-w-2xl space-y-5 rounded-xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/80 p-6 shadow-md ring-1 ring-slate-900/5 sm:p-8">
                 <ShamsiDateInput label={t('fields.registration_date')} value={data.registration_date} onChange={(v) => setData('registration_date', v)} error={errors.registration_date} required />
                 <div>
                     <InputLabel value={t('fields.name')} required />
@@ -50,7 +50,7 @@ export default function Edit({ asset }) {
                     </div>
                     <div>
                         <InputLabel value={t('fields.unit')} required />
-                        <select className="mt-1 block w-full rounded-md border-gray-300" value={data.unit} onChange={(e) => setData('unit', e.target.value)}>
+                        <select className="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" value={data.unit} onChange={(e) => setData('unit', e.target.value)}>
                             {MINE_ASSET_UNITS.map((unit) => (
                                 <option key={unit} value={unit}>{t(`mine_asset_units.${unit}`)}</option>
                             ))}
@@ -60,7 +60,7 @@ export default function Edit({ asset }) {
                 </div>
                 <div>
                     <InputLabel value={t('fields.status')} required />
-                    <select className="mt-1 block w-full rounded-md border-gray-300" value={data.status} onChange={(e) => setData('status', e.target.value)}>
+                    <select className="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" value={data.status} onChange={(e) => setData('status', e.target.value)}>
                         {MINE_ASSET_STATUSES.map((s) => (
                             <option key={s} value={s}>{t(`mine_asset_statuses.${s}`)}</option>
                         ))}
@@ -69,10 +69,10 @@ export default function Edit({ asset }) {
                 </div>
                 <div>
                     <InputLabel value={t('fields.notes')} />
-                    <textarea className="mt-1 block w-full rounded-md border-gray-300" rows="2" value={data.remarks} onChange={(e) => setData('remarks', e.target.value)} />
+                    <textarea className="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" rows="2" value={data.remarks} onChange={(e) => setData('remarks', e.target.value)} />
                     <InputError message={errors.remarks} />
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap items-center justify-center gap-3 border-t border-slate-200/80 pt-5">
                     <PrimaryButton disabled={processing}>{t('actions.save')}</PrimaryButton>
                     <Link href={route('mine-assets.index')}><SecondaryButton type="button">{t('actions.cancel')}</SecondaryButton></Link>
                 </div>

@@ -21,10 +21,10 @@ export default function Create() {
         <ErpLayout>
             <Head title={t('mine_types.create')} />
             <FlashMessage />
-            <h1 className="mb-2 text-2xl font-bold">{t('mine_types.create')}</h1>
+            <h1 className="mb-2 text-center text-2xl font-bold text-slate-800">{t('mine_types.create')}</h1>
             <ShipmentsNav active="mine-types.index" />
 
-            <form onSubmit={(e) => { e.preventDefault(); post(route('mine-types.store')); }} className="max-w-2xl space-y-4 rounded-lg bg-white p-6 shadow">
+            <form onSubmit={(e) => { e.preventDefault(); post(route('mine-types.store')); }} className="mx-auto w-full max-w-2xl space-y-5 rounded-xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/80 p-6 shadow-md ring-1 ring-slate-900/5 sm:p-8">
                 <div>
                     <InputLabel value={t('mine_types.name_en')} required />
                     <TextInput className="mt-1 block w-full" value={data.name_en} onChange={(e) => setData('name_en', e.target.value)} />
@@ -37,10 +37,10 @@ export default function Create() {
                 </div>
                 <div>
                     <InputLabel value={t('fields.description')} />
-                    <textarea className="mt-1 block w-full rounded-md border-gray-300" rows="3" value={data.description} onChange={(e) => setData('description', e.target.value)} />
+                    <textarea className="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" rows="3" value={data.description} onChange={(e) => setData('description', e.target.value)} />
                     <InputError message={errors.description} />
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap items-center justify-center gap-3 border-t border-slate-200/80 pt-5">
                     <PrimaryButton disabled={processing}>{t('actions.save')}</PrimaryButton>
                     <Link href={route('mine-types.index')}><SecondaryButton type="button">{t('actions.cancel')}</SecondaryButton></Link>
                 </div>

@@ -22,9 +22,9 @@ export default function Create() {
         <ErpLayout>
             <Head title={t('machinery.create')} />
             <FlashMessage />
-            <h1 className="mb-6 text-2xl font-bold">{t('machinery.create')}</h1>
+            <h1 className="mb-6 text-center text-2xl font-bold text-slate-800">{t('machinery.create')}</h1>
 
-            <form onSubmit={(e) => { e.preventDefault(); post(route('machinery.store')); }} className="max-w-2xl space-y-4 rounded-lg bg-white p-6 shadow">
+            <form onSubmit={(e) => { e.preventDefault(); post(route('machinery.store')); }} className="mx-auto w-full max-w-2xl space-y-5 rounded-xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/80 p-6 shadow-md ring-1 ring-slate-900/5 sm:p-8">
                 <ShamsiDateInput label={t('fields.date')} value={data.purchase_date} onChange={(v) => setData('purchase_date', v)} error={errors.purchase_date} required />
                 <div>
                     <InputLabel value={t('fields.name')} required />
@@ -39,7 +39,7 @@ export default function Create() {
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div>
                         <InputLabel value={t('fields.currency')} required />
-                        <select className="mt-1 block w-full rounded-md border-gray-300" value={data.currency} onChange={(e) => setData('currency', e.target.value)}>
+                        <select className="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" value={data.currency} onChange={(e) => setData('currency', e.target.value)}>
                             {PERSONAL_CURRENCIES.map((c) => <option key={c} value={c}>{t(`currencies.${c}`)}</option>)}
                         </select>
                         <InputError message={errors.currency} />
@@ -52,9 +52,9 @@ export default function Create() {
                 </div>
                 <div>
                     <InputLabel value={t('fields.description')} />
-                    <textarea className="mt-1 block w-full rounded-md border-gray-300" rows="2" value={data.description} onChange={(e) => setData('description', e.target.value)} />
+                    <textarea className="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" rows="2" value={data.description} onChange={(e) => setData('description', e.target.value)} />
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap items-center justify-center gap-3 border-t border-slate-200/80 pt-5">
                     <PrimaryButton disabled={processing}>{t('actions.save')}</PrimaryButton>
                     <Link href={route('machinery.index')}><SecondaryButton type="button">{t('actions.cancel')}</SecondaryButton></Link>
                 </div>

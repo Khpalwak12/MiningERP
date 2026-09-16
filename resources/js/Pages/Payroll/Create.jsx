@@ -28,7 +28,7 @@ export default function Create({ employees }) {
         <ErpLayout>
             <Head title={t('payroll.create')} />
             <FlashMessage />
-            <h1 className="mb-6 text-2xl font-bold">{t('payroll.create')}</h1>
+            <h1 className="mb-6 text-center text-2xl font-bold text-slate-800">{t('payroll.create')}</h1>
 
             {!canCreateTransactions && (
                 <div className="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
@@ -42,11 +42,11 @@ export default function Create({ employees }) {
                 </div>
             )}
 
-            <form onSubmit={(e) => { e.preventDefault(); post(route('payroll.store')); }} className="max-w-2xl space-y-4 rounded-lg bg-white p-6 shadow">
+            <form onSubmit={(e) => { e.preventDefault(); post(route('payroll.store')); }} className="mx-auto w-full max-w-2xl space-y-5 rounded-xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/80 p-6 shadow-md ring-1 ring-slate-900/5 sm:p-8">
                 <InputError message={errors.financial_year} className="mb-2" />
                 <div>
                     <InputLabel value={t('fields.employee')} required />
-                    <select className="mt-1 block w-full rounded-md border-gray-300" value={data.employee_id} onChange={(e) => setData('employee_id', e.target.value)} disabled={!canCreateTransactions}>
+                    <select className="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" value={data.employee_id} onChange={(e) => setData('employee_id', e.target.value)} disabled={!canCreateTransactions}>
                         <option value="">--</option>
                         {employeeList.map((emp) => <option key={emp.id} value={emp.id}>{emp.name}</option>)}
                     </select>
@@ -60,7 +60,7 @@ export default function Create({ employees }) {
                 </div>
                 <div>
                     <InputLabel value={t('fields.payment_type')} />
-                    <select className="mt-1 block w-full rounded-md border-gray-300" value={data.payment_type} onChange={(e) => setData('payment_type', e.target.value)} disabled={!canCreateTransactions}>
+                    <select className="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" value={data.payment_type} onChange={(e) => setData('payment_type', e.target.value)} disabled={!canCreateTransactions}>
                         {['full_salary', 'advance', 'partial'].map((pt) => <option key={pt} value={pt}>{t(`payment_types.${pt}`)}</option>)}
                     </select>
                     <InputError message={errors.payment_type} />
@@ -75,7 +75,7 @@ export default function Create({ employees }) {
                     <TextInput className="mt-1 block w-full" value={data.notes} onChange={(e) => setData('notes', e.target.value)} disabled={!canCreateTransactions} />
                     <InputError message={errors.notes} />
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap items-center justify-center gap-3 border-t border-slate-200/80 pt-5">
                     <PrimaryButton disabled={processing || !canCreateTransactions}>{t('actions.save')}</PrimaryButton>
                     <Link href={route('payroll.index')}><SecondaryButton type="button">{t('actions.cancel')}</SecondaryButton></Link>
                 </div>

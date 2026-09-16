@@ -22,9 +22,9 @@ export default function Edit({ role, permissions }) {
         <ErpLayout>
             <Head title={t('roles.edit')} />
             <FlashMessage />
-            <h1 className="mb-6 text-2xl font-bold">{t('roles.edit')}</h1>
+            <h1 className="mb-6 text-center text-2xl font-bold text-slate-800">{t('roles.edit')}</h1>
 
-            <form onSubmit={(e) => { e.preventDefault(); put(route('roles.update', r.id)); }} className="max-w-3xl space-y-4 rounded-lg bg-white p-6 shadow">
+            <form onSubmit={(e) => { e.preventDefault(); put(route('roles.update', r.id)); }} className="mx-auto w-full max-w-3xl space-y-5 rounded-xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/80 p-6 shadow-md ring-1 ring-slate-900/5 sm:p-8">
                 <div><InputLabel value={t('fields.name')} /><TextInput className="mt-1 block w-full" value={data.name} onChange={(e) => setData('name', e.target.value)} disabled={r.name === 'Super Admin'} /></div>
                 <div>
                     <InputLabel value={t('fields.permissions')} />
@@ -37,7 +37,7 @@ export default function Edit({ role, permissions }) {
                         ))}
                     </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap items-center justify-center gap-3 border-t border-slate-200/80 pt-5">
                     <PrimaryButton disabled={processing}>{t('actions.save')}</PrimaryButton>
                     <Link href={route('roles.index')}><SecondaryButton type="button">{t('actions.cancel')}</SecondaryButton></Link>
                 </div>

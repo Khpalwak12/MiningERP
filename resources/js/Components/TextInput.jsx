@@ -54,7 +54,7 @@ export default forwardRef(function TextInput(
             inputMode={resolvedInputMode}
             onChange={handleChange}
             className={
-                'rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ' +
+                'rounded-lg border-slate-300 bg-white shadow-sm transition focus:border-indigo-500 focus:ring-indigo-500 ' +
                 className
             }
             ref={localRef}

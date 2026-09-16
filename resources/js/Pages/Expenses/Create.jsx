@@ -32,14 +32,14 @@ export default function Create({ categories }) {
         <ErpLayout>
             <Head title={t('expenses.create')} />
             <FlashMessage />
-            <h1 className="mb-2 text-2xl font-bold">{t('expenses.create')}</h1>
+            <h1 className="mb-2 text-center text-2xl font-bold text-slate-800">{t('expenses.create')}</h1>
             <ExpensesNav active="expenses.index" />
 
-            <form onSubmit={(e) => { e.preventDefault(); post(route('expenses.store')); }} className="max-w-2xl space-y-4 rounded-lg bg-white p-6 shadow">
+            <form onSubmit={(e) => { e.preventDefault(); post(route('expenses.store')); }} className="mx-auto w-full max-w-2xl space-y-5 rounded-xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/80 p-6 shadow-md ring-1 ring-slate-900/5 sm:p-8">
                 <ShamsiDateInput label={t('fields.date')} value={data.expense_date} onChange={(v) => setData('expense_date', v)} error={errors.expense_date} required />
                 <div>
                     <InputLabel value={t('fields.category')} required />
-                    <select className="mt-1 block w-full rounded-md border-gray-300" value={data.expense_category_id} onChange={(e) => setData('expense_category_id', e.target.value)}>
+                    <select className="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" value={data.expense_category_id} onChange={(e) => setData('expense_category_id', e.target.value)}>
                         <option value="">--</option>
                         {categoryList.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                     </select>
@@ -72,7 +72,7 @@ export default function Create({ categories }) {
                 </div>
                 <div>
                     <InputLabel value={t('fields.description')} />
-                    <textarea className="mt-1 block w-full rounded-md border-gray-300" rows="2" value={data.description} onChange={(e) => setData('description', e.target.value)} />
+                    <textarea className="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" rows="2" value={data.description} onChange={(e) => setData('description', e.target.value)} />
                     <InputError message={errors.description} />
                 </div>
                 <div className="rounded-md border border-gray-200 p-4">
@@ -85,7 +85,7 @@ export default function Create({ categories }) {
                     </label>
                     <p className="mt-2 text-sm text-gray-500">{t('expenses.for_contractor_hint')}</p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap items-center justify-center gap-3 border-t border-slate-200/80 pt-5">
                     <PrimaryButton disabled={processing}>{t('actions.save')}</PrimaryButton>
                     <Link href={route('expenses.index')}><SecondaryButton type="button">{t('actions.cancel')}</SecondaryButton></Link>
                 </div>

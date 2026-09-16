@@ -1,6 +1,6 @@
 {
     "name": "miningerp-desktop",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "private": true,
     "description": "Mining ERP standalone Windows desktop application",
     "main": "main.js",

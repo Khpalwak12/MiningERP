@@ -19,9 +19,9 @@ export default function Edit({ item }) {
         <ErpLayout>
             <Head title={t('inventory.edit')} />
             <FlashMessage />
-            <h1 className="mb-6 text-2xl font-bold">{t('inventory.edit')}</h1>
+            <h1 className="mb-6 text-center text-2xl font-bold text-slate-800">{t('inventory.edit')}</h1>
 
-            <form onSubmit={(e) => { e.preventDefault(); put(route('inventory.update', i.id)); }} className="max-w-2xl space-y-4 rounded-lg bg-white p-6 shadow">
+            <form onSubmit={(e) => { e.preventDefault(); put(route('inventory.update', i.id)); }} className="mx-auto w-full max-w-2xl space-y-5 rounded-xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/80 p-6 shadow-md ring-1 ring-slate-900/5 sm:p-8">
                 <div><InputLabel value={t('fields.name')} /><TextInput className="mt-1 block w-full" value={data.name} onChange={(e) => setData('name', e.target.value)} /></div>
                 <div><InputLabel value={t('fields.sku')} /><TextInput className="mt-1 block w-full" value={data.sku} onChange={(e) => setData('sku', e.target.value)} /></div>
                 <div><InputLabel value={t('fields.unit')} /><TextInput className="mt-1 block w-full" value={data.unit} onChange={(e) => setData('unit', e.target.value)} /></div>
@@ -30,7 +30,7 @@ export default function Edit({ item }) {
                     <div><InputLabel value={t('fields.min_stock')} /><TextInput type="number" step="0.001" className="mt-1 block w-full" value={data.min_stock} onChange={(e) => setData('min_stock', e.target.value)} /></div>
                     <div><InputLabel value={t('fields.current_stock')} /><TextInput type="number" step="0.001" className="mt-1 block w-full" value={data.current_stock} onChange={(e) => setData('current_stock', e.target.value)} /></div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap items-center justify-center gap-3 border-t border-slate-200/80 pt-5">
                     <PrimaryButton disabled={processing}>{t('actions.save')}</PrimaryButton>
                     <Link href={route('inventory.index')}><SecondaryButton type="button">{t('actions.cancel')}</SecondaryButton></Link>
                 </div>

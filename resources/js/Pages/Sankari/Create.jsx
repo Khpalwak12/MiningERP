@@ -26,9 +26,9 @@ export default function Create() {
         <ErpLayout>
             <Head title={t('sankari.create')} />
             <FlashMessage />
-            <h1 className="mb-6 text-2xl font-bold">{t('sankari.create')}</h1>
+            <h1 className="mb-6 text-center text-2xl font-bold text-slate-800">{t('sankari.create')}</h1>
 
-            <form onSubmit={(e) => { e.preventDefault(); post(route('sankari.store')); }} className="max-w-2xl space-y-4 rounded-lg bg-white p-6 shadow">
+            <form onSubmit={(e) => { e.preventDefault(); post(route('sankari.store')); }} className="mx-auto w-full max-w-2xl space-y-5 rounded-xl border border-slate-200 bg-gradient-to-b from-white to-slate-50/80 p-6 shadow-md ring-1 ring-slate-900/5 sm:p-8">
                 <ShamsiDateInput label={t('fields.date')} value={data.sale_date} onChange={(v) => setData('sale_date', v)} error={errors.sale_date} required />
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div><InputLabel value={t('fields.truck_count')} required /><TextInput type="number" min="1" className="mt-1 block w-full" value={data.truck_count} onChange={(e) => setData('truck_count', e.target.value)} /><InputError message={errors.truck_count} /></div>
@@ -39,8 +39,8 @@ export default function Create() {
                     <div>{t('fields.subtotal')}: {formatCurrency(subtotal)}</div>
                     <div>{t('fields.total_amount')}: {formatCurrency(total)}</div>
                 </div>
-                <div><InputLabel value={t('fields.notes')} /><textarea className="mt-1 block w-full rounded-md border-gray-300" rows="2" value={data.notes} onChange={(e) => setData('notes', e.target.value)} /></div>
-                <div className="flex gap-2">
+                <div><InputLabel value={t('fields.notes')} /><textarea className="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" rows="2" value={data.notes} onChange={(e) => setData('notes', e.target.value)} /></div>
+                <div className="flex flex-wrap items-center justify-center gap-3 border-t border-slate-200/80 pt-5">
                     <PrimaryButton disabled={processing}>{t('actions.save')}</PrimaryButton>
                     <Link href={route('sankari.index')}><SecondaryButton type="button">{t('actions.cancel')}</SecondaryButton></Link>
                 </div>
