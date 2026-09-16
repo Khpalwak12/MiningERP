@@ -37,6 +37,8 @@ class InitializeDesktopCommand extends Command
         }
 
         $this->ensureDirectories($dataPath);
+        $this->clearCompiledViews($dataPath);
+        $this->clearDesktopBootstrapCache($dataPath);
         $this->ensureEnvironmentFile($dataPath);
         $this->reloadDesktopEnvironment($dataPath);
         $this->ensurePublicStorageLink();
@@ -53,6 +55,7 @@ class InitializeDesktopCommand extends Command
                 $this->runFreshInstall($dataPath);
             } else {
                 $this->clearDesktopBootstrapCache($dataPath);
+                $this->clearCompiledViews($dataPath);
                 $this->writeInitializedMarker($dataPath);
             }
         }
@@ -243,6 +246,19 @@ class InitializeDesktopCommand extends Command
         }
 
         foreach (File::files($cacheDirectory) as $file) {
+            File::delete($file->getPathname());
+        }
+    }
+
+    private function clearCompiledViews(string $dataPath): void
+    {
+        $viewsDirectory = $dataPath.'/storage/framework/views';
+
+        if (! File::isDirectory($viewsDirectory)) {
+            return;
+        }
+
+        foreach (File::files($viewsDirectory) as $file) {
             File::delete($file->getPathname());
         }
     }

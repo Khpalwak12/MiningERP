@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Support\DesktopApplication;
 use App\Support\DesktopAssets;
+use App\Support\WindowsSafeFilesystem;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Vite;
@@ -19,6 +20,8 @@ class AppServiceProvider extends ServiceProvider
         if (! DesktopApplication::isDesktop()) {
             return;
         }
+
+        $this->app->singleton('files', fn () => new WindowsSafeFilesystem());
 
         $dataPath = DesktopApplication::dataPath();
 

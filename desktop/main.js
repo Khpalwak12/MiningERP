@@ -72,6 +72,29 @@ function ensureDataDirectories(dataPath) {
     }
 }
 
+function clearDirectoryFiles(directoryPath) {
+    if (!fs.existsSync(directoryPath)) {
+        return;
+    }
+
+    for (const entry of fs.readdirSync(directoryPath, { withFileTypes: true })) {
+        if (!entry.isFile()) {
+            continue;
+        }
+
+        try {
+            fs.unlinkSync(path.join(directoryPath, entry.name));
+        } catch {
+            // Ignore locked files; Laravel will recreate compiled views as needed.
+        }
+    }
+}
+
+function resetRuntimeCaches(dataPath) {
+    clearDirectoryFiles(path.join(dataPath, 'storage', 'framework', 'views'));
+    clearDirectoryFiles(path.join(dataPath, 'bootstrap', 'cache'));
+}
+
 function buildPhpEnvironment(dataPath, port) {
     const tempDirectory = path.join(dataPath, 'tmp');
     const normalizePath = (value) => value.replace(/\\/g, '/');
@@ -142,8 +165,37 @@ function waitForServer(url, attempts = 120) {
             tries += 1;
 
             const request = http.get(url, (response) => {
-                response.resume();
-                resolve();
+                let body = '';
+
+                response.setEncoding('utf8');
+                response.on('data', (chunk) => {
+                    body += chunk;
+                });
+
+                response.on('end', () => {
+                    const status = response.statusCode || 0;
+                    const looksHealthy =
+                        status >= 200 &&
+                        status < 500 &&
+                        body.trim().length > 0 &&
+                        !body.includes('Access is denied');
+
+                    if (looksHealthy) {
+                        resolve();
+                        return;
+                    }
+
+                    if (tries >= attempts) {
+                        reject(
+                            new Error(
+                                `Mining ERP backend started but returned HTTP ${status}. Check logs at ${path.join(getDataPath(), 'logs')} and ${path.join(getDataPath(), 'storage', 'logs')}.`
+                            )
+                        );
+                        return;
+                    }
+
+                    setTimeout(check, 500);
+                });
             });
 
             request.on('error', () => {
@@ -263,6 +315,17 @@ function createMainWindow(paths, appUrl) {
         mainWindow.focus();
     });
 
+    mainWindow.webContents.on('did-fail-load', (_event, errorCode, errorDescription, validatedURL) => {
+        if (isQuitting || errorCode === -3) {
+            return;
+        }
+
+        dialog.showErrorBox(
+            'Mining ERP',
+            `Failed to load application page.\n\nURL: ${validatedURL}\nError: ${errorDescription} (${errorCode})\n\nCheck logs in:\n${path.join(getDataPath(), 'logs')}`
+        );
+    });
+
     mainWindow.loadURL(appUrl);
 
     mainWindow.on('closed', () => {
@@ -347,6 +410,7 @@ async function bootstrapApplication() {
 
     const dataPath = getDataPath();
     ensureDataDirectories(dataPath);
+    resetRuntimeCaches(dataPath);
 
     serverPort = await getFreePort();
     const appUrl = `http://127.0.0.1:${serverPort}`;
@@ -355,10 +419,11 @@ async function bootstrapApplication() {
     buildApplicationMenu();
 
     runPhpCommand(paths, ['artisan', 'desktop:initialize'], dataPath, serverPort);
+    resetRuntimeCaches(dataPath);
     startPhpServer(paths, dataPath, serverPort);
     await waitForServer(`${appUrl}/login`);
 
-    createMainWindow(paths, appUrl);
+    createMainWindow(paths, `${appUrl}/login`);
 }
 
 function showFatalError(error) {
